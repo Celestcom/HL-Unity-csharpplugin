@@ -15,13 +15,15 @@ namespace NSLoaderWrapper
 
 			NSLoader loader = new NSLoader(@"C:\Users\NullSpace Team\Documents\API_Environment\Assets\StreamingAssets");
 
-			int stat = loader.PollStatus();
-				for (int i = 0; i < 20; i++)
+				while(true)
 			{
-			//	loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
-					loader.PlayPattern("ns.body_jolt", 0);
+				int stat = loader.PollStatus();
+				Console.WriteLine("Status: " + stat);
+
+				//	loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
+			//	loader.PlayPattern("ns.body_jolt", 1);
 				
-			System.Threading.Thread.Sleep(1000);
+			System.Threading.Thread.Sleep(10);
 
 			}
 
