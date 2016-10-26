@@ -21,6 +21,23 @@ namespace NullSpace.Loader
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern int TestClass_PlayEffect(IntPtr value, int effect, int location, float duration, float time, uint priority);
 
+
+		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+		public static extern int TestClass_PollStatus(IntPtr value);
+
+		[StructLayout(LayoutKind.Sequential,Pack=1)]
+		public struct Quaternion
+		{
+			public float w;
+			public float x;
+			public float y;
+			public float z;
+		}
+
+		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+		public static extern int TestClass_PollTracking(IntPtr value,  ref Quaternion q);
+
+
 		[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
 		public static extern void TestClass_Delete(IntPtr value);
 	}

@@ -14,6 +14,18 @@ namespace NullSpace.Loader
 		{
 			Interop.TestClass_PlayEffect(_ptr, effect, location, duration, time, priority);
 		}
+
+		public int PollStatus()
+		{
+			return Interop.TestClass_PollStatus(_ptr);
+		}
+
+		public Interop.Quaternion PollTracking()
+		{
+			Interop.Quaternion q = new Interop.Quaternion();
+			Interop.TestClass_PollTracking(_ptr, ref q);
+			return q;
+		}
 		
 		public void PlaySequence(string name, int location)
 		{
