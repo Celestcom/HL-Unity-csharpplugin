@@ -21,9 +21,9 @@ namespace NSLoaderWrapper
 				Console.WriteLine("Status: " + stat);
 
 				//	loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
-			//	loader.PlayPattern("ns.body_jolt", 1);
+			loader.PlayPattern("ns.body_jolt", 1);
 				
-			System.Threading.Thread.Sleep(10);
+			System.Threading.Thread.Sleep(1000);
 
 			}
 
