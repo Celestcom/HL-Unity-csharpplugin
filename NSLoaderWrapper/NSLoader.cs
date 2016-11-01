@@ -22,9 +22,9 @@ namespace NullSpace.Loader
 
 		public Interop.Quaternion PollTracking()
 		{
-			Interop.Quaternion q = new Interop.Quaternion();
-			Interop.TestClass_PollTracking(_ptr, ref q);
-			return q;
+			Interop.TrackingUpdate t = new Interop.TrackingUpdate();
+			Interop.TestClass_PollTracking(_ptr, ref t);
+			return t.chest;
 		}
 		
 		public void PlaySequence(string name, int location)

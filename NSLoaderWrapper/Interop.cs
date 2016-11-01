@@ -34,8 +34,17 @@ namespace NullSpace.Loader
 			public float z;
 		}
 
+		[StructLayout(LayoutKind.Sequential, Pack =1)]
+		public struct TrackingUpdate
+		{
+			public Quaternion chest;
+			public Quaternion left_upper_arm;
+			public Quaternion left_forearm;
+			public Quaternion right_upper_arm;
+			public Quaternion right_forearm;
+		}
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		public static extern int TestClass_PollTracking(IntPtr value,  ref Quaternion q);
+		public static extern int TestClass_PollTracking(IntPtr value,  ref TrackingUpdate q);
 
 
 		[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
