@@ -20,6 +20,11 @@ namespace NullSpace.Loader
 			return Interop.TestClass_PollStatus(_ptr);
 		}
 
+		public void SetTrackingEnabled(bool wantTracking)
+		{
+			Interop.TestClass_SetTrackingEnabled(_ptr, wantTracking);
+		}
+
 		public Interop.Quaternion PollTracking()
 		{
 			Interop.TrackingUpdate t = new Interop.TrackingUpdate();

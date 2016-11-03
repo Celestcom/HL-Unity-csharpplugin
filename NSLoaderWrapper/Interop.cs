@@ -25,6 +25,9 @@ namespace NullSpace.Loader
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern int TestClass_PollStatus(IntPtr value);
 
+		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+		public static extern void TestClass_SetTrackingEnabled(IntPtr value, bool wantTracking);
+
 		[StructLayout(LayoutKind.Sequential,Pack=1)]
 		public struct Quaternion
 		{
