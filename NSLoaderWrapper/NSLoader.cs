@@ -25,11 +25,11 @@ namespace NullSpace.Loader
 			Interop.TestClass_SetTrackingEnabled(_ptr, wantTracking);
 		}
 
-		public Interop.Quaternion PollTracking()
+		public Interop.TrackingUpdate PollTracking()
 		{
 			Interop.TrackingUpdate t = new Interop.TrackingUpdate();
 			Interop.TestClass_PollTracking(_ptr, ref t);
-			return t.chest;
+			return t;
 		}
 		
 		public void PlaySequence(string name, int location)
