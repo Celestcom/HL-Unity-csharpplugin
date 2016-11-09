@@ -31,13 +31,15 @@ namespace NullSpace.Loader
 		}
 		public class HapticHandle
 		{
+			private string _effectName;
 			private uint _handle;
 			private CommandWithHandle _playDelegate;
 			private CommandWithHandle _pauseDelegate;
 			private CommandWithHandle _resetDelegate;
 
-			public HapticHandle(CommandWithHandle play, CommandWithHandle pause, CommandWithHandle create, CommandWithHandle reset)
+			public HapticHandle(CommandWithHandle play, CommandWithHandle pause, CommandWithHandle create, CommandWithHandle reset, string name)
 			{
+				_effectName = name;
 				_playDelegate = play;
 				_pauseDelegate = pause;
 				_resetDelegate = reset;
@@ -58,7 +60,10 @@ namespace NullSpace.Loader
 			{
 				_pauseDelegate(_handle);
 			}
-			
+
+			public override string ToString() {
+				return string.Format("Handle ID {{0}} playing effect {1}", _handle, _effectName);
+			}
 		}
 		public class Sequence : Playable
 		{
@@ -76,16 +81,11 @@ namespace NullSpace.Loader
 			{
 				return new CommandWithHandle(x => Interop.TestClass_PlaySequence(_ptr, x, _name, location));
 			}
-			public HapticHandle CreateHandle(uint location)
-			{
-				
-				var h = new HapticHandle(_Play(), _Pause(), _create(location), _Reset());
-				return h;
-			}
+			
 			public HapticHandle CreateHandle(Interop.AreaFlag location)
 			{
 
-				var h = new HapticHandle(_Play(), _Pause(), _create((uint)location), _Reset());
+				var h = new HapticHandle(_Play(), _Pause(), _create((uint)location), _Reset(), _name);
 				return h;
 			}
 		}

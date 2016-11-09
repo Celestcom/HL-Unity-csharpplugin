@@ -22,7 +22,7 @@ namespace NSLoaderWrapper
 			NSLoader.Sequence s = new NSLoader.Sequence("ns.basic.click_click_click");
 			var forearms = Interop.AreaFlag.Left_All | Interop.AreaFlag.Chest_Right;
 			var handle1 = s.CreateHandle(forearms);
-			var handle2 = s.CreateHandle(0xFF);
+			Console.WriteLine(handle1);
 			while (true)
 			{
 				//Console.WriteLine("HI");
