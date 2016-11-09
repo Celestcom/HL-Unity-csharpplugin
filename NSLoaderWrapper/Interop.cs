@@ -9,7 +9,7 @@ namespace NullSpace.Loader
 		public static extern IntPtr TestClass_Create([MarshalAs(UnmanagedType.LPStr)] String s);
 
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		public static extern int TestClass_PlaySequence(IntPtr value, [MarshalAs(UnmanagedType.LPStr)] String s, int location);
+		public static extern int TestClass_PlaySequence(IntPtr value, uint handle, [MarshalAs(UnmanagedType.LPStr)] String s, int location);
 
 
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
@@ -29,11 +29,14 @@ namespace NullSpace.Loader
 		public static extern void TestClass_SetTrackingEnabled(IntPtr value, bool wantTracking);
 
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		public static extern ulong TestClass_GenHandle(IntPtr value);
+		public static extern uint TestClass_GenHandle(IntPtr value);
 
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern bool TestClass_LoadSequence(IntPtr value, String s);
 
+
+		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+		public static extern bool TestClass_HandleCommand(IntPtr value, uint handle, short command);
 		public enum Command
 		{
 			PLAY = 0, PAUSE

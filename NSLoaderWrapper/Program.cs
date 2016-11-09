@@ -18,15 +18,21 @@ namespace NSLoaderWrapper
 			//	loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
 			//loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
 			//bool toggle = true;
-				while(true)
+			NSLoader.Sequence s = new NSLoader.Sequence("ns.basic.click_click_click");
+			var handle = s.CreateHandle(0);
+			while (true)
 			{
 			//Console.WriteLine("HI");
 			Console.ReadLine();
+				
+				handle.Play();
+				Console.ReadLine();
+				handle.Pause();
 				//loader.SetTrackingEnabled(true);
 
 				//	loader.SetTrackingEnabled(toggle);
 				//	toggle = !toggle;
-				loader.PlayPattern("ns.basic.test", 0);
+				//loader.PlaySequence("ns.basic.click_click_click", 0);
 				//	int stat = loader.PollStatus();
 				//	Console.WriteLine("Status: " + stat);
 				//	Interop.Quaternion q = loader.PollTracking();

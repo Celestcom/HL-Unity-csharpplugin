@@ -6,19 +6,27 @@ namespace NullSpace.Loader
 		private static IntPtr _ptr;
 		
 		public delegate void Play();
-
+		public delegate void CommandWithHandle(uint handle);
 		public class HapticHandle
 		{
-			private ulong _handle;
-			private Play _playDelegate;
-			public HapticHandle(Play p)
+			private uint _handle;
+			private CommandWithHandle _playDelegate;
+			private CommandWithHandle _pauseDelegate;
+			public HapticHandle(CommandWithHandle p, CommandWithHandle ph, CommandWithHandle createDel)
 			{
 				_playDelegate = p;
+				_pauseDelegate = ph;
 				_handle = Interop.TestClass_GenHandle(_ptr);
+				createDel(_handle);
 			}
 			public void Play()
 			{
-				_playDelegate();
+				_playDelegate(_handle);
+			}
+
+			public void Pause()
+			{
+				_pauseDelegate(_handle);
 			}
 			
 		}
@@ -27,22 +35,34 @@ namespace NullSpace.Loader
 			private string _name;
 			public Sequence(string name)
 			{
+				_name = name;
 				bool loaded = Interop.TestClass_LoadSequence(_ptr, name);
 				if (!loaded)
 				{
 					throw new System.IO.FileNotFoundException("Could not find sequence " + name);
 				}
 			}
-			private void _play(int location)
+			private CommandWithHandle _create(int location)
 			{
-				//apiPlaySequence(_name, location);
+				return new CommandWithHandle(x => Interop.TestClass_PlaySequence(_ptr, x, _name, location));
+			}
+		
+			private CommandWithHandle _pause()
+			{
+				return new CommandWithHandle(x => Interop.TestClass_HandleCommand(_ptr, x, (short)Interop.Command.PAUSE));
+			}
+			private CommandWithHandle _play()
+			{
+				return new CommandWithHandle(x => Interop.TestClass_HandleCommand(_ptr, x, (short)Interop.Command.PLAY));
+
 			}
 			public HapticHandle CreateHandle(int location)
 			{
 				
-				var h = new HapticHandle(delegate () { _play(location); });
+				var h = new HapticHandle(_play(), _pause(), _create(location));
 				return h;
 			}
+			
 		}
 
 
@@ -77,7 +97,7 @@ namespace NullSpace.Loader
 		public void PlaySequence(string name, int location)
 		{
 			
-			Interop.TestClass_PlaySequence(_ptr, name, location);
+			Interop.TestClass_PlaySequence(_ptr, (uint)0, name, location);
 		}
 
 		public void PlayPattern(string name, int side)
