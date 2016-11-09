@@ -13,19 +13,20 @@ namespace NSLoaderWrapper
 		{
 		//	Stopwatch sw = new Stopwatch();
 
-		//	NSLoader loader = new NSLoader(@"C:\Users\NullSpace Team\Documents\API_Environment\Assets\StreamingAssets");
-
+			NSLoader loader = new NSLoader(@"C:\Users\NullSpace Team\Documents\API_Environment\Assets\StreamingAssets");
 
 			//	loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
 			//loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
 			//bool toggle = true;
-			//	while(true)
-		//	{
+				while(true)
+			{
 			//Console.WriteLine("HI");
-		//	Console.ReadLine();
-			//	loader.SetTrackingEnabled(toggle);
-			//	toggle = !toggle;
-		//	loader.PlayEffect(68, 1, 1.9f, 0.0f, 1);
+			Console.ReadLine();
+				//loader.SetTrackingEnabled(true);
+
+				//	loader.SetTrackingEnabled(toggle);
+				//	toggle = !toggle;
+				loader.PlayPattern("ns.basic.test", 0);
 				//	int stat = loader.PollStatus();
 				//	Console.WriteLine("Status: " + stat);
 				//	Interop.Quaternion q = loader.PollTracking();
@@ -34,7 +35,7 @@ namespace NSLoaderWrapper
 				//loader.PlayPattern("ns.body_jolt", 0);
 
 
-		//	}
+			}
 
 			//	loader.Dispose();
 		}

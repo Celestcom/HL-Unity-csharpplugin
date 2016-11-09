@@ -3,7 +3,49 @@ namespace NullSpace.Loader
 {
 	public class NSLoader : IDisposable
 	{
-		private IntPtr _ptr;
+		private static IntPtr _ptr;
+		
+		public delegate void Play();
+
+		public class HapticHandle
+		{
+			private ulong _handle;
+			private Play _playDelegate;
+			public HapticHandle(Play p)
+			{
+				_playDelegate = p;
+				_handle = Interop.TestClass_GenHandle(_ptr);
+			}
+			public void Play()
+			{
+				_playDelegate();
+			}
+			
+		}
+		public class Sequence
+		{
+			private string _name;
+			public Sequence(string name)
+			{
+				bool loaded = Interop.TestClass_LoadSequence(_ptr, name);
+				if (!loaded)
+				{
+					throw new System.IO.FileNotFoundException("Could not find sequence " + name);
+				}
+			}
+			private void _play(int location)
+			{
+				//apiPlaySequence(_name, location);
+			}
+			public HapticHandle CreateHandle(int location)
+			{
+				
+				var h = new HapticHandle(delegate () { _play(location); });
+				return h;
+			}
+		}
+
+
 
 		public NSLoader(string assetPath)
 		{

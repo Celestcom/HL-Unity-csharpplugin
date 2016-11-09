@@ -28,6 +28,17 @@ namespace NullSpace.Loader
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void TestClass_SetTrackingEnabled(IntPtr value, bool wantTracking);
 
+		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+		public static extern ulong TestClass_GenHandle(IntPtr value);
+
+		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+		public static extern bool TestClass_LoadSequence(IntPtr value, String s);
+
+		public enum Command
+		{
+			PLAY = 0, PAUSE
+		}
+
 		[StructLayout(LayoutKind.Sequential,Pack=1)]
 		public struct Quaternion
 		{
