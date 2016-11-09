@@ -5,23 +5,53 @@ namespace NullSpace.Loader
 	{
 		private static IntPtr _ptr;
 		
-		public delegate void Play();
 		public delegate void CommandWithHandle(uint handle);
+
+		public class Playable
+		{
+			private static CommandWithHandle GenerateCommandDelegate(Interop.Command c)
+			{
+				return new CommandWithHandle(x => Interop.TestClass_HandleCommand(_ptr, x, (short)c));
+			}
+
+			protected CommandWithHandle _Play()
+			{
+				return GenerateCommandDelegate(Interop.Command.PLAY);
+			}
+
+			protected CommandWithHandle _Reset()
+			{
+				return GenerateCommandDelegate(Interop.Command.RESET);
+			}
+
+			protected CommandWithHandle _Pause()
+			{
+				return GenerateCommandDelegate(Interop.Command.PAUSE);
+			}
+		}
 		public class HapticHandle
 		{
 			private uint _handle;
 			private CommandWithHandle _playDelegate;
 			private CommandWithHandle _pauseDelegate;
-			public HapticHandle(CommandWithHandle p, CommandWithHandle ph, CommandWithHandle createDel)
+			private CommandWithHandle _resetDelegate;
+
+			public HapticHandle(CommandWithHandle play, CommandWithHandle pause, CommandWithHandle create, CommandWithHandle reset)
 			{
-				_playDelegate = p;
-				_pauseDelegate = ph;
+				_playDelegate = play;
+				_pauseDelegate = pause;
+				_resetDelegate = reset;
 				_handle = Interop.TestClass_GenHandle(_ptr);
-				createDel(_handle);
+				create(_handle);
 			}
 			public void Play()
 			{
 				_playDelegate(_handle);
+			}
+
+			public void Reset()
+			{
+				_resetDelegate(_handle);
 			}
 
 			public void Pause()
@@ -30,7 +60,7 @@ namespace NullSpace.Loader
 			}
 			
 		}
-		public class Sequence
+		public class Sequence : Playable
 		{
 			private string _name;
 			public Sequence(string name)
@@ -42,27 +72,22 @@ namespace NullSpace.Loader
 					throw new System.IO.FileNotFoundException("Could not find sequence " + name);
 				}
 			}
-			private CommandWithHandle _create(int location)
+			private CommandWithHandle _create(uint location)
 			{
 				return new CommandWithHandle(x => Interop.TestClass_PlaySequence(_ptr, x, _name, location));
 			}
-		
-			private CommandWithHandle _pause()
-			{
-				return new CommandWithHandle(x => Interop.TestClass_HandleCommand(_ptr, x, (short)Interop.Command.PAUSE));
-			}
-			private CommandWithHandle _play()
-			{
-				return new CommandWithHandle(x => Interop.TestClass_HandleCommand(_ptr, x, (short)Interop.Command.PLAY));
-
-			}
-			public HapticHandle CreateHandle(int location)
+			public HapticHandle CreateHandle(uint location)
 			{
 				
-				var h = new HapticHandle(_play(), _pause(), _create(location));
+				var h = new HapticHandle(_Play(), _Pause(), _create(location), _Reset());
 				return h;
 			}
-			
+			public HapticHandle CreateHandle(Interop.AreaFlag location)
+			{
+
+				var h = new HapticHandle(_Play(), _Pause(), _create((uint)location), _Reset());
+				return h;
+			}
 		}
 
 
@@ -94,7 +119,7 @@ namespace NullSpace.Loader
 			return t;
 		}
 		
-		public void PlaySequence(string name, int location)
+		public void PlaySequence(string name, uint location)
 		{
 			
 			Interop.TestClass_PlaySequence(_ptr, (uint)0, name, location);
