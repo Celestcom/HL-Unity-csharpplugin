@@ -6,40 +6,31 @@ namespace NullSpace.Loader
 	public static class Interop
 	{
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		public static extern IntPtr TestClass_Create([MarshalAs(UnmanagedType.LPStr)] String s);
+		public static extern IntPtr NSVR_Create([MarshalAs(UnmanagedType.LPStr)] String s);
 
-		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		public static extern int TestClass_PlaySequence(IntPtr value, uint handle, [MarshalAs(UnmanagedType.LPStr)] String s, uint location);
+		
 
-
-		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		public static extern int TestClass_PlayPattern(IntPtr value, [MarshalAs(UnmanagedType.LPStr)] String s, int side);
-
-		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		public static extern int TestClass_PlayExperience(IntPtr value, [MarshalAs(UnmanagedType.LPStr)] String s, int side);
-
-		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		public static extern int TestClass_PlayEffect(IntPtr value, int effect, int location, float duration, float time, uint priority);
 
 
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		public static extern int TestClass_PollStatus(IntPtr value);
+		public static extern int NSVR_PollStatus(IntPtr value);
 
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		public static extern void TestClass_SetTrackingEnabled(IntPtr value, bool wantTracking);
+		public static extern void NSVR_SetTrackingEnabled(IntPtr value, bool wantTracking);
 
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		public static extern uint TestClass_GenHandle(IntPtr value);
+		public static extern uint NSVR_GenHandle(IntPtr value);
 
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		public static extern bool TestClass_LoadSequence(IntPtr value, String s);
-
+		public static extern bool NSVR_LoadSequence(IntPtr value, String s);
+		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+		public static extern bool NSVR_CreateSequence(IntPtr value, uint handle, String s, uint location);
 
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		public static extern bool TestClass_HandleCommand(IntPtr value, uint handle, short command);
+		public static extern void NSVR_HandleCommand(IntPtr value, uint handle, short command);
 		public enum Command
 		{
-			PLAY = 0, PAUSE, RESET
+			PLAY = 0, PAUSE, RESET, RELEASE
 		}
 
 		[StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -61,11 +52,11 @@ namespace NullSpace.Loader
 			public Quaternion right_forearm;
 		}
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		public static extern int TestClass_PollTracking(IntPtr value, ref TrackingUpdate q);
+		public static extern int NSVR_PollTracking(IntPtr value, ref TrackingUpdate q);
 
 
 		[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
-		public static extern void TestClass_Delete(IntPtr value);
+		public static extern void NSVR_Delete(IntPtr value);
 
 
 

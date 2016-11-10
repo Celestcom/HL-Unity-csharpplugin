@@ -6,12 +6,13 @@ namespace NullSpace.Loader
 		private static IntPtr _ptr;
 		
 		public delegate void CommandWithHandle(uint handle);
-
-		public class Playable
+		
+		public abstract class Playable
 		{
+			internal Playable() { }
 			private static CommandWithHandle GenerateCommandDelegate(Interop.Command c)
 			{
-				return new CommandWithHandle(x => Interop.TestClass_HandleCommand(_ptr, x, (short)c));
+				return new CommandWithHandle(x => Interop.NSVR_HandleCommand(_ptr, x, (short)c));
 			}
 
 			protected CommandWithHandle _Play()
@@ -31,10 +32,25 @@ namespace NullSpace.Loader
 		}
 		public class HapticHandle
 		{
+			/// <summary>
+			/// Retain the effect name, so that someone calling ToString() can get useful information
+			/// </summary>
 			private string _effectName;
+			/// <summary>
+			/// Handle is used to interact with the engine
+			/// </summary>
 			private uint _handle;
+			/// <summary>
+			/// _playDelegate contains knowledge of how to play the effect
+			/// </summary>
 			private CommandWithHandle _playDelegate;
+			/// <summary>
+			/// _pauseDelegate contains knowledege of how to pause the effect
+			/// </summary>
 			private CommandWithHandle _pauseDelegate;
+			/// <summary>
+			/// _resetDelegate contains knowledge of how to reset the effect
+			/// </summary>
 			private CommandWithHandle _resetDelegate;
 
 			public HapticHandle(CommandWithHandle play, CommandWithHandle pause, CommandWithHandle create, CommandWithHandle reset, string name)
@@ -43,22 +59,36 @@ namespace NullSpace.Loader
 				_playDelegate = play;
 				_pauseDelegate = pause;
 				_resetDelegate = reset;
-				_handle = Interop.TestClass_GenHandle(_ptr);
+
+				//Grab a handle from the DLL
+				_handle = Interop.NSVR_GenHandle(_ptr);
+				//This is a network call to the engine, to load the effect up
 				create(_handle);
 			}
-			public void Play()
+
+			~HapticHandle()
+			{
+				//release this handle, network call to engine
+			//	Interop.NSVR_HandleCommand(_ptr, _handle, (short)Interop.Command.RESET);
+
+				Interop.NSVR_HandleCommand(_ptr, _handle, (short)Interop.Command.RELEASE);
+			}
+			public HapticHandle Play()
 			{
 				_playDelegate(_handle);
+				return this;
 			}
 
-			public void Reset()
+			public HapticHandle Reset()
 			{
 				_resetDelegate(_handle);
+				return this;
 			}
 
-			public void Pause()
+			public HapticHandle Pause()
 			{
 				_pauseDelegate(_handle);
+				return this;
 			}
 
 			public override string ToString() {
@@ -71,7 +101,7 @@ namespace NullSpace.Loader
 			public Sequence(string name)
 			{
 				_name = name;
-				bool loaded = Interop.TestClass_LoadSequence(_ptr, name);
+				bool loaded = Interop.NSVR_LoadSequence(_ptr, name);
 				if (!loaded)
 				{
 					throw new System.IO.FileNotFoundException("Could not find sequence " + name);
@@ -79,7 +109,7 @@ namespace NullSpace.Loader
 			}
 			private CommandWithHandle _create(uint location)
 			{
-				return new CommandWithHandle(x => Interop.TestClass_PlaySequence(_ptr, x, _name, location));
+				return new CommandWithHandle(x => Interop.NSVR_CreateSequence(_ptr, x, _name, location));
 			}
 			
 			public HapticHandle CreateHandle(Interop.AreaFlag location)
@@ -94,48 +124,29 @@ namespace NullSpace.Loader
 
 		public NSLoader(string assetPath)
 		{
-			_ptr = Interop.TestClass_Create(assetPath);
+			_ptr = Interop.NSVR_Create(assetPath);
 
 		}
-		public void PlayEffect(int effect, int location, float duration=0.0f, float time=0.0f, uint priority=1)
-		{
-			Interop.TestClass_PlayEffect(_ptr, effect, location, duration, time, priority);
-		}
+		
 
 		public int PollStatus()
 		{
-			return Interop.TestClass_PollStatus(_ptr);
+			return Interop.NSVR_PollStatus(_ptr);
 		}
 
 		public void SetTrackingEnabled(bool wantTracking)
 		{
-			Interop.TestClass_SetTrackingEnabled(_ptr, wantTracking);
+			Interop.NSVR_SetTrackingEnabled(_ptr, wantTracking);
 		}
 
 		public Interop.TrackingUpdate PollTracking()
 		{
 			Interop.TrackingUpdate t = new Interop.TrackingUpdate();
-			Interop.TestClass_PollTracking(_ptr, ref t);
+			Interop.NSVR_PollTracking(_ptr, ref t);
 			return t;
 		}
 		
-		public void PlaySequence(string name, uint location)
-		{
-			
-			Interop.TestClass_PlaySequence(_ptr, (uint)0, name, location);
-		}
-
-		public void PlayPattern(string name, int side)
-		{
-
-			Interop.TestClass_PlayPattern(_ptr, name, side);
-		}
-
-		public void PlayExperience(string name, int side)
-		{
-
-			Interop.TestClass_PlayExperience(_ptr, name, side);
-		}
+	
 
 		#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
@@ -150,7 +161,7 @@ namespace NullSpace.Loader
 					// TODO: dispose managed state (managed objects).
 				}
 
-				Interop.TestClass_Delete(_ptr);
+				Interop.NSVR_Delete(_ptr);
 
 				disposedValue = true;
 			}

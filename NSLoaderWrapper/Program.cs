@@ -18,18 +18,23 @@ namespace NSLoaderWrapper
 			//	loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
 			//loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
 			//bool toggle = true;
-
+			
 			NSLoader.Sequence s = new NSLoader.Sequence("ns.basic.click_click_click");
 			var forearms = Interop.AreaFlag.Left_All | Interop.AreaFlag.Chest_Right;
 			var handle1 = s.CreateHandle(forearms);
-			Console.WriteLine(handle1);
-			while (true)
-			{
-				//Console.WriteLine("HI");
-				handle1.Reset();
+			Console.ReadLine();
+			handle1.Play();
 			Console.ReadLine();
 
-				handle1.Play();
+			handle1.Pause();
+			Console.ReadLine();
+			handle1.Play();
+
+			//while (true)
+			//{
+				//Console.WriteLine("HI");
+				//Console.ReadLine();
+			//	handle1.Play();
 
 
 				//loader.SetTrackingEnabled(true);
@@ -45,7 +50,7 @@ namespace NSLoaderWrapper
 				//loader.PlayPattern("ns.body_jolt", 0);
 
 
-			}
+			//}
 
 			//	loader.Dispose();
 		}
