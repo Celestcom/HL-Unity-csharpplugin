@@ -92,7 +92,7 @@ namespace NullSpace.Loader
 			}
 
 			public override string ToString() {
-				return string.Format("Handle ID {{0}} playing effect {1}", _handle, _effectName);
+				return string.Format("Handle ID {0} playing effect {1}", _handle, _effectName);
 			}
 		}
 		public class Sequence : Playable
@@ -109,17 +109,40 @@ namespace NullSpace.Loader
 			}
 			private CommandWithHandle _create(uint location)
 			{
-				return new CommandWithHandle(x => Interop.NSVR_CreateSequence(_ptr, x, _name, location));
+				return new CommandWithHandle(handle => Interop.NSVR_CreateSequence(_ptr, handle, _name, location));
 			}
 			
 			public HapticHandle CreateHandle(Interop.AreaFlag location)
 			{
 
-				var h = new HapticHandle(_Play(), _Pause(), _create((uint)location), _Reset(), _name);
-				return h;
+				return new HapticHandle(_Play(), _Pause(), _create((uint)location), _Reset(), _name);
+				
 			}
 		}
 
+		public class Pattern : Playable
+		{
+			private string _name;
+			public Pattern(string name)
+			{
+				_name = name;
+				bool loaded = Interop.NSVR_LoadPattern(_ptr, name);
+				if (!loaded)
+				{
+					throw new System.IO.FileNotFoundException("Could not find pattern " + name);
+				}
+			}
+
+			private CommandWithHandle _create()
+			{
+				return new CommandWithHandle(handle => Interop.NSVR_CreatePattern(_ptr, handle, _name));
+			}
+
+			public HapticHandle CreateHandle()
+			{
+				return new HapticHandle(_Play(), _Pause(), _create(), _Reset(), _name);
+			}
+		}
 
 
 		public NSLoader(string assetPath)

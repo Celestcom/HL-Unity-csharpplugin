@@ -20,12 +20,21 @@ namespace NullSpace.Loader
 
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern uint NSVR_GenHandle(IntPtr value);
-
+		#region Sequence
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool NSVR_LoadSequence(IntPtr value, String s);
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern bool NSVR_CreateSequence(IntPtr value, uint handle, String s, uint location);
+		#endregion
 
+		#region Pattern
+		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+		[return: MarshalAs(UnmanagedType.I1)]
+		public static extern bool NSVR_LoadPattern(IntPtr value, String s);
+		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+		public static extern bool NSVR_CreatePattern(IntPtr value, uint handle, String s);
+		#endregion
 		[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void NSVR_HandleCommand(IntPtr value, uint handle, short command);
 		public enum Command
@@ -72,6 +81,7 @@ namespace NullSpace.Loader
 			Upper_Ab_Left = 1 << 5,
 			Mid_Ab_Left = 1 << 6,
 			Lower_Ab_Left = 1 << 7,
+
 			Forearm_Right = 1 << 16,
 			Upper_Arm_Right = 1 << 17,
 			Shoulder_Right = 1 << 18,
