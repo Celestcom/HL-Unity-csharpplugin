@@ -1,31 +1,35 @@
 ﻿using System;
-namespace NullSpace.Loader
+using NullSpace.SDK.Internal;
+using static NullSpace.SDK.Internal.Interop;
+
+namespace NullSpace.SDK
 {
-	public class NSLoader : IDisposable
+	public class NSVR_Plugin : IDisposable
 	{
+	
 		private static IntPtr _ptr;
-		
-		public delegate void CommandWithHandle(uint handle);
-		
+
+
 		public abstract class Playable
 		{
+
 			internal Playable() { }
 			private static CommandWithHandle GenerateCommandDelegate(Interop.Command c)
 			{
 				return new CommandWithHandle(x => Interop.NSVR_HandleCommand(_ptr, x, (short)c));
 			}
 
-			protected CommandWithHandle _Play()
+			internal CommandWithHandle _Play()
 			{
 				return GenerateCommandDelegate(Interop.Command.PLAY);
 			}
 
-			protected CommandWithHandle _Reset()
+			internal CommandWithHandle _Reset()
 			{
 				return GenerateCommandDelegate(Interop.Command.RESET);
 			}
 
-			protected CommandWithHandle _Pause()
+			internal CommandWithHandle _Pause()
 			{
 				return GenerateCommandDelegate(Interop.Command.PAUSE);
 			}
@@ -53,7 +57,7 @@ namespace NullSpace.Loader
 			/// </summary>
 			private CommandWithHandle _resetDelegate;
 
-			public HapticHandle(CommandWithHandle play, CommandWithHandle pause, CommandWithHandle create, CommandWithHandle reset, string name)
+			internal HapticHandle(CommandWithHandle play, CommandWithHandle pause, CommandWithHandle create, CommandWithHandle reset, string name)
 			{
 				_effectName = name;
 				_playDelegate = play;
@@ -101,6 +105,10 @@ namespace NullSpace.Loader
 			public Sequence(string name)
 			{
 				_name = name;
+				if (_ptr == null)
+				{
+					return;
+				}
 				bool loaded = Interop.NSVR_LoadSequence(_ptr, name);
 				if (!loaded)
 				{
@@ -112,7 +120,7 @@ namespace NullSpace.Loader
 				return new CommandWithHandle(handle => Interop.NSVR_CreateSequence(_ptr, handle, _name, location));
 			}
 			
-			public HapticHandle CreateHandle(Interop.AreaFlag location)
+			public HapticHandle CreateHandle(AreaFlag location)
 			{
 
 				return new HapticHandle(_Play(), _Pause(), _create((uint)location), _Reset(), _name);
@@ -126,6 +134,10 @@ namespace NullSpace.Loader
 			public Pattern(string name)
 			{
 				_name = name;
+				if (_ptr == null)
+				{
+					return;
+				}
 				bool loaded = Interop.NSVR_LoadPattern(_ptr, name);
 				if (!loaded)
 				{
@@ -145,7 +157,7 @@ namespace NullSpace.Loader
 		}
 
 
-		public NSLoader(string assetPath)
+		public NSVR_Plugin(string assetPath)
 		{
 			_ptr = Interop.NSVR_Create(assetPath);
 
@@ -162,9 +174,9 @@ namespace NullSpace.Loader
 			Interop.NSVR_SetTrackingEnabled(_ptr, wantTracking);
 		}
 
-		public Interop.TrackingUpdate PollTracking()
+		public TrackingUpdate PollTracking()
 		{
-			Interop.TrackingUpdate t = new Interop.TrackingUpdate();
+			TrackingUpdate t = new TrackingUpdate();
 			Interop.NSVR_PollTracking(_ptr, ref t);
 			return t;
 		}
@@ -191,7 +203,7 @@ namespace NullSpace.Loader
 		}
 
 		// TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-		 ~NSLoader() {
+		 ~NSVR_Plugin() {
 		   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 		   Dispose(false);
 		 }

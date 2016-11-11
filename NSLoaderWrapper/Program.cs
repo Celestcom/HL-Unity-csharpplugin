@@ -1,9 +1,7 @@
-﻿using NullSpace.Loader;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Diagnostics;
+﻿using System;
+
+using NullSpace.SDK;
+using static NullSpace.SDK.NSVR_Plugin;
 
 namespace NSLoaderWrapper
 {
@@ -13,21 +11,21 @@ namespace NSLoaderWrapper
 		{
 		//	Stopwatch sw = new Stopwatch();
 
-			NSLoader loader = new NSLoader(@"C:\Users\NullSpace Team\Documents\API_Environment\Assets\StreamingAssets");
+		 var loader = new NSVR_Plugin(@"C:\Users\NullSpace Team\Documents\API_Environment\Assets\StreamingAssets");
 
 			//	loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
 			//loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
 			//bool toggle = true;
-			
-			NSLoader.Sequence s = new NSLoader.Sequence("ns.basic.click_click_click");
-			NSLoader.Pattern pat = new NSLoader.Pattern("ns.basic.test");
-			var forearms = Interop.AreaFlag.All_Areas;
+		
+			Sequence s = new Sequence("ns.basic.click_click_click");
+			Pattern pat = new Pattern("ns.basic.test");
+			var forearms = AreaFlag.All_Areas;
 			var handle1 = s.CreateHandle(forearms);
 			var handle2 = pat.CreateHandle();
-
+			
 			while (true)
 			{
-			///	//handle1.Reset();
+			//	//handle1.Reset();
 				//handle1.Play();
 
 				Console.ReadLine();
@@ -55,5 +53,6 @@ namespace NSLoaderWrapper
 
 			//	loader.Dispose();
 		}
+		
 	}
 }
