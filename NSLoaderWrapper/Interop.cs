@@ -11,7 +11,7 @@ namespace NullSpace.SDK
 			public delegate void CommandWithHandle(uint handle);
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern IntPtr NSVR_Create([MarshalAs(UnmanagedType.LPStr)] String s);
+			public static extern IntPtr NSVR_Create([MarshalAs(UnmanagedType.LPStr)] string s);
 
 
 
@@ -25,21 +25,38 @@ namespace NullSpace.SDK
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			public static extern uint NSVR_GenHandle(IntPtr value);
+
 			#region Sequence
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			[return: MarshalAs(UnmanagedType.I1)]
+
 			public static extern bool NSVR_LoadSequence(IntPtr value, String s);
+
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern bool NSVR_CreateSequence(IntPtr value, uint handle, String s, uint location);
+			[return: MarshalAs(UnmanagedType.I1)]
+
+			public static extern bool NSVR_CreateSequence(IntPtr value, uint handle, [MarshalAs(UnmanagedType.LPStr)] string s, uint location);
 			#endregion
 
 			#region Pattern
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			[return: MarshalAs(UnmanagedType.I1)]
-			public static extern bool NSVR_LoadPattern(IntPtr value, String s);
+			public static extern bool NSVR_LoadPattern(IntPtr value, [MarshalAs(UnmanagedType.LPStr)] string s);
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern bool NSVR_CreatePattern(IntPtr value, uint handle, String s);
+			[return: MarshalAs(UnmanagedType.I1)]
+			public static extern bool NSVR_CreatePattern(IntPtr value, uint handle, [MarshalAs(UnmanagedType.LPStr)] string s);
 			#endregion
+
+			#region Experience
+			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+			[return: MarshalAs(UnmanagedType.I1)]
+			public static extern bool NSVR_LoadExperience(IntPtr value, [MarshalAs(UnmanagedType.LPStr)]string s);
+			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+			[return: MarshalAs(UnmanagedType.I1)]
+			public static extern bool NSVR_CreateExperience(IntPtr value, uint handle, [MarshalAs(UnmanagedType.LPStr)]string s);
+			#endregion
+
+
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			public static extern void NSVR_HandleCommand(IntPtr value, uint handle, short command);
 			public enum Command
