@@ -71,6 +71,8 @@ namespace NullSpace.SDK
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
 			public static extern void NSVR_Delete(IntPtr value);
 
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern string NSVR_GetError(IntPtr value);
 
 
 

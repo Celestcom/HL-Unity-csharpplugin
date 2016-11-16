@@ -5,7 +5,17 @@ using UnityEngine;
 
 namespace NullSpace.SDK
 {
+	public class HapticsLoadingException : System.Exception
+	{
+		public HapticsLoadingException() : base() { }
+		public HapticsLoadingException(string message) : base(message) { }
+		public HapticsLoadingException(string message, System.Exception inner) : base(message, inner) { }
 
+	
+		protected HapticsLoadingException(System.Runtime.Serialization.SerializationInfo info,
+			System.Runtime.Serialization.StreamingContext context)
+		{ }
+	}
 	public static class Wrapper
 	{
 		internal static IntPtr _ptr;
@@ -45,7 +55,7 @@ namespace NullSpace.SDK
 			}
 
 
-
+		
 			public int PollStatus()
 			{
 				return Interop.NSVR_PollStatus(_ptr);
@@ -234,7 +244,8 @@ namespace NullSpace.SDK
 			
 			if (!loaded)
 			{
-				throw new System.IO.FileNotFoundException("Could not find sequence " + name);
+				string error = Interop.NSVR_GetError(Wrapper.NSVR_Plugin.Ptr);
+				throw new HapticsLoadingException(error);
 			}
 		}
 		private CommandWithHandle _create(uint location)
@@ -260,7 +271,8 @@ namespace NullSpace.SDK
 			bool loaded = Interop.NSVR_LoadPattern(Wrapper.NSVR_Plugin.Ptr, name);
 			if (!loaded)
 			{
-				throw new System.IO.FileNotFoundException("Could not find pattern " + name);
+				string error = Interop.NSVR_GetError(Wrapper.NSVR_Plugin.Ptr);
+				throw new HapticsLoadingException(error);
 			}
 		}
 
@@ -285,7 +297,8 @@ namespace NullSpace.SDK
 			bool loaded = Interop.NSVR_LoadExperience(Wrapper.NSVR_Plugin.Ptr, name);
 			if (!loaded)
 			{
-				throw new System.IO.FileNotFoundException("Could not find experience " + name);
+				string error = Interop.NSVR_GetError(Wrapper.NSVR_Plugin.Ptr);
+				throw new HapticsLoadingException(error);
 			}
 		}
 

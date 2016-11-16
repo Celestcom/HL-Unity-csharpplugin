@@ -21,7 +21,7 @@ namespace NSLoaderWrapper
 			//s.CreateHandle(AreaFlag.All_Areas).Dispose();
 
 			//s.CreateHandle(AreaFlag.All_Areas).Dispose();
-		}	
+		}
 		static void Main(string[] args)
 		{
 			//	Stopwatch sw = new Stopwatch();
@@ -32,43 +32,48 @@ namespace NSLoaderWrapper
 			//loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
 			//bool toggle = true;
 			Wrapper.NSVR_Plugin loader = new Wrapper.NSVR_Plugin(@"C:\Users\NullSpace Team\Documents\API_Environment\Assets\StreamingAssets");
-		//	Sequence s = new Sequence("ns.basic.click_click_click");
+			//	Sequence s = new Sequence("ns.basic.click_click_click");
 			//s.CreateHandle(AreaFlag.All_Areas).Play();
-			Pattern e = new Pattern("ns.basic.test");
-			var h = e.CreateHandle();
-			//Console.ReadLine();
-			h.Play();
+
 			//Console.ReadLine();
 			//h.Pause();
 			//Console.ReadLine();
 			//h.Play();
+		//	Pattern e= new Pattern("ns.full_body_jolt");
+			Sequence s = new Sequence("ns.click");
+			var a = new Experience("ns.basic.test");
+			//var h = e.CreateHandle();
 
-			//while (true)
-			//	{
-			//	//handle1.Reset();
-			//handle1.Play();
+			while (true)
+			{
+				//	//handle1.Reset();
+				//handle1.Play();
+				//Console.ReadLine();
+			//	h.Play();
+				System.Threading.Thread.Sleep(100);
+			//	h.Reset();				
 
-
-			//Console.WriteLine("HI");
-			//Console.ReadLine();
-			//	handle1.Play();
-
-
-			//loader.SetTrackingEnabled(true);
-
-			//	loader.SetTrackingEnabled(toggle);
-			//	toggle = !toggle;
-			//loader.PlaySequence("ns.basic.click_click_click", 0);
-			//	int stat = loader.PollStatus();
-			//	Console.WriteLine("Status: " + stat);
-			//	Interop.Quaternion q = loader.PollTracking();
-			//	Console.WriteLine("Quat: " + q.x + ", " + q.y + ", " + q.z + "," + q.w);
-
-			//loader.PlayPattern("ns.body_jolt", 0);
+				//Console.WriteLine("HI");
+				//Console.ReadLine();
+				//	handle1.Play();
 
 
-			//	}
-			//	loader.Dispose();
+				//loader.SetTrackingEnabled(true);
+
+				//	loader.SetTrackingEnabled(toggle);
+				//	toggle = !toggle;
+				//loader.PlaySequence("ns.basic.click_click_click", 0);
+				//	int stat = loader.PollStatus();
+				//	Console.WriteLine("Status: " + stat);
+				//	Interop.Quaternion q = loader.PollTracking();
+				//	Console.WriteLine("Quat: " + q.x + ", " + q.y + ", " + q.z + "," + q.w);
+
+				//loader.PlayPattern("ns.body_jolt", 0);
+
+
+				//	}
+				//	loader.Dispose();
+			}
 		}
 
 	}
