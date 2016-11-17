@@ -71,11 +71,13 @@ namespace NullSpace.SDK
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
 			public static extern void NSVR_Delete(IntPtr value);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
-			public static extern string NSVR_GetError(IntPtr value);
+			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+			public static extern IntPtr NSVR_GetError(IntPtr value);
 
+			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+			public static extern void NSVR_FreeString(IntPtr value);
 
-
+			
 		}
 	}
 	
@@ -104,6 +106,7 @@ namespace NullSpace.SDK
 		Left_All = 0x000000FF,
 		Right_All = 0x00FF0000,
 		All_Areas = Left_All | Right_All,
+		//todo: need to add Both flags
 	};
 
 

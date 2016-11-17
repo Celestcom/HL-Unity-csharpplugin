@@ -1,7 +1,8 @@
 ﻿using System;
 
 using NullSpace.SDK;
-
+using NullSpace.SDK.Internal;
+using System.Runtime.InteropServices;
 
 namespace NSLoaderWrapper
 {
@@ -39,18 +40,21 @@ namespace NSLoaderWrapper
 			//h.Pause();
 			//Console.ReadLine();
 			//h.Play();
+			//Experience e = new Experience("ns.basic.test");
 		//	Pattern e= new Pattern("ns.full_body_jolt");
-			Sequence s = new Sequence("ns.click");
-			var a = new Experience("ns.basic.test");
+			Sequence s = new Sequence("ns.cslick");
+		//	var a = new Experience("ns.basic.test");
 			//var h = e.CreateHandle();
 
 			while (true)
 			{
+				IntPtr ptr = Interop.NSVR_GetError(Wrapper.NSVR_Plugin.Ptr);
+				System.Threading.Thread.Sleep(100);
+				Interop.NSVR_FreeString(ptr);
 				//	//handle1.Reset();
 				//handle1.Play();
 				//Console.ReadLine();
-			//	h.Play();
-				System.Threading.Thread.Sleep(100);
+				//	h.Play();
 			//	h.Reset();				
 
 				//Console.WriteLine("HI");

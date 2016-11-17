@@ -2,9 +2,11 @@
 using NullSpace.SDK.Internal;
 using static NullSpace.SDK.Internal.Interop;
 using UnityEngine;
+using System.Runtime.InteropServices;
 
 namespace NullSpace.SDK
 {
+
 	public class HapticsLoadingException : System.Exception
 	{
 		public HapticsLoadingException() : base() { }
@@ -16,11 +18,18 @@ namespace NullSpace.SDK
 			System.Runtime.Serialization.StreamingContext context)
 		{ }
 	}
+
 	public static class Wrapper
 	{
 		internal static IntPtr _ptr;
 		internal static bool _created = false;
-
+		internal static string GetError()
+		{
+			IntPtr ptr = Interop.NSVR_GetError(Wrapper.NSVR_Plugin.Ptr);
+			string s = Marshal.PtrToStringAnsi(ptr);
+			Interop.NSVR_FreeString(ptr);
+			return s;
+		}
 		public sealed class NSVR_Plugin : IDisposable
 		{
 
@@ -244,8 +253,8 @@ namespace NullSpace.SDK
 			
 			if (!loaded)
 			{
-				string error = Interop.NSVR_GetError(Wrapper.NSVR_Plugin.Ptr);
-				throw new HapticsLoadingException(error);
+				throw new HapticsLoadingException(Wrapper.GetError());
+					
 			}
 		}
 		private CommandWithHandle _create(uint location)
@@ -271,8 +280,8 @@ namespace NullSpace.SDK
 			bool loaded = Interop.NSVR_LoadPattern(Wrapper.NSVR_Plugin.Ptr, name);
 			if (!loaded)
 			{
-				string error = Interop.NSVR_GetError(Wrapper.NSVR_Plugin.Ptr);
-				throw new HapticsLoadingException(error);
+				throw new HapticsLoadingException(Wrapper.GetError());
+
 			}
 		}
 
@@ -297,8 +306,8 @@ namespace NullSpace.SDK
 			bool loaded = Interop.NSVR_LoadExperience(Wrapper.NSVR_Plugin.Ptr, name);
 			if (!loaded)
 			{
-				string error = Interop.NSVR_GetError(Wrapper.NSVR_Plugin.Ptr);
-				throw new HapticsLoadingException(error);
+				throw new HapticsLoadingException(Wrapper.GetError());
+
 			}
 		}
 
