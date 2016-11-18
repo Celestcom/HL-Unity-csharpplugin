@@ -41,21 +41,26 @@ namespace NSLoaderWrapper
 			//Console.ReadLine();
 			//h.Play();
 			//Experience e = new Experience("ns.basic.test");
-		//	Pattern e= new Pattern("ns.full_body_jolt");
-			Sequence s = new Sequence("ns.cslick");
-		//	var a = new Experience("ns.basic.test");
+			//	Pattern e= new Pattern("ns.full_body_jolt");
+			//	Sequence s = new Sequence("ns.click");
+			//	var a = new Experience("ns.basic.test");
 			//var h = e.CreateHandle();
+			CodeSequence seq = new CodeSequence("seq");
+			seq.Add(new CodeSequenceItem(0.0f, "hum", 1.0f, 3.0f));
+			seq.Add(new CodeSequenceItem(4.0f, "hum", 0.2f, 1.0f));
 
 			while (true)
 			{
-				IntPtr ptr = Interop.NSVR_GetError(Wrapper.NSVR_Plugin.Ptr);
-				System.Threading.Thread.Sleep(100);
-				Interop.NSVR_FreeString(ptr);
+			
 				//	//handle1.Reset();
 				//handle1.Play();
-				//Console.ReadLine();
+				Console.ReadLine();
+				var ha = seq.CreateHandle(AreaFlag.Chest_Left).Play();
+				Console.ReadLine();
+				ha.Pause();
+				
 				//	h.Play();
-			//	h.Reset();				
+				//	h.Reset();				
 
 				//Console.WriteLine("HI");
 				//Console.ReadLine();

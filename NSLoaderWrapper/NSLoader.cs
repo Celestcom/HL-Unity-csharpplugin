@@ -3,7 +3,9 @@ using NullSpace.SDK.Internal;
 using static NullSpace.SDK.Internal.Interop;
 using UnityEngine;
 using System.Runtime.InteropServices;
-
+using System.Collections.Generic;
+using NullSpace.HapticFiles;
+using FlatBuffers;
 namespace NullSpace.SDK
 {
 
@@ -245,6 +247,7 @@ namespace NullSpace.SDK
 	public class Sequence : Playable
 	{
 		private string _name;
+		
 		public Sequence(string name)
 		{
 			_name = name;
