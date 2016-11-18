@@ -37,11 +37,6 @@ namespace NullSpace.SDK
 
 			public static extern bool NSVR_CreateSequence(IntPtr value, uint handle, [MarshalAs(UnmanagedType.LPStr)] string s, uint location);
 
-			/*NSLOADER_API bool __stdcall NSVR_CreateCodeSequence(TestClass* ptr, uint32_t handle, void* data, uint32_t size)
-			{
-				return ptr->CreateSequence(handle, data, size);
-			}
-			*/
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			[return: MarshalAs(UnmanagedType.I1)]
 			public static extern bool NSVR_CreateCodeSequence(IntPtr value, uint handle, byte[] data, uint size);
@@ -54,6 +49,11 @@ namespace NullSpace.SDK
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			[return: MarshalAs(UnmanagedType.I1)]
 			public static extern bool NSVR_CreatePattern(IntPtr value, uint handle, [MarshalAs(UnmanagedType.LPStr)] string s);
+			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+			[return: MarshalAs(UnmanagedType.I1)]
+			public static extern bool NSVR_CreateCodePattern(IntPtr value, uint handle, byte[] data, uint size);
+
+
 			#endregion
 
 			#region Experience

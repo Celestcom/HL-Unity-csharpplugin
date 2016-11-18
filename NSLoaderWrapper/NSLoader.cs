@@ -21,17 +21,37 @@ namespace NullSpace.SDK
 		{ }
 	}
 
-	public static class Wrapper
+
+	public static class NSVR
 	{
 		internal static IntPtr _ptr;
 		internal static bool _created = false;
 		internal static string GetError()
 		{
-			IntPtr ptr = Interop.NSVR_GetError(Wrapper.NSVR_Plugin.Ptr);
+			IntPtr ptr = Interop.NSVR_GetError(NSVR.NSVR_Plugin.Ptr);
 			string s = Marshal.PtrToStringAnsi(ptr);
 			Interop.NSVR_FreeString(ptr);
 			return s;
 		}
+
+		/// <summary>
+		/// Retrieves a reference to a resource (will be loaded from disk if not yet loaded.)
+		/// Call CreateHandle() on resource to play and modify haptic (see HapticHandle.)
+		/// Can also be inserted into code created haptics. Ex: when creating a CodePatternItem, provide a
+		/// HapticRef as the second argument
+		/// </summary>
+		/// <typeparam name="T">Sequence, Pattern, or Experience</typeparam>
+		/// <param name="id">Name of the resource. Ex: ns.click</param>
+		/// <returns>Reference to the resource</returns>
+		public static T HapticRef<T>(string id) where T : IPlayable, new()
+		{
+			T haptic = new T();
+			haptic.Load(id);
+			return haptic;
+		}
+
+		
+
 		public sealed class NSVR_Plugin : IDisposable
 		{
 
@@ -62,11 +82,11 @@ namespace NullSpace.SDK
 				_ptr = Interop.NSVR_Create(path);
 				_created = true;
 
-
 			}
 
+			
 
-		
+
 			public int PollStatus()
 			{
 				return Interop.NSVR_PollStatus(_ptr);
@@ -156,7 +176,7 @@ namespace NullSpace.SDK
 			_resetDelegate = reset;
 
 			//Grab a handle from the DLL
-			_handle = Interop.NSVR_GenHandle(Wrapper._ptr);
+			_handle = Interop.NSVR_GenHandle(NSVR._ptr);
 			//This is a network call to the engine, to load the effect up
 			create(_handle);
 		}
@@ -196,7 +216,7 @@ namespace NullSpace.SDK
 				{
 					// TODO: dispose managed state (managed objects).
 				}
-				Interop.NSVR_HandleCommand(Wrapper.NSVR_Plugin.Ptr, _handle, (short)Interop.Command.RELEASE);
+				Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, _handle, (short)Interop.Command.RELEASE);
 				// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
 				// TODO: set large fields to null.
 
@@ -220,13 +240,14 @@ namespace NullSpace.SDK
 		}
 		#endregion
 	}
+	
 	public abstract class Playable
 	{
 
 		internal Playable() { }
 		private static CommandWithHandle GenerateCommandDelegate(Interop.Command c)
 		{
-			return new CommandWithHandle(x => Interop.NSVR_HandleCommand(Wrapper.NSVR_Plugin.Ptr, x, (short)c));
+			return new CommandWithHandle(x => Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, x, (short)c));
 		}
 
 		internal CommandWithHandle _Play()
@@ -244,25 +265,40 @@ namespace NullSpace.SDK
 			return GenerateCommandDelegate(Interop.Command.PAUSE);
 		}
 	}
-	public class Sequence : Playable
+
+	public interface IPlayable
+	{
+		void Load(string id);
+	}
+	public class Sequence : Playable, IPlayable
 	{
 		private string _name;
-		
+		public string Name
+		{
+			get
+			{
+				return _name;
+			}
+		}
 		public Sequence(string name)
 		{
 			_name = name;
 			
-			bool loaded = Interop.NSVR_LoadSequence(Wrapper.NSVR_Plugin.Ptr, name);
+			bool loaded = Interop.NSVR_LoadSequence(NSVR.NSVR_Plugin.Ptr, name);
 			
 			if (!loaded)
 			{
-				throw new HapticsLoadingException(Wrapper.GetError());
+				throw new HapticsLoadingException(NSVR.GetError());
 					
 			}
 		}
+		public Sequence()
+		{
+
+		}
 		private CommandWithHandle _create(uint location)
 		{
-			return new CommandWithHandle(handle => Interop.NSVR_CreateSequence(Wrapper.NSVR_Plugin.Ptr, handle, _name, location));
+			return new CommandWithHandle(handle => Interop.NSVR_CreateSequence(NSVR.NSVR_Plugin.Ptr, handle, _name, location));
 		}
 
 		public HapticHandle CreateHandle(AreaFlag location)
@@ -270,6 +306,20 @@ namespace NullSpace.SDK
 
 			return new HapticHandle(_Play(), _Pause(), _create((uint)location), _Reset(), _name);
 
+		}
+
+
+		public void Load(string id)
+		{
+			_name = id;
+
+			bool loaded = Interop.NSVR_LoadSequence(NSVR.NSVR_Plugin.Ptr, _name);
+
+			if (!loaded)
+			{
+				throw new HapticsLoadingException(NSVR.GetError());
+
+			}
 		}
 	}
 
@@ -280,22 +330,27 @@ namespace NullSpace.SDK
 		{
 			_name = name;
 		
-			bool loaded = Interop.NSVR_LoadPattern(Wrapper.NSVR_Plugin.Ptr, name);
+			bool loaded = Interop.NSVR_LoadPattern(NSVR.NSVR_Plugin.Ptr, name);
 			if (!loaded)
 			{
-				throw new HapticsLoadingException(Wrapper.GetError());
+				throw new HapticsLoadingException(NSVR.GetError());
 
 			}
 		}
 
 		private CommandWithHandle _create()
 		{
-			return new CommandWithHandle(handle => Interop.NSVR_CreatePattern(Wrapper.NSVR_Plugin.Ptr, handle, _name));
+			return new CommandWithHandle(handle => Interop.NSVR_CreatePattern(NSVR.NSVR_Plugin.Ptr, handle, _name));
 		}
 
 		public HapticHandle CreateHandle()
 		{
 			return new HapticHandle(_Play(), _Pause(), _create(), _Reset(), _name);
+		}
+
+		public void LoadFromExisting(string id)
+		{
+			throw new NotImplementedException();
 		}
 	}
 
@@ -306,21 +361,26 @@ namespace NullSpace.SDK
 		{
 			_name = name;
 
-			bool loaded = Interop.NSVR_LoadExperience(Wrapper.NSVR_Plugin.Ptr, name);
+			bool loaded = Interop.NSVR_LoadExperience(NSVR.NSVR_Plugin.Ptr, name);
 			if (!loaded)
 			{
-				throw new HapticsLoadingException(Wrapper.GetError());
+				throw new HapticsLoadingException(NSVR.GetError());
 
 			}
 		}
 
 		private CommandWithHandle _create()
 		{
-			return new CommandWithHandle(handle => Interop.NSVR_CreateExperience(Wrapper.NSVR_Plugin.Ptr, handle, _name));
+			return new CommandWithHandle(handle => Interop.NSVR_CreateExperience(NSVR.NSVR_Plugin.Ptr, handle, _name));
 		}
 		public HapticHandle CreateHandle()
 		{
 			return new HapticHandle(_Play(), _Pause(), _create(), _Reset(), _name);
+		}
+
+		public void LoadFromExisting(string id)
+		{
+			throw new NotImplementedException();
 		}
 	}
 
