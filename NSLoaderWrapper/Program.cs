@@ -55,8 +55,8 @@ namespace NSLoaderWrapper
 			var b = new CodePattern("test");
 		//	b.Add(new PatternItem(0.0f, a, AreaFlag.All_Areas));
 			b.Add(new PatternItem(0.0f, a, AreaFlag.All_Areas));
-
-			b.Add(new CodePatternItem(0.5f, codeSeq, AreaFlag.All_Areas));
+			b.Add(new PatternItem(0.0f, codeSeq, AreaFlag.Left_All));
+		//	b.Add(new CodePatternItem(0.5f, codeSeq, AreaFlag.All_Areas));
 			//b.Add(new CodePatternItem(0.5f, codeSeq, AreaFlag.All_Areas));
 
 			b.CreateHandle();

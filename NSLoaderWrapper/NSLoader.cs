@@ -6,6 +6,8 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using NullSpace.HapticFiles;
 using FlatBuffers;
+using NullSpace.HapticFiles.Mixed;
+
 namespace NullSpace.SDK
 {
 
@@ -47,6 +49,7 @@ namespace NullSpace.SDK
 		{
 			T haptic = new T();
 			haptic.Load(id);
+			haptic.Name = id;
 			return haptic;
 		}
 
@@ -245,7 +248,7 @@ namespace NullSpace.SDK
 	{
 
 		internal Playable() { }
-		private static CommandWithHandle GenerateCommandDelegate(Interop.Command c)
+		internal static CommandWithHandle GenerateCommandDelegate(Interop.Command c)
 		{
 			return new CommandWithHandle(x => Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, x, (short)c));
 		}
@@ -264,22 +267,23 @@ namespace NullSpace.SDK
 		{
 			return GenerateCommandDelegate(Interop.Command.PAUSE);
 		}
+
+
 	}
 
 	public interface IPlayable
 	{
 		void Load(string id);
+
 	}
-	public class Sequence : Playable, IPlayable
+	public interface ISaveable
+	{
+		void SaveAs(string id);
+	}
+	public class Sequence : AbstractSequence, IPlayable
 	{
 		private string _name;
-		public string Name
-		{
-			get
-			{
-				return _name;
-			}
-		}
+		
 		public Sequence(string name)
 		{
 			_name = name;
@@ -291,6 +295,13 @@ namespace NullSpace.SDK
 				throw new HapticsLoadingException(NSVR.GetError());
 					
 			}
+		}
+		override
+		internal Offset<HapticFiles.Mixed.Sequence> Encode(FlatBufferBuilder builder, AreaFlag area)
+		{
+			var seqRef = HapticFiles.Mixed.SeqRef.CreateSeqRef(builder, builder.CreateString(_name));
+			var finishedSeq = HapticFiles.Mixed.Sequence.CreateSequence(builder, (uint)area, EffectValuesOrNameReference.SeqRef, seqRef.Value);
+			return finishedSeq;
 		}
 		public Sequence()
 		{
@@ -321,6 +332,8 @@ namespace NullSpace.SDK
 
 			}
 		}
+
+		
 	}
 
 	public class Pattern : Playable
