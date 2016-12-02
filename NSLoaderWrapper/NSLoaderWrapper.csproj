@@ -102,7 +102,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ByteBuffer.cs" />
-    <Compile Include="CodeHaptics.cs" />
     <Compile Include="FlatBufferBuilder.cs" />
     <Compile Include="FlatBufferConstants.cs" />
     <Compile Include="HapticFiles\Command.cs" />

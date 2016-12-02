@@ -37,9 +37,7 @@ namespace NullSpace.SDK
 
 			public static extern bool NSVR_CreateSequence(IntPtr value, uint handle, [MarshalAs(UnmanagedType.LPStr)] string s, uint location);
 
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			[return: MarshalAs(UnmanagedType.I1)]
-			public static extern bool NSVR_CreateCodeSequence(IntPtr value, uint handle, byte[] data, uint size);
+		
 			#endregion
 
 			#region Pattern
@@ -49,9 +47,7 @@ namespace NullSpace.SDK
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			[return: MarshalAs(UnmanagedType.I1)]
 			public static extern bool NSVR_CreatePattern(IntPtr value, uint handle, [MarshalAs(UnmanagedType.LPStr)] string s);
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			[return: MarshalAs(UnmanagedType.I1)]
-			public static extern bool NSVR_CreateCodePattern(IntPtr value, uint handle, byte[] data, uint size);
+			
 
 
 			#endregion
@@ -122,8 +118,10 @@ namespace NullSpace.SDK
 		Left_All = 0x000000FF,
 		Right_All = 0x00FF0000,
 		All_Areas = Left_All | Right_All,
-		//todo: need to add Both flags
-	};
+
+	
+
+			};
 
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]

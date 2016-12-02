@@ -36,22 +36,7 @@ namespace NullSpace.SDK
 			return s;
 		}
 
-		/// <summary>
-		/// Retrieves a reference to a resource (will be loaded from disk if not yet loaded.)
-		/// Call CreateHandle() on resource to play and modify haptic (see HapticHandle.)
-		/// Can also be inserted into code created haptics. Ex: when creating a CodePatternItem, provide a
-		/// HapticRef as the second argument
-		/// </summary>
-		/// <typeparam name="T">Sequence, Pattern, or Experience</typeparam>
-		/// <param name="id">Name of the resource. Ex: ns.click</param>
-		/// <returns>Reference to the resource</returns>
-		public static T HapticRef<T>(string id) where T : IPlayable, new()
-		{
-			T haptic = new T();
-			haptic.Load(id);
-			haptic.Name = id;
-			return haptic;
-		}
+
 
 		
 
@@ -280,7 +265,7 @@ namespace NullSpace.SDK
 	{
 		void SaveAs(string id);
 	}
-	public class Sequence : AbstractSequence, IPlayable
+	public class Sequence : Playable, IPlayable
 	{
 		private string _name;
 		
@@ -296,17 +281,8 @@ namespace NullSpace.SDK
 					
 			}
 		}
-		override
-		internal Offset<HapticFiles.Mixed.Sequence> Encode(FlatBufferBuilder builder, AreaFlag area)
-		{
-			var seqRef = HapticFiles.Mixed.SeqRef.CreateSeqRef(builder, builder.CreateString(_name));
-			var finishedSeq = HapticFiles.Mixed.Sequence.CreateSequence(builder, (uint)area, EffectValuesOrNameReference.SeqRef, seqRef.Value);
-			return finishedSeq;
-		}
-		public Sequence()
-		{
-
-		}
+		
+	
 		private CommandWithHandle _create(uint location)
 		{
 			return new CommandWithHandle(handle => Interop.NSVR_CreateSequence(NSVR.NSVR_Plugin.Ptr, handle, _name, location));
