@@ -72,8 +72,21 @@ namespace NullSpace.SDK
 
 			}
 
-			
 
+			public void PauseAll()
+			{
+				Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.PAUSE_ALL);
+			}
+
+			public void ResumeAll()
+			{
+				Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.PLAY_ALL);
+			}
+
+			public void ClearAll()
+			{
+				Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.CLEAR_ALL);
+			}
 
 			public int PollStatus()
 			{
@@ -87,9 +100,15 @@ namespace NullSpace.SDK
 
 			public TrackingUpdate PollTracking()
 			{
-				TrackingUpdate t = new TrackingUpdate();
+				InteropTrackingUpdate t = new InteropTrackingUpdate();
 				Interop.NSVR_PollTracking(_ptr, ref t);
-				return t;
+				TrackingUpdate update = new TrackingUpdate();
+				update.Chest = new UnityEngine.Quaternion(t.chest.x, t.chest.y, t.chest.z, t.chest.w);
+				update.LeftUpperArm = new UnityEngine.Quaternion(t.left_upper_arm.x, t.left_upper_arm.y, t.left_upper_arm.z, t.left_upper_arm.w);
+				update.RightUpperArm = new UnityEngine.Quaternion(t.right_upper_arm.x, t.right_upper_arm.y, t.right_upper_arm.z, t.right_upper_arm.w);
+				update.LeftForearm = new UnityEngine.Quaternion(t.left_forearm.x, t.left_forearm.y, t.left_forearm.z, t.left_forearm.w);
+				update.RightForearm = new UnityEngine.Quaternion(t.right_forearm.x, t.right_forearm.y, t.right_forearm.z, t.right_forearm.w);
+				return update;
 			}
 
 			#region IDisposable Support
@@ -133,6 +152,14 @@ namespace NullSpace.SDK
 		}
 	}
 	
+	public struct TrackingUpdate
+	{
+		public UnityEngine.Quaternion Chest;
+		public UnityEngine.Quaternion LeftUpperArm;
+		public UnityEngine.Quaternion LeftForearm;
+		public UnityEngine.Quaternion RightUpperArm;
+		public UnityEngine.Quaternion RightForearm;
+	}
 	public sealed class HapticHandle : IDisposable
 	{
 		/// <summary>

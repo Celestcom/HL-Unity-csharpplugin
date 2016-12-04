@@ -68,9 +68,15 @@ namespace NullSpace.SDK
 			{
 				PLAY = 0, PAUSE, RESET, RELEASE
 			}
-
+			public enum EngineCommand
+			{
+				PLAY_ALL=1, PAUSE_ALL, CLEAR_ALL, ENABLE_TRACKING, DISABLE_TRACKING
+			}
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern int NSVR_PollTracking(IntPtr value, ref TrackingUpdate q);
+			public static extern bool NSVR_EngineCommand(IntPtr value, short command);
+			
+			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+			public static extern int NSVR_PollTracking(IntPtr value, ref InteropTrackingUpdate q);
 
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
@@ -125,7 +131,7 @@ namespace NullSpace.SDK
 
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-	public struct Quaternion
+	internal struct Quaternion
 	{
 		public float w;
 		public float x;
@@ -134,7 +140,7 @@ namespace NullSpace.SDK
 	}
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-	public struct TrackingUpdate
+	internal struct InteropTrackingUpdate
 	{
 		public Quaternion chest;
 		public Quaternion left_upper_arm;
