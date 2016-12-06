@@ -34,7 +34,12 @@ namespace NSLoaderWrapper
 			NSVR.NSVR_Plugin loader = new NSVR.NSVR_Plugin(@"C:\Users\NullSpace Team\Documents\API_Environment\Assets\StreamingAssets");
 			//	Sequence s = new Sequence("ns.basic.click_click_click");
 			//s.CreateHandle(AreaFlag.All_Areas).Play();
-
+			Sequence s = new Sequence("ns.demos.click_click_click");
+			s.CreateHandle(AreaFlag.All_Areas).Play();
+			loader.Dispose();
+			//loader.Dispose();
+			//loader.Dispose();
+			//loader.ClearAll();
 			//Console.ReadLine();
 			//h.Pause();
 			//Console.ReadLine();
@@ -47,21 +52,21 @@ namespace NSLoaderWrapper
 			//CodeSequence seq = new CodeSequence("seq");
 			//seq.Add(new CodeSequenceItem(0.0f, "hum", 1.0f, 3.0f));
 			//seq.Add(new CodeSequenceItem(4.0f, "hum", 0.2f, 1.0f));
-			var a = NSVR.HapticRef<Sequence>("ns.click");
-			var codeSeq = new CodeSequence("myseq");
-			codeSeq.Add(new CodeSequenceItem(0.0f, "hum"));
+			//var a = NSVR.HapticRef<Sequence>("ns.click");
+			//var codeSeq = new CodeSequence("myseq");
+			//codeSeq.Add(new CodeSequenceItem(0.0f, "hum"));
 			//codeSeq.CreateHandle(AreaFlag.All_Areas);
 
-			var b = new CodePattern("test");
+		//	var b = new CodePattern("test");
 		//	b.Add(new PatternItem(0.0f, a, AreaFlag.All_Areas));
-			b.Add(new PatternItem(0.0f, a, AreaFlag.All_Areas));
-			b.Add(new PatternItem(0.0f, codeSeq, AreaFlag.Left_All));
+		//	b.Add(new PatternItem(0.0f, a, AreaFlag.All_Areas));
+		//	b.Add(new PatternItem(0.0f, codeSeq, AreaFlag.Left_All));
 		//	b.Add(new CodePatternItem(0.5f, codeSeq, AreaFlag.All_Areas));
 			//b.Add(new CodePatternItem(0.5f, codeSeq, AreaFlag.All_Areas));
 
-			b.CreateHandle();
-			while (true)
-			{
+			//b.CreateHandle();
+			//while (true)
+		//	{
 			
 				//	//handle1.Reset();
 				//handle1.Play();
@@ -93,7 +98,7 @@ namespace NSLoaderWrapper
 
 				//	}
 				//	loader.Dispose();
-			}
+			//}
 		}
 
 	}

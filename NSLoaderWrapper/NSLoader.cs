@@ -42,6 +42,7 @@ namespace NullSpace.SDK
 
 		public sealed class NSVR_Plugin : IDisposable
 		{
+			internal static bool _disposed = false;
 
 			internal static IntPtr Ptr
 			{
@@ -88,9 +89,9 @@ namespace NullSpace.SDK
 				Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.CLEAR_ALL);
 			}
 
-			public int PollStatus()
+			public SuitStatus PollStatus()
 			{
-				return Interop.NSVR_PollStatus(_ptr);
+				return (SuitStatus) Interop.NSVR_PollStatus(_ptr);
 			}
 
 			public void SetTrackingEnabled(bool wantTracking)
@@ -128,6 +129,7 @@ namespace NullSpace.SDK
 					Interop.NSVR_Delete(_ptr);
 
 					disposedValue = true;
+					_disposed = true;
 				}
 			}
 
@@ -160,7 +162,7 @@ namespace NullSpace.SDK
 		public UnityEngine.Quaternion RightUpperArm;
 		public UnityEngine.Quaternion RightForearm;
 	}
-	public sealed class HapticHandle : IDisposable
+	public sealed class HapticHandle 
 	{
 		/// <summary>
 		/// Retain the effect name, so that someone calling ToString() can get useful information
@@ -231,7 +233,12 @@ namespace NullSpace.SDK
 				{
 					// TODO: dispose managed state (managed objects).
 				}
-				Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, _handle, (short)Interop.Command.RELEASE);
+				if (!NSVR.NSVR_Plugin._disposed)
+				{
+					Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, _handle, (short)Interop.Command.RELEASE);
+				}
+					
+				
 				// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
 				// TODO: set large fields to null.
 

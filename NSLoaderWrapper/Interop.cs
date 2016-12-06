@@ -92,7 +92,11 @@ namespace NullSpace.SDK
 		}
 	}
 	
-
+	public enum SuitStatus
+	{
+		Disconnected = 0,
+		Connected = 2
+	}
 	public enum AreaFlag
 	{
 		None,
