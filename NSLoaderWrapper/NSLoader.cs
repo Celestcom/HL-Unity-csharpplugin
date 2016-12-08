@@ -96,13 +96,21 @@ namespace NullSpace.SDK
 
 			public void SetTrackingEnabled(bool wantTracking)
 			{
-				Interop.NSVR_SetTrackingEnabled(_ptr, wantTracking);
+				if (wantTracking)
+				{
+					Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.ENABLE_TRACKING);
+				}else
+				{
+					Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.DISABLE_TRACKING);
+
+				}
 			}
 
 			public TrackingUpdate PollTracking()
 			{
 				InteropTrackingUpdate t = new InteropTrackingUpdate();
 				Interop.NSVR_PollTracking(_ptr, ref t);
+			
 				TrackingUpdate update = new TrackingUpdate();
 				update.Chest = new UnityEngine.Quaternion(t.chest.x, t.chest.y, t.chest.z, t.chest.w);
 				update.LeftUpperArm = new UnityEngine.Quaternion(t.left_upper_arm.x, t.left_upper_arm.y, t.left_upper_arm.z, t.left_upper_arm.w);
