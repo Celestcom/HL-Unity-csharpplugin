@@ -124,7 +124,7 @@ namespace NullSpace.SDK
 		Chest_Both = Chest_Left | Chest_Right,
 		Upper_Ab_Both = Upper_Ab_Left | Upper_Ab_Right,
 		Mid_Ab_Both = Mid_Ab_Left | Mid_Ab_Right,
-		Lower_Ab_Both = Mid_Ab_Left | Mid_Ab_Right,
+		Lower_Ab_Both = Lower_Ab_Left | Lower_Ab_Right,
 		Left_All = 0x000000FF,
 		Right_All = 0x00FF0000,
 		All_Areas = Left_All | Right_All,
