@@ -68,7 +68,8 @@ namespace NullSpace.SDK
 					Debug.LogWarning("[NSVR] NSVR_Plugin should only be created by the NullSpace SDK");
 				
 				} 
-				_ptr = Interop.NSVR_Create(path);
+				_ptr = Interop.NSVR_Create();
+				Interop.NSVR_InitializeFromFilesystem(_ptr, path);
 				_created = true;
 
 			}
@@ -315,7 +316,7 @@ namespace NullSpace.SDK
 		{
 			_name = name;
 			
-			bool loaded = Interop.NSVR_LoadSequence(NSVR.NSVR_Plugin.Ptr, name);
+			bool loaded = Interop.NSVR_Load(NSVR.NSVR_Plugin.Ptr, name, 0);
 			
 			if (!loaded)
 			{
@@ -342,7 +343,7 @@ namespace NullSpace.SDK
 		{
 			_name = id;
 
-			bool loaded = Interop.NSVR_LoadSequence(NSVR.NSVR_Plugin.Ptr, _name);
+			bool loaded = Interop.NSVR_Load(NSVR.NSVR_Plugin.Ptr, _name, 0);
 
 			if (!loaded)
 			{
@@ -361,7 +362,7 @@ namespace NullSpace.SDK
 		{
 			_name = name;
 		
-			bool loaded = Interop.NSVR_LoadPattern(NSVR.NSVR_Plugin.Ptr, name);
+			bool loaded = Interop.NSVR_Load(NSVR.NSVR_Plugin.Ptr, name, 1);
 			if (!loaded)
 			{
 				throw new HapticsLoadingException(NSVR.GetError());
@@ -392,7 +393,7 @@ namespace NullSpace.SDK
 		{
 			_name = name;
 
-			bool loaded = Interop.NSVR_LoadExperience(NSVR.NSVR_Plugin.Ptr, name);
+			bool loaded = Interop.NSVR_Load(NSVR.NSVR_Plugin.Ptr, name, 2);
 			if (!loaded)
 			{
 				throw new HapticsLoadingException(NSVR.GetError());
