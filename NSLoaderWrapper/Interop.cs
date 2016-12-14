@@ -134,6 +134,14 @@ namespace NullSpace.SDK
 
 			};
 
+	public enum Imu
+	{
+		Chest = 0,
+		Right_Upper_Arm = 1,
+		Left_Upper_Arm = 2,
+		Right_Forearm = 3,
+		Left_Forearm = 4
+	}
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
 	internal struct Quaternion

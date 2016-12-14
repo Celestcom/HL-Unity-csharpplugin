@@ -34,9 +34,9 @@ namespace NSLoaderWrapper
 			NSVR.NSVR_Plugin loader = new NSVR.NSVR_Plugin(@"C:\Users\NullSpace Team\Documents\NullSpace SDK 0.1.1\Assets\StreamingAssets");
 			//	Sequence s = new Sequence("ns.basic.click_click_click");
 			//s.CreateHandle(AreaFlag.All_Areas).Play();
-			Pattern p = new Pattern("ns.demos.pulse");
-			p.CreateHandle().Play();
-		//	Sequence s = new Sequence("ns.demos.click_click_click");
+			Pattern p = new Pattern("ns.demos.intense");
+		//	p.CreateHandle().Play();
+			//	Sequence s = new Sequence("ns.demos.click_click_click");
 			//s.CreateHandle(AreaFlag.All_Areas).Play();
 			//loader.Dispose();
 			//loader.Dispose();
@@ -69,8 +69,7 @@ namespace NSLoaderWrapper
 			//b.CreateHandle();
 			while (true)
 			{
-
-				var update = loader.PollTracking();
+				Console.WriteLine(loader.PollStatus());
 			}
 				//	//handle1.Reset();
 				//handle1.Play();
