@@ -102,6 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ByteBuffer.cs" />
+    <Compile Include="CodeHaptics.cs" />
     <Compile Include="FlatBufferBuilder.cs" />
     <Compile Include="FlatBufferConstants.cs" />
     <Compile Include="HapticFiles\Command.cs" />
@@ -118,9 +119,12 @@
     <Compile Include="HapticFiles\Mixed\Pattern.cs" />
     <Compile Include="HapticFiles\Mixed\SeqRef.cs" />
     <Compile Include="HapticFiles\Mixed\Sequence.cs" />
+    <Compile Include="HapticFiles\Node.cs" />
+    <Compile Include="HapticFiles\NodeType.cs" />
     <Compile Include="HapticFiles\Pattern.cs" />
     <Compile Include="HapticFiles\Sequence.cs" />
     <Compile Include="HapticFiles\Tracking.cs" />
+    <Compile Include="Shaders.cs" />
     <Compile Include="IFlatbufferObject.cs" />
     <Compile Include="Interop.cs" />
     <Compile Include="NSLoader.cs" />

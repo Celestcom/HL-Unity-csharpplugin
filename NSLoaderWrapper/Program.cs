@@ -31,10 +31,11 @@ namespace NSLoaderWrapper
 			//	loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
 			//loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
 			//bool toggle = true;
-			NSVR.NSVR_Plugin loader = new NSVR.NSVR_Plugin(@"C:\Users\NullSpace Team\Documents\NullSpace SDK 0.1.1\Assets\StreamingAssets");
+			NSVR.NSVR_Plugin loader = new NSVR.NSVR_Plugin(@"C:\Users\NullSpace Team\Documents\NullSpace SDK 0.1.1\Assets\StreamingAssets\Haptics");
 			//	Sequence s = new Sequence("ns.basic.click_click_click");
 			//s.CreateHandle(AreaFlag.All_Areas).Play();
-			Pattern p = new Pattern("ns.demos.intense");
+			Experience p = new Experience("ns.demos.stressed");
+			p.CreateHandle().Play();
 		//	p.CreateHandle().Play();
 			//	Sequence s = new Sequence("ns.demos.click_click_click");
 			//s.CreateHandle(AreaFlag.All_Areas).Play();
