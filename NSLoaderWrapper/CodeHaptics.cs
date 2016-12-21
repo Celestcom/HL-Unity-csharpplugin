@@ -9,17 +9,17 @@ namespace NullSpace.SDK
 {
 	public class CodeEffect
 	{
-		float Time;
-		string Effect;
-		float Duration;
-		float Strength;
-		AreaFlag Area;
-		public CodeEffect(float time, string effect, float duration, float strength, AreaFlag area)
+		public float Time;
+		public string Effect;
+		public float Duration;
+		public float Strength;
+		public AreaFlag Area;
+		public CodeEffect(float time, string effect,float duration,double strength, AreaFlag area)
 		{
 			Time = time;
 			Effect = effect;
 			Duration = duration;
-			Strength = strength;
+			Strength = (float)strength;
 			Area = area;
 		}
 		internal Offset<Node> Generate(FlatBufferBuilder builder) 
@@ -38,19 +38,12 @@ namespace NullSpace.SDK
 			var children = Node.CreateChildrenVector(builder, childs);
 			Node.StartNode(builder);
 			Node.AddType(builder, NodeType.Sequence);
+			Node.AddArea(builder, (uint)this.Area);
 			Node.AddChildren(builder, children);
 			Node.AddTime(builder, 0);
 			var root = Node.EndNode(builder);
 			return root;
-			/*
-			 * var weaponOneName = builder.CreateString("Sword");
-var weaponOneDamage = 3;
-var weaponTwoName = builder.CreateString("Axe");
-var weaponTwoDamage = 5;
-// Use the `CreateWeapon()` helper function to create the weapons, since we set every field.
-var sword = Weapon.CreateWeapon(builder, weaponOneName, (short)weaponOneDamage);
-var axe = Weapon.CreateWeapon(builder, weaponTwoName, (short)weaponTwoDamage);
-*/
+		
 		}
 	}
 }

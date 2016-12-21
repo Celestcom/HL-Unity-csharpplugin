@@ -55,7 +55,7 @@ namespace NullSpace.SDK
 					}
 					else
 					{
-						throw new ArgumentException("[NSVR] You may not initialize Sequences, Patterns, and Experiences at their point of declaration (please do it inside of Start(), Awake(), or other runtime methods)");
+						throw new ArgumentException("[NSVR] You may not initialize Sequences, Patterns, and Experiences at their point of declaration.\n\tPlease do it inside of Start(), Awake(), or other runtime methods.\n\tThis error may be caused by not having NS Manager in the scene as well.");
 
 					}
 
@@ -207,7 +207,18 @@ namespace NullSpace.SDK
 			create(_handle);
 		}
 
-		
+		internal HapticHandle(CommandWithHandle play, CommandWithHandle pause, CommandWithHandle create, CommandWithHandle reset)
+		{
+			_effectName = "Custom effect";
+			_playDelegate = play;
+			_pauseDelegate = pause;
+			_resetDelegate = reset;
+			_handle = Interop.NSVR_GenHandle(NSVR._ptr);
+
+
+			create(_handle);
+			
+		}
 		public HapticHandle Play()
 		{
 			_playDelegate(_handle);
