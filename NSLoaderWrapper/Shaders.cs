@@ -6,6 +6,7 @@ using UnityEngine;
 using System.Threading;
 using NullSpace.HapticFiles;
 using NullSpace.SDK.Internal;
+using FlatBuffers;
 
 namespace NullSpace.SDK
 {
@@ -135,6 +136,7 @@ namespace NullSpace.SDK
 			else return val;
 		}
 	}
+	/*
 	public class FanWindGenerator : AreaGenerator
 	{
 		public AreaAttribute[] Mix(AreaFlag a, AreaFlag b, double t)
@@ -178,7 +180,8 @@ namespace NullSpace.SDK
 			return new Area(Mix(AreaFlag.Chest_Left, AreaFlag.Chest_Right, (Math.Sin(time) + 1.0) / 2.0));
 		}
 	}
-
+	*/
+	/*
 	public class CutaneousRabbit : AreaGenerator
 	{
 		private AreaFlag _nodeA;
@@ -209,7 +212,7 @@ namespace NullSpace.SDK
 			return a;
 		}
 	}
-
+	*/
 	public abstract class HapticShader
 	{
 		private IDictionary<string, object> _parameters;
@@ -235,6 +238,7 @@ namespace NullSpace.SDK
 
 		internal abstract CodeEffect Shade();
 	}
+	/*
 	public class GenericStrengthShader : HapticShader
 	{
 
@@ -249,12 +253,14 @@ namespace NullSpace.SDK
 			//internal engine flag
 			AreaFlag area = GetParam<AreaFlag>("area");
 			string effect = GetParam<string>("effect");
-			return new CodeEffect(0, effect, 0.0f, strength, area);
 
+			//todo:fix
+			//return new CodeEffect(0, effect, 0.0f, strength, area);
+			return new CodeEffect(0f, "click", 0f);
 		}
 	}
 
-
+	*/
 
 	public interface ITimeProvider
 	{
@@ -352,6 +358,8 @@ namespace NullSpace.SDK
 
 				}).Shade())
 			.ToList();
+			//todo: Fix shader implementation now that have CodeSequence, CodePattern etc.
+			/*
 			if (effects.Count > 0)
 			{
 				var handle = Interop.NSVR_GenHandle(NSVR.NSVR_Plugin.Ptr);
@@ -361,7 +369,7 @@ namespace NullSpace.SDK
 				Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, handle, (short)Command.PLAY);
 				_prevHandle = handle;
 			}
-
+			*/
 		}
 
 
@@ -369,108 +377,36 @@ namespace NullSpace.SDK
 
 	internal static class EncodingUtils
 	{
-		internal static byte[] Encode(IEnumerable<CodeEffect> effects, UInt32 handle)
+		internal static byte[] Encode(IGeneratable effects, UInt32 handle)
 		{
 			var builder = new FlatBuffers.FlatBufferBuilder(128);
-			var offsets = effects.Select(codeEffect => codeEffect.Generate(builder)).ToArray();
+			var packet = effects.Generate(builder);
 
 
-			var children = Node.CreateChildrenVector(builder, offsets);
-			Node.StartNode(builder);
-			Node.AddType(builder, NodeType.Pattern);
-			Node.AddTime(builder, 0);
-			Node.AddChildren(builder, children);
-			var rootNode = Node.EndNode(builder);
 
-			var name = builder.CreateString("test node");
+			var name = builder.CreateString("Code generated Haptic Node");
 			HapticPacket.StartHapticPacket(builder);
 			HapticPacket.AddHandle(builder, handle);
 			HapticPacket.AddPacketType(builder, FileType.Node);
 			HapticPacket.AddName(builder, name);
-			HapticPacket.AddPacket(builder, rootNode.Value);
+			HapticPacket.AddPacket(builder, packet.Value);
 			var rootTable = HapticPacket.EndHapticPacket(builder);
 			builder.Finish(rootTable.Value);
 			return builder.SizedByteArray();
 
 		}
 	}
-
-	public abstract class PatternGenerator<InputA> where InputA : CodeEffect
+	
+	public interface IHapticGenerator<Input, Output>
 	{
-		protected class Moment
-		{
-			private double _time;
-			private AreaFlag _area;
-			private CodeEffect _seq;
-			public CodeEffect Effect
-			{
-				get
-				{
-					return _seq;
-				}
-			}
-			public Moment(double time, AreaFlag area, CodeEffect seq)
-			{
-				_time = time;
-				_area = area;
-				_seq = seq;
-				_seq.Area = _area;
-				_seq.Time = (float)_time;
-			}
-		}
-		private List<Moment> _moments;
-		public PatternGenerator()
-		{
-			_moments = new List<Moment>();
-		}
-		protected void ClearMoments()
-		{
-			_moments.Clear();
-		}
-		protected void AddMoment(double time, AreaFlag area, InputA input)
-		{
-			_moments.Add(new Moment(time, area, input));
-		}
-
-		public CodePattern Generate(InputA seq)
-		{
-			var effects = _moments.Select(moment => moment.Effect).ToList();
-			return new CodePattern(effects);
-		}
-
-
+		Output Generate(Input input);
 	}
-
-	public class CodePattern : Playable
-	{
-		private IEnumerable<CodeEffect> _effects;
-		internal CodePattern(IEnumerable<CodeEffect> effects)
-		{
-			_effects = effects;
-		}
-		private void _create(uint handle)
-		{
-			var bytes = EncodingUtils.Encode(_effects, handle);
-			Interop.NSVR_CreateHaptic(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
-
-		}
-		public HapticHandle CreateHandle()
-		{
-			return new HapticHandle(_Play(), _Pause(), _create, _Reset());
-		}
-
-		public HapticHandle Play()
-		{
-			var handle = CreateHandle();
-			handle.Play();
-			return handle;
-		}
-	}
-	public class RandomGenerator : PatternGenerator<CodeEffect>
+	/*
+	public class RandomGenerator : IHapticGenerator<CodeSequence, CodePattern>
 	{
 		private System.Random _random;
 		private IList<AreaFlag> _areas;
-		private CodeEffect _sequence;
+		private AreaFlag _currentArea;
 		public RandomGenerator()
 		{
 			var stuff = Enum.GetValues(typeof(AreaFlag));
@@ -478,25 +414,29 @@ namespace NullSpace.SDK
 			_areas = a.Where(flag => flag.ToString().Contains("_Left") || flag.ToString().Contains("_Right")).ToList();
 
 			_random = new System.Random();
+			Next();
 		}
 
 		public RandomGenerator Next()
 		{
-			base.ClearMoments();
 
 			int which = _random.Next(0, _areas.Count);
-			base.AddMoment(0.0, _areas[which], _sequence);
+			_currentArea = _areas[which];
 			return this;
 		}
-
-		public CodePattern GenerateNext(CodeEffect c)
+		public CodePattern Generate(CodeSequence s)
 		{
-			_sequence = c;
-			Next();
-			return Generate(c);
+			CodePattern p = new CodePattern();
+			p.AddChild(0f, _currentArea, s);
+			return p;
+		}
+		public CodePattern GenerateNext(CodeSequence s)
+		{
+			return Next().Generate(s);
 		}
 
 	}
+	*/
 	//their code
 
 }

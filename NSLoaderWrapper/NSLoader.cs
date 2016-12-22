@@ -239,7 +239,14 @@ namespace NullSpace.SDK
 
 		public override string ToString()
 		{
-			return string.Format("Handle ID {0} playing effect {1}", _handle, _effectName);
+			if (disposedValue)
+			{
+				return string.Format("[Disposed] Handle ID {0} playing effect {1}", _handle, _effectName);
+			}
+			else
+			{
+				return string.Format("Handle ID {0} playing effect {1}", _handle, _effectName);
+			}
 		}
 
 		#region IDisposable Support
@@ -282,7 +289,11 @@ namespace NullSpace.SDK
 		}
 		#endregion
 	}
-	
+	public abstract class Generatable
+	{
+		abstract internal Offset<Node> Generate(FlatBufferBuilder builder);
+
+	}
 	public abstract class Playable
 	{
 
@@ -307,7 +318,7 @@ namespace NullSpace.SDK
 			return GenerateCommandDelegate(Interop.Command.PAUSE);
 		}
 
-
+		
 	}
 
 	public interface IPlayable
