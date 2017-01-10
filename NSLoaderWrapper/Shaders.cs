@@ -395,7 +395,27 @@ namespace NullSpace.SDK
 			return builder.SizedByteArray();
 
 		}
-	}
+		internal delegate Offset<Node> BuffEncoder(FlatBufferBuilder builder);
+
+		internal static byte[] EncodeDel(BuffEncoder encoder, UInt32 handle)
+		{
+			var builder = new FlatBuffers.FlatBufferBuilder(128);
+			var packet = encoder(builder);
+
+
+
+			var name = builder.CreateString("Code generated Haptic Node");
+			HapticPacket.StartHapticPacket(builder);
+			HapticPacket.AddHandle(builder, handle);
+			HapticPacket.AddPacketType(builder, FileType.Node);
+			HapticPacket.AddName(builder, name);
+			HapticPacket.AddPacket(builder, packet.Value);
+			var rootTable = HapticPacket.EndHapticPacket(builder);
+			builder.Finish(rootTable.Value);
+			return builder.SizedByteArray();
+		}
+		
+		
 	
 	public interface IHapticGenerator<Input, Output>
 	{

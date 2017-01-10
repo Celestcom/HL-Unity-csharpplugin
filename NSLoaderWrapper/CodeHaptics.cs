@@ -8,114 +8,238 @@ using NullSpace.SDK.Internal;
 
 namespace NullSpace.SDK
 {
-
+	/// <summary>
+	/// hum, buzz, click, double_click, fuzz, long_double_sharp_tick, <para></para>pulse, pulse_sharp, sharp_click, sharp_tick, short_double_click, short_double_sharp_tick, transition_click, transition_hum, triple_click
+	/// </summary>
 	public class CodeEffect  : IGeneratable
 	{
-		public float Time;
-		public string Effect;
-		public float Duration;
-		public float Strength;
-		public CodeEffect(float time, string effect,float duration, double strength = 1.0)
+
+		private float _time;
+		private string _effect;
+		private float _duration;
+		private float _strength;
+
+		public float Time
 		{
-			Time = time;
-			Effect = effect;
-			Duration = duration;
-			Strength = (float)strength;
+			get
+			{
+				return _time;
+			}
+
+			set
+			{
+				_time = value;
+			}
 		}
-		public CodeEffect(string effect, float duration, double strength = 1.0)
+
+		public string Effect
 		{
-			Effect = effect;
+			get
+			{
+				return _effect;
+			}
+
+			set
+			{
+				_effect = value;
+			}
+		}
+
+		public double Duration
+		{
+			get
+			{
+				return _duration;
+			}
+
+			set
+			{
+				_duration = (float)value;
+			}
+		}
+
+		public double Strength
+		{
+			get
+			{
+				return _strength;
+			}
+
+			set
+			{
+				_strength = (float)value;
+			}
+		}
+
+		public CodeEffect(string effect)
+		{
+			_effect = effect;
+			_duration = 0f;
+			_strength = 1f;
+		}
+
+		public CodeEffect(string effect, double duration)
+		{
+			_effect = effect;
 			Duration = duration;
-			Strength = (float)strength;
+			_strength = 1f;
+		}
+
+		public CodeEffect(string effect, double duration, double strength)
+		{
+			_effect = effect;
+			Duration = duration;
+			Strength = strength;
 		}
 		Offset<Node> IGeneratable.Generate(FlatBufferBuilder builder) 
 		{
-			var effect = builder.CreateString(Effect);
+			var effect = builder.CreateString(_effect);
 			Node.StartNode(builder);
 			Node.AddType(builder, NodeType.Effect);
-			Node.AddTime(builder, Time);
+			Node.AddTime(builder, _time);
 			Node.AddEffect(builder, effect);
-			Node.AddStrength(builder, Strength);
-			Node.AddDuration(builder, Duration);
+			Node.AddStrength(builder, _strength);
+			Node.AddDuration(builder, _duration);
 			var root = Node.EndNode(builder);
 			return root;
 		}
-
+	
 		public CodeEffect Clone()
 		{
-			return new CodeEffect(this.Time, this.Effect, this.Duration, this.Strength);
+			return new CodeEffect(_effect, Duration, Strength);
 		}
 	}
-
 	public class CodeSequence :Playable, IGeneratable
 	{
-		public AreaFlag Area;
-		public float Strength;
-		public IList<CodeEffect> Children;
-		public float Time;
-		public CodeSequence(AreaFlag area, float strength)
+		private AreaFlag _area;
+		private float _strength;
+		private IList<CodeEffect> _children;
+		private float _time;
+		public AreaFlag Area
 		{
-			Area = area;
-			Strength = strength;
-			Children = new List<CodeEffect>();
+			get
+			{
+				return _area;
+			}
 
+			set
+			{
+				_area = value;
+			}
 		}
+
+		public double Strength
+		{
+			get
+			{
+				return _strength;
+			}
+
+			set
+			{
+				_strength = (float)value;
+			}
+		}
+
+		public IList<CodeEffect> Children
+		{
+			get
+			{
+				return _children;
+			}
+
+			set
+			{
+				_children = value;
+			}
+		}
+
+		public double Time
+		{
+			get
+			{
+				return _time;
+			}
+
+			set
+			{
+				_time = (float) value;
+			}
+		}
+
 		
 		public CodeSequence()
 		{
-			Area = AreaFlag.None;
-			Strength = 1f;
-			Children = new List<CodeEffect>();
+			_area = AreaFlag.None;
+			_strength = 1f;
+			_children = new List<CodeEffect>();
 		}
 		public CodeSequence Clone()
 		{
 			var clone = new CodeSequence();
-			clone.Area = this.Area;
-			clone.Strength = this.Strength;
-			clone.Time = this.Time;
-			clone.Children = new List<CodeEffect>(this.Children);
+			clone.Area = _area;
+			clone.Strength = _strength;
+			clone.Time = _time;
+			clone.Children = new List<CodeEffect>(_children);
 			return clone;
 		}
-		public void AddChild(CodeEffect e)
-		{
-			Children.Add(e);
-		}
-		public void AddChild(float time, CodeEffect e)
+		
+		public void AddEffect(double time, CodeEffect e)
 		{
 			var clone = e.Clone();
-			clone.Time = time;
+			clone.Time = (float)time;
 			Children.Add(clone);
 		}
 		Offset<Node> IGeneratable.Generate(FlatBufferBuilder builder) {
-			//var children = new Offset<Node>[Children.Count];
-			var children = Node.CreateChildrenVector(builder,
-				Children.Select(child => ((IGeneratable)child).Generate(builder)).ToArray());
-			Node.StartNode(builder);
-			Node.AddType(builder, NodeType.Sequence);
-			Node.AddArea(builder, (uint)Area);
-			Node.AddStrength(builder, Strength);
-			Node.AddTime(builder, Time);
-			Node.AddChildren(builder, children);
-			var root = Node.EndNode(builder);
-			return root;
+			return this.Bake(Area, _strength)(builder);
 		}
-		private Interop.CommandWithHandle _create(AreaFlag location)
+
+		
+		EncodingUtils.BuffEncoder Bake(AreaFlag area, double strength)
+		{
+			return delegate (FlatBufferBuilder builder)
+			{
+				var children = Node.CreateChildrenVector(builder,
+				_children.Select(child => ((IGeneratable)child).Generate(builder)).ToArray());
+				Node.StartNode(builder);
+				Node.AddType(builder, NodeType.Sequence);
+				Node.AddArea(builder, (uint)area);
+				Node.AddStrength(builder, (float)strength);
+				Node.AddTime(builder, _time);
+				Node.AddChildren(builder, children);
+				return Node.EndNode(builder);
+			};
+		}
+		private Interop.CommandWithHandle _create(AreaFlag location, double strength = 1.0)
 		{
 			return new Interop.CommandWithHandle(handle => {
-				Area = location;
-				var bytes = EncodingUtils.Encode(this, handle);
+			
+				
+				var bytes = EncodingUtils.EncodeDel(this.Bake(location, strength), handle);
 				Interop.NSVR_CreateHaptic(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
 			});
 			
 
 		}
+
 		public HapticHandle CreateHandle(AreaFlag area)
 		{
 			return new HapticHandle(_Play(), _Pause(), _create(area), _Reset());
 		}
+		public HapticHandle CreateHandle(AreaFlag area, double strength)
+		{
+			return new HapticHandle(_Play(), _Pause(), _create(area, strength), _Reset());
+		}
 		public HapticHandle Play(AreaFlag area)
 		{
 			var handle = CreateHandle(area);
+			handle.Play();
+			return handle;
+		}
+
+		public HapticHandle Play(AreaFlag area, double strength)
+		{
+			var handle = CreateHandle(area, strength);
 			handle.Play();
 			return handle;
 		}
@@ -126,51 +250,112 @@ namespace NullSpace.SDK
 	}
 	public class CodePattern : Playable, IGeneratable
 	{
-		public float Strength;
-		public float Time;
-		public IList<CodeSequence> Children;
+		private float _strength;
+		private float _time;
+		private IList<CodeSequence> _children;
+
+		public double Strength
+		{
+			get
+			{
+				return _strength;
+			}
+
+			set
+			{
+				_strength = (float)value;
+			}
+		}
+
+		public double Time
+		{
+			get
+			{
+				return _time;
+			}
+
+			set
+			{
+				_time = (float)value;
+			}
+		}
+
+		public IList<CodeSequence> Children
+		{
+			get
+			{
+				return _children;
+			}
+
+			set
+			{
+				_children = value;
+			}
+		}
 
 		public CodePattern()
 		{
-			Children = new List<CodeSequence>();
-			Time = 0f;
-			Strength = 1f;
+			_children = new List<CodeSequence>();
+			_time = 0f;
+			_strength = 1f;
 		}
-		public void AddChild(CodeSequence e)
+		
+		public void AddSequence(double time, AreaFlag area, CodeSequence sequence)
 		{
-			Children.Add(e);
-		}
-
-		public void AddChild(float time, AreaFlag area, CodeSequence e)
-		{
-			var clone = e.Clone();
+			var clone = sequence.Clone();
 			clone.Time = time;
 			clone.Area = area;
-			Children.Add(clone);
-		}
-		Offset<Node> IGeneratable.Generate(FlatBufferBuilder builder)
-		{
-			//var children = new Offset<Node>[Children.Count];
-			var children = Node.CreateChildrenVector(builder,
-				Children.Select(child => ((IGeneratable)child).Generate(builder)).ToArray());
-			Node.StartNode(builder);
-			Node.AddType(builder, NodeType.Pattern);
-			Node.AddTime(builder, Time);
-			Node.AddStrength(builder, Strength);
-			Node.AddChildren(builder, children);
-			var root = Node.EndNode(builder);
-			return root;
+			clone.Strength = 1.0;
+			_children.Add(clone);
 		}
 
-		private void _create(uint handle)
+		public void AddSequence(double time, AreaFlag area, double strength, CodeSequence sequence)
 		{
-			var bytes = EncodingUtils.Encode(this, handle);
-			Interop.NSVR_CreateHaptic(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+			var clone = sequence.Clone();
+			clone.Strength = strength;
+			clone.Time = time;
+			clone.Area = area;
+			_children.Add(clone);
+		}
+
+		Offset<Node> IGeneratable.Generate(FlatBufferBuilder builder)
+		{
+			return this.Bake(_strength)(builder);
+			
+		}
+	
+		EncodingUtils.BuffEncoder Bake(double strength)
+		{
+			return delegate (FlatBufferBuilder builder)
+			{
+				var children = Node.CreateChildrenVector(builder,
+				_children.Select(child => ((IGeneratable)child).Generate(builder)).ToArray());
+				Node.StartNode(builder);
+				Node.AddType(builder, NodeType.Pattern);
+				Node.AddTime(builder, _time);
+				Node.AddStrength(builder, (float)strength);
+				Node.AddChildren(builder, children);
+				var root = Node.EndNode(builder);
+				return root;
+			};
+		}
+		private Interop.CommandWithHandle _create(double strength = 1.0)
+		{
+			return new Interop.CommandWithHandle(handle => {
+				
+				var bytes = EncodingUtils.EncodeDel(this.Bake(strength), handle);
+				Interop.NSVR_CreateHaptic(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+			});
+		
 
 		}
 		public HapticHandle CreateHandle()
 		{
-			return new HapticHandle(_Play(), _Pause(), _create, _Reset());
+			return new HapticHandle(_Play(), _Pause(), _create(_strength), _Reset());
+		}
+		public HapticHandle CreateHandle(double strength)
+		{
+			return new HapticHandle(_Play(), _Pause(), _create(strength), _Reset());
 		}
 
 		public HapticHandle Play()
@@ -180,31 +365,13 @@ namespace NullSpace.SDK
 			return handle;
 		}
 
-	}
-	/// <summary>
-	/// Todo: implement this. It would gather any handles and dispose of them for you
-	/// </summary>
-	public class HandleCollector
-	{
-		private IList<HapticHandle> _handles;
-		public HandleCollector()
+		public HapticHandle Play(double strength)
 		{
-			_handles = new List<HapticHandle>();
-		}
-		public void Take(HapticHandle h)
-		{
-			_handles.Add(h);
-		}
-
-		public void Cleanup()
-		{
-			foreach (var handle in _handles)
-			{
-				handle.Dispose();
-			}
-
-			_handles.Clear();
+			var handle = CreateHandle(strength);
+			handle.Play();
+			return handle;
 		}
 	}
+	
 	
 }
