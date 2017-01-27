@@ -48,7 +48,7 @@ namespace NullSpace.SDK
 			{
 				get
 				{
-					if (_created)
+					if (_created && !_disposed)
 					{
 
 						return _ptr;
@@ -63,10 +63,11 @@ namespace NullSpace.SDK
 			}
 			public NSVR_Plugin(string path)
 			{
+				_disposed = false;
 				if (_created)
 				{
 					Debug.LogWarning("[NSVR] NSVR_Plugin should only be created by the NullSpace SDK");
-				
+					return;
 				} 
 				_ptr = Interop.NSVR_Create();
 				Interop.NSVR_InitializeFromFilesystem(_ptr, path);
@@ -135,6 +136,9 @@ namespace NullSpace.SDK
 
 					// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
 					// TODO: set large fields to null.
+
+					_created = false;
+
 					Interop.NSVR_Delete(_ptr);
 
 					disposedValue = true;
@@ -219,6 +223,12 @@ namespace NullSpace.SDK
 			create(_handle);
 			
 		}
+
+		public HapticHandle Clone()
+		{
+			//todo: Implement;
+			return null;
+		}
 		public HapticHandle Play()
 		{
 			_playDelegate(_handle);
@@ -274,10 +284,10 @@ namespace NullSpace.SDK
 		}
 
 		// TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-		 ~HapticHandle() {
+	//	 ~HapticHandle() {
 		//   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-			  Dispose(false);
-		 }
+			//  Dispose(false);
+		// }
 
 		// This code added to correctly implement the disposable pattern.
 		public void Dispose()
