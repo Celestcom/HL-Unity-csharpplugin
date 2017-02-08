@@ -17,21 +17,42 @@ namespace NSLoaderWrapper
 		public static int Main()
 		{
 			//	Stopwatch sw = new Stopwatch();
-
+		
 
 			//	loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
 			//loader.PlayEffect(1, 1, 1.9f, 1.0f, 1);
 			//bool toggle = true;
-				NSVR.NSVR_Plugin loader = new NSVR.NSVR_Plugin(@"C:\Users\NullSpace Team\Documents\NullSpace SDK 0.1.1\Assets\StreamingAssets\Haptics");
+			NSVR.NSVR_Plugin loader = new NSVR.NSVR_Plugin(@"C:\Users\NullSpace Team\Documents\NullSpace SDK 0.1.1\Assets\StreamingAssets\Haptics");
 
-			//	Sequence s = new Sequence("ns.basic.click_click_click");
-			//s.CreateHandle(AreaFlag.All_Areas).Play();
-			//DefaultTimeProvider p = new DefaultTimeProvider();
-			//RandomGenerator g = new RandomGenerator();
+
+			Sequence test = new Sequence("ns.click");
+
+			var h = test.CreateHandle(AreaFlag.All_Areas);
 			while (true)
 			{
-				Console.WriteLine(loader.PollStatus());
+				h.Play();
+				/*Console.ReadLine();
+				var hh = test.CreateHandle(AreaFlag.Chest_Left).Play();
+				System.Threading.Thread.Sleep(1000);
+				var h22 = hh.Clone().Play();
+				Console.ReadLine();
+				hh.Play();
+				System.Threading.Thread.Sleep(6000);
+				h22.Play();
+				*/
+
+				
+
 			}
+			//some time later (< effect length), noop
+
+
+			//some time later (>= effect length),
+			//performs the equivalent of hh.Reset().Play()
+			//hh.Play();
+
+
+			//	Console.ReadLine();
 			//	g.GenerateNext(new CodeEffect(0f, "click", 0f, 1f, AreaFlag.None)).Play();
 
 			//	CodePattern pa = new CodePattern();

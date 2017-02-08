@@ -175,6 +175,10 @@ namespace NullSpace.SDK
 		public UnityEngine.Quaternion RightUpperArm;
 		public UnityEngine.Quaternion RightForearm;
 	}
+
+	/// <summary>
+	/// HapticHandle is a handle used to control the playback of haptic effects. If you are concerned about performance, please call Dispose on a HapticHandle which is no longer needed. This will tell the engine that it may dispose of the resources dedicated to this HapticHandle.
+	/// </summary>
 	public sealed class HapticHandle 
 	{
 		/// <summary>
@@ -197,18 +201,23 @@ namespace NullSpace.SDK
 		/// _resetDelegate contains knowledge of how to reset the effect
 		/// </summary>
 		private CommandWithHandle _resetDelegate;
+		/// <summary>
+		/// Store this for clone functionality
+		/// </summary>
+		private CommandWithHandle _createDelegate;
 
+		internal HapticHandle() { }
 		internal HapticHandle(CommandWithHandle play, CommandWithHandle pause, CommandWithHandle create, CommandWithHandle reset, string name)
 		{
 			_effectName = name;
 			_playDelegate = play;
 			_pauseDelegate = pause;
 			_resetDelegate = reset;
-
+			_createDelegate = create;
 			//Grab a handle from the DLL
 			_handle = Interop.NSVR_GenHandle(NSVR._ptr);
 			//This is a network call to the engine, to load the effect up
-			create(_handle);
+			_createDelegate(_handle);
 		}
 
 		internal HapticHandle(CommandWithHandle play, CommandWithHandle pause, CommandWithHandle create, CommandWithHandle reset)
@@ -224,29 +233,50 @@ namespace NullSpace.SDK
 			
 		}
 
+		/// <summary>
+		/// Clone this HapticHandle
+		/// </summary>
+		/// <returns>A new HapticHandle</returns>
 		public HapticHandle Clone()
 		{
-			//todo: Implement;
-			return null;
+			return new HapticHandle(_playDelegate, _pauseDelegate, _createDelegate, _resetDelegate, _effectName);
+	
 		}
+
+		/// <summary>
+		/// Play the associated effect
+		/// </summary>
+		/// <returns></returns>
 		public HapticHandle Play()
 		{
 			_playDelegate(_handle);
 			return this;
 		}
 
+		/// <summary>
+		/// Cause the effect to stop playing and return to time 0. Will not continue playing until Play is called again
+		/// </summary>
+		/// <returns></returns>
 		public HapticHandle Reset()
 		{
 			_resetDelegate(_handle);
 			return this;
 		}
 
+		/// <summary>
+		/// Cause the effect to pause. Can be resumed by calling Play
+		/// </summary>
+		/// <returns></returns>
 		public HapticHandle Pause()
 		{
 			_pauseDelegate(_handle);
 			return this;
 		}
 
+		/// <summary>
+		/// Return information about this handle, such as the internal Handle ID and an indication of the disposed status
+		/// </summary>
+		/// <returns></returns>
 		public override string ToString()
 		{
 			if (disposedValue)
@@ -289,7 +319,10 @@ namespace NullSpace.SDK
 			//  Dispose(false);
 		// }
 
-		// This code added to correctly implement the disposable pattern.
+		/// <summary>
+		/// Allow the engine to reclaim resources associated with this HapticHandle. After calling this, 
+		/// the HapticHandle will no longer be useable. 
+		/// </summary>
 		public void Dispose()
 		{
 			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
@@ -331,19 +364,20 @@ namespace NullSpace.SDK
 		
 	}
 
-	public interface IPlayable
-	{
-		void Load(string id);
 
-	}
-	public interface ISaveable
-	{
-		void SaveAs(string id);
-	}
-	public class Sequence : Playable, IPlayable
+
+	/// <summary>
+	/// Sequences live on the filesystem as static assets. They can be loaded at runtime using this class.
+	/// </summary>
+	public class Sequence : Playable
 	{
 		private string _name;
 		
+		/// <summary>
+		/// <para>Construct a new Sequence with the given fully-qualified name. Ex: new Sequence("ns.click")</para>
+		/// <para>Throws HapticsLoadingException on failure to load the file</para>
+		/// </summary>
+		/// <param name="name">Fully-qualified name</param>
 		public Sequence(string name)
 		{
 			_name = name;
@@ -363,6 +397,11 @@ namespace NullSpace.SDK
 			return new CommandWithHandle(handle => Interop.NSVR_CreateSequence(NSVR.NSVR_Plugin.Ptr, handle, _name, location));
 		}
 
+		/// <summary>
+		/// Create a HapticHandle with a given AreaFlag for this Sequence
+		/// </summary>
+		/// <param name="location">The AreaFlag on which to play this Sequence</param>
+		/// <returns>A new HapticHandle to control this Sequence</returns>
 		public HapticHandle CreateHandle(AreaFlag location)
 		{
 
@@ -371,25 +410,21 @@ namespace NullSpace.SDK
 		}
 
 
-		public void Load(string id)
-		{
-			_name = id;
-
-			bool loaded = Interop.NSVR_Load(NSVR.NSVR_Plugin.Ptr, _name, 0);
-
-			if (!loaded)
-			{
-				throw new HapticsLoadingException(NSVR.GetError());
-
-			}
-		}
 
 		
 	}
 
+	/// <summary>
+	/// Patterns live on the filesystem as static assets. They can be loaded at runtime using this class.
+	/// </summary>
 	public class Pattern : Playable
 	{
 		private string _name;
+
+		/// <summary>
+		/// Construct a new Pattern with the given fully-qualified name. Ex: new Pattern("ns.demos.beating_heart")
+		/// </summary>
+		/// <param name="name">The fully-qualified name</param>
 		public Pattern(string name)
 		{
 			_name = name;
@@ -406,21 +441,29 @@ namespace NullSpace.SDK
 		{
 			return new CommandWithHandle(handle => Interop.NSVR_CreatePattern(NSVR.NSVR_Plugin.Ptr, handle, _name));
 		}
-
+		/// <summary>
+		/// Create a HapticHandle for this Pattern
+		/// </summary>
+		/// <returns>A new HapticHandle for controlling this Pattern</returns>
 		public HapticHandle CreateHandle()
 		{
 			return new HapticHandle(_Play(), _Pause(), _create(), _Reset(), _name);
 		}
 
-		public void LoadFromExisting(string id)
-		{
-			throw new NotImplementedException();
-		}
+		
 	}
 
+	/// <summary>
+	/// Experiences live on the filesystem as static assets. They can be loaded at runtime using this class.
+	/// </summary>
 	public class Experience : Playable
 	{
 		private string _name;
+		/// <summary>
+		/// <para>Construct a new Experience from the filesystem with a given fully-qualified name. Ex: new Experience("ns.demos.chest_swirl")</para>
+		/// <para>Throws HapticsLoadingException on failure to load file</para>
+		/// </summary>
+		/// <param name="name">The fully-qualified name</param>
 		public Experience(string name)
 		{
 			_name = name;
@@ -437,15 +480,17 @@ namespace NullSpace.SDK
 		{
 			return new CommandWithHandle(handle => Interop.NSVR_CreateExperience(NSVR.NSVR_Plugin.Ptr, handle, _name));
 		}
+
+		/// <summary>
+		/// Create a HapticHandle to control this Experience
+		/// </summary>
+		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle()
 		{
 			return new HapticHandle(_Play(), _Pause(), _create(), _Reset(), _name);
 		}
 
-		public void LoadFromExisting(string id)
-		{
-			throw new NotImplementedException();
-		}
+
 	}
 
 
