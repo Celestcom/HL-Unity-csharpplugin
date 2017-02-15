@@ -10,7 +10,7 @@ namespace NullSpace.SDK
 		{
 			var builder = new FlatBuffers.FlatBufferBuilder(128);
 			var packet = effects.Generate(builder);
-
+			
 
 
 			var name = builder.CreateString("Code generated Haptic Node");
