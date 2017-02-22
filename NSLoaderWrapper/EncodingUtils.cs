@@ -2,10 +2,13 @@
 using System;
 
 using FlatBuffers;
+using NullSpace.Events;
 namespace NullSpace.SDK
 {
 	internal static class EncodingUtils
 	{
+
+		
 		internal static byte[] Encode(IGeneratable effects, UInt32 handle)
 		{
 			var builder = new FlatBuffers.FlatBufferBuilder(128);

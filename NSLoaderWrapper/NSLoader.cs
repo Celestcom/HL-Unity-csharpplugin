@@ -70,7 +70,8 @@ namespace NullSpace.SDK
 					return;
 				} 
 				_ptr = Interop.NSVR_Create();
-				Interop.NSVR_InitializeFromFilesystem(_ptr, path);
+				//New plugin doesn't do FS stuff?
+				//Interop.NSVR_InitializeFromFilesystem(_ptr, path);
 				_created = true;
 
 			}
@@ -90,6 +91,8 @@ namespace NullSpace.SDK
 			{
 				Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.CLEAR_ALL);
 			}
+
+		
 
 			public SuitStatus PollStatus()
 			{

@@ -88,6 +88,8 @@ namespace NullSpace.SDK
 
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+			[return: MarshalAs(UnmanagedType.I1)]
+
 			public static extern bool NSVR_InitializeFromFilesystem(IntPtr value, [MarshalAs(UnmanagedType.LPStr)]string path);
 
 
@@ -95,6 +97,9 @@ namespace NullSpace.SDK
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			public static extern void NSVR_CreateHaptic(IntPtr value, uint handle, byte[] data, uint size);
 
+
+			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+			public static extern UInt32 NSVR_TransmitEvents(IntPtr value, byte[] data, uint size);
 		}
 	}
 	

@@ -143,6 +143,8 @@ namespace NullSpace.SDK
 		{
 			return new CodeEffect(_effect, Duration, Strength);
 		}
+
+	
 	}
 
 	/// <summary>
@@ -227,6 +229,11 @@ namespace NullSpace.SDK
 			_area = AreaFlag.None;
 			_strength = 1f;
 			_children = new List<CodeEffect>();
+		}
+
+		public CodeSequence(string id)
+		{
+			
 		}
 
 		/// <summary>
@@ -335,12 +342,16 @@ namespace NullSpace.SDK
 			return handle;
 		}
 	}
+	class TinyEffect
+	{
 
+	}
 	internal interface IGeneratable
 	{
 		Offset<Node> Generate(FlatBufferBuilder builder);
+	
 	}
-
+	
 	/// <summary>
 	/// CodePatterns are used to combine one or more CodeSequences into a single, playable effect. Each CodeSequence added to the CodePattern will have a time offset and optional strength. 
 	/// </summary>
