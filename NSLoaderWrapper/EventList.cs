@@ -10,15 +10,19 @@ namespace NullSpace.SDK
 {
 	internal abstract class SuitEvent
 	{
-	
+		private SuitEventType _eventType;
 		protected abstract int _generate(FlatBufferBuilder b);
-		protected abstract SuitEventType EventType();
+
+		protected SuitEvent(SuitEventType eventType)
+		{
+			this._eventType = eventType;
+		}
 		public Offset<Events.SuitEvent> Generate(FlatBufferBuilder b)
 		{
 			int realValue = _generate(b);
 			Events.SuitEvent.StartSuitEvent(b);
 			Events.SuitEvent.AddEvent(b, realValue);
-			Events.SuitEvent.AddEventType(b, EventType());
+			Events.SuitEvent.AddEventType(b, _eventType);
 			return Events.SuitEvent.EndSuitEvent(b);
 		}
 	}
@@ -43,17 +47,16 @@ namespace NullSpace.SDK
 			return Events.BasicHapticEvent.EndBasicHapticEvent(b).Value;
 		}
 		public BasicHapticEvent(float time, float strength, float duration, UInt32 area, string effect)
+			:base(SuitEventType.BasicHapticEvent)
 		{
+			
 			this._time = time;
 			this._strength = strength;
 			this._duration = duration;
 			this._area = area;
 			this._effect = effect;
 		}
-		protected override SuitEventType EventType()
-		{
-			return SuitEventType.BasicHapticEvent;
-		}
+		
 	}
 	internal class EventList { 
 	
