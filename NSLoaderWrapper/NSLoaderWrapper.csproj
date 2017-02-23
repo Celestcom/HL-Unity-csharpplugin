@@ -112,7 +112,7 @@
     <Compile Include="ByteBuffer.cs" />
     <Compile Include="CodeHaptics.cs" />
     <Compile Include="EncodingUtils.cs" />
-    <Compile Include="EventListBuilder.cs" />
+    <Compile Include="EventList.cs" />
     <Compile Include="FlatBufferBuilder.cs" />
     <Compile Include="FlatBufferConstants.cs" />
     <Compile Include="HapticFiles\Command.cs" />

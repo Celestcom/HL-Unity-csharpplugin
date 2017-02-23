@@ -85,6 +85,8 @@ namespace NullSpace.SDK
 			}
 		}
 
+	
+
 		/// <summary>
 		/// Construct a CodeEffect with a given effect family, default duration of 0, and strength of 1.
 		/// </summary>
@@ -221,6 +223,7 @@ namespace NullSpace.SDK
 			}
 		}
 
+
 		/// <summary>
 		/// Construct an empty CodeSequence with a default area of AreaFlag.None, and strength of 1.
 		/// </summary>
@@ -285,10 +288,18 @@ namespace NullSpace.SDK
 		private Interop.CommandWithHandle _create(AreaFlag location, double strength = 1.0)
 		{
 			return new Interop.CommandWithHandle(handle => {
-			
-				
-				var bytes = EncodingUtils.EncodeDel(this.Bake(location, strength), handle);
-				Interop.NSVR_CreateHaptic(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+				var oldArea = this.Area;
+				this.Area = location;
+				CodeHapticEncoder encoder = new CodeHapticEncoder();
+				encoder.Flatten(this);
+				var bytes = encoder.Encode();
+				this.Area = oldArea;
+				if(bytes == null)
+				{
+					Console.WriteLine("WTF");
+				}
+				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (UInt32)bytes.Length);
+				Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, handle, 0);
 			});
 			
 
@@ -348,8 +359,12 @@ namespace NullSpace.SDK
 	}
 	internal interface IGeneratable
 	{
+		//IGeneratable[] Children { get; }
+		//float Strength { get; }
+		//float Time { get; }
+
 		Offset<Node> Generate(FlatBufferBuilder builder);
-	
+		
 	}
 	
 	/// <summary>
@@ -409,6 +424,7 @@ namespace NullSpace.SDK
 			}
 		}
 
+	
 
 		/// <summary>
 		/// Construct an empty CodePattern with a default strength of 1

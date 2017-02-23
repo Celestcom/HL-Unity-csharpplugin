@@ -71,12 +71,28 @@ namespace NullSpace.SDK
 			_events.Add(e);
 		}
 
+
+		public void AddAll(EventList other)
+		{
+			foreach (var e in other._events)
+			{
+				_events.Add(e);
+			}
+		}
 		public byte[] Generate()
 		{
+			
+			Console.WriteLine("WTF1");
+			
 			FlatBufferBuilder builder = new FlatBufferBuilder(1);
 			
-		
-			Offset<Events.SuitEvent>[] generatedEvents = _events.Select(x => x.Generate(builder)).ToArray();
+			Console.WriteLine("WTF2");
+			Offset<Events.SuitEvent>[] generatedEvents = new Offset<Events.SuitEvent>[_events.Count];
+			for (int i = 0; i < _events.Count; i++) {
+				generatedEvents[i] = _events[i].Generate(builder);
+			}
+			
+			
 			var offsetGeneratedEvents = Events.SuitEventList.CreateEventsVector(builder, generatedEvents);
 			Events.SuitEventList.StartSuitEventList(builder);
 			Events.SuitEventList.AddEvents(builder, offsetGeneratedEvents);
@@ -87,7 +103,7 @@ namespace NullSpace.SDK
 
 			return builder.SizedByteArray();
 			
-
+	
 
 		}
 

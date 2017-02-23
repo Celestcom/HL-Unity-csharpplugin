@@ -99,7 +99,7 @@ namespace NullSpace.SDK
 
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern UInt32 NSVR_TransmitEvents(IntPtr value, byte[] data, uint size);
+			public static extern int NSVR_TransmitEvents(IntPtr value, uint handle, byte[] data, uint size);
 		}
 	}
 	
