@@ -8,9 +8,16 @@ using NullSpace.Events;
 
 namespace NullSpace.SDK
 {
-	internal abstract class SuitEvent
+	internal interface ITimeIndexed
+	{
+		float Time { get; }
+	}
+	internal abstract class SuitEvent : IComparable, ITimeIndexed
 	{
 		private SuitEventType _eventType;
+
+		public abstract float Time { get; }
+
 		protected abstract int _generate(FlatBufferBuilder b);
 
 		protected SuitEvent(SuitEventType eventType)
@@ -25,15 +32,27 @@ namespace NullSpace.SDK
 			Events.SuitEvent.AddEventType(b, _eventType);
 			return Events.SuitEvent.EndSuitEvent(b);
 		}
+
+		public abstract int CompareTo(object obj);
 	}
 
-	internal class BasicHapticEvent : SuitEvent
+	internal class BasicHapticEvent : SuitEvent, ITimeIndexed
 	{
 		private float _time;
 		private float _strength;
 		private float _duration;
 		private UInt32 _area;
 		private string _effect;
+
+	
+
+		public override float Time
+		{
+			get
+			{
+				return _time;
+			}
+		}
 
 		protected override int _generate(FlatBufferBuilder b)
 		{
@@ -46,6 +65,14 @@ namespace NullSpace.SDK
 			Events.BasicHapticEvent.AddEffect(b, effect);
 			return Events.BasicHapticEvent.EndBasicHapticEvent(b).Value;
 		}
+
+		public override int CompareTo(object obj)
+		{
+			ITimeIndexed timed = (ITimeIndexed)obj;
+			return _time.CompareTo(timed.Time);
+
+		}
+
 		public BasicHapticEvent(float time, float strength, float duration, UInt32 area, string effect)
 			:base(SuitEventType.BasicHapticEvent)
 		{
@@ -60,7 +87,7 @@ namespace NullSpace.SDK
 	}
 	internal class EventList { 
 	
-		private IList<SuitEvent> _events;
+		private List<SuitEvent> _events;
 		public EventList()
 		{
 			_events = new List<SuitEvent>();
@@ -81,7 +108,7 @@ namespace NullSpace.SDK
 		}
 		public byte[] Generate()
 		{
-			
+			_events.Sort();
 			Console.WriteLine("WTF1");
 			
 			FlatBufferBuilder builder = new FlatBufferBuilder(1);

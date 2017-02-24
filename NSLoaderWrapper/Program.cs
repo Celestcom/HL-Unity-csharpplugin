@@ -50,36 +50,59 @@ namespace NSLoaderWrapper
 			NSVR.NSVR_Plugin loader = new NSVR.NSVR_Plugin(@"C:\Users\NullSpace Team\Documents\NullSpace SDK 0.1.1\Assets\StreamingAssets\Haptics");
 
 
-			EventList list = new EventList();
-			list.AddEvent(new BasicHapticEvent(0f, 1f, 0f,(uint) AreaFlag.Back_Left, "click"));
-			list.AddEvent(new BasicHapticEvent(0.5f, 1f, 0f, (uint)AreaFlag.Back_Right, "click"));
-			list.AddEvent(new BasicHapticEvent(0.8f, 1f, 0f, (uint)AreaFlag.All_Areas, "click"));
 
-			list.AddEvent(new BasicHapticEvent(1.8f, 1f, 0f, (uint)AreaFlag.All_Areas, "click"));
 
-			list.AddEvent(new BasicHapticEvent(1.9f, 1f, 0f, (uint)AreaFlag.All_Areas, "click"));
+			var left_areas = new List<AreaFlag>() {
+				AreaFlag.Forearm_Left,
+				AreaFlag.Upper_Arm_Left,
+				AreaFlag.Shoulder_Left,
+				AreaFlag.Back_Left,
+				AreaFlag.Chest_Left,
+				AreaFlag.Upper_Ab_Left,
+				AreaFlag.Mid_Ab_Left,
+				AreaFlag.Lower_Ab_Left,
 
-			list.AddEvent(new BasicHapticEvent(3f, 1f, 1.0f, 12, "click"));
 
-			list.AddEvent(new BasicHapticEvent(4.1f, 1f, 0f, 12, "hum"));
 
-			list.AddEvent(new BasicHapticEvent(5f, 1f, 0f, 12, "hum"));
+			};
+			var right_areas = new List<AreaFlag>() {
+				AreaFlag.Forearm_Right,
+				AreaFlag.Upper_Arm_Right,
+				AreaFlag.Shoulder_Right,
+				AreaFlag.Back_Right,
+				AreaFlag.Chest_Right,
+				AreaFlag.Upper_Ab_Right,
+				AreaFlag.Mid_Ab_Right,
+				AreaFlag.Lower_Ab_Right,
 
-		//	var bytes = list.Generate();
 
-			var a = new CodeSequence();
-			a.AddEffect(0.0, new CodeEffect("hum", 0.3, 1.0));
-			a.AddEffect(1.5, new CodeEffect("buzz"));
-			a.CreateHandle(AreaFlag.All_Areas).Play();
-		//	CodeHapticEncoder encoder = new CodeHapticEncoder();
-		//	encoder.Flatten(a);
-		//	var bytes = encoder.Encode();
-		//	uint handle = Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, bytes, (UInt32) bytes.Length);
-		//	Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, handle, 0);
-			while (true)
+
+			};
+			CodeSequence buzz2 = new CodeSequence();
+			buzz2.AddEffect(0.0, new CodeEffect("hum", 0.1, 0.1));
+			//buzz2.AddEffect(3.2, new CodeEffect("click"));
+
+
+			CodePattern p = new CodePattern();
+			double time = 0;
+			foreach (var area in left_areas)
 			{
-
+				p.AddSequence(time, area, buzz2);
+				time += 0.05;
 			}
+		//	time += 0.7;
+			foreach (var area in right_areas)
+			{
+				p.AddSequence(time, area, buzz2);
+				time += 0.05;
+			}
+
+			//	CodeHapticEncoder encoder = new CodeHapticEncoder();
+			//	encoder.Flatten(a);
+			//	var bytes = encoder.Encode();
+			//	uint handle = Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, bytes, (UInt32) bytes.Length);
+			//	Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, handle, 0);
+			LoadingUtils.LoadAsset(@"C:\Users\NullSpace Team\Documents\Visual Studio 2015\Projects\NSLoaderWrapper\Debug\whatever.hdf");
 			return 0;
 		}
 

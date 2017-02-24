@@ -198,7 +198,7 @@ namespace NullSpace.SDK
 				double newTime = baseTime + seq.Time;
 
 
-				CreateEventList(seq, newTime, newStrength);
+				CreateEventList(seq, baseTime, baseStrength);
 				
 			}
 
@@ -207,7 +207,6 @@ namespace NullSpace.SDK
 
 		public byte[] Encode()
 		{
-			
 			return  _events.Generate();
 		}
 	}

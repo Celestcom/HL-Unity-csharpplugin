@@ -294,12 +294,8 @@ namespace NullSpace.SDK
 				encoder.Flatten(this);
 				var bytes = encoder.Encode();
 				this.Area = oldArea;
-				if(bytes == null)
-				{
-					Console.WriteLine("WTF");
-				}
+			
 				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (UInt32)bytes.Length);
-				Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, handle, 0);
 			});
 			
 
@@ -491,9 +487,12 @@ namespace NullSpace.SDK
 		private Interop.CommandWithHandle _create(double strength = 1.0)
 		{
 			return new Interop.CommandWithHandle(handle => {
-				
-				var bytes = EncodingUtils.EncodeDel(this.Bake(strength), handle);
-				Interop.NSVR_CreateHaptic(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+
+				CodeHapticEncoder encoder = new CodeHapticEncoder();
+				encoder.Flatten(this);
+				var bytes = encoder.Encode();
+
+				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (UInt32)bytes.Length);
 			});
 		
 
