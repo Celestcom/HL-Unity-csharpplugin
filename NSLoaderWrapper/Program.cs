@@ -7,29 +7,31 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
+using NullSpace.SDK.FileUtilities;
+
 namespace NSLoaderWrapper
 {
 
 	public class Program
 	{
 
-		static void WriteEffectToFile(IGeneratable effect, string filename)
+		static void WriteEffectToFile(string effect, string filename)
 		{
 		
 		
 			try
 			{
-				var dataBytes = EncodingUtils.Encode(effect, 0xDEADBEEF);
+				//var dataBytes = EncodingUtils.Encode(effect, 0xDEADBEEF);
 				// Open file for reading
 				System.IO.FileStream _FileStream =
 				   new System.IO.FileStream(filename, System.IO.FileMode.Create,
 											System.IO.FileAccess.Write);
 				// Writes a block of bytes to this stream using data from
 				// a byte array.
-				_FileStream.Write(dataBytes, 0, dataBytes.Length);
+			///	_FileStream.Write(dataBytes, 0, dataBytes.Length);
 
 				// close file stream
-				_FileStream.Close();
+			//	_FileStream.Close();
 
 				
 			}
@@ -102,7 +104,24 @@ namespace NSLoaderWrapper
 			//	var bytes = encoder.Encode();
 			//	uint handle = Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, bytes, (UInt32) bytes.Length);
 			//	Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, handle, 0);
-			LoadingUtils.LoadAsset(@"C:\Users\NullSpace Team\Documents\Visual Studio 2015\Projects\NSLoaderWrapper\Debug\whatever.hdf");
+			//var hdf = LoadingUtils.LoadAsset(@"C:\Users\NullSpace Team\Documents\Visual Studio 2015\Projects//\NSLoaderWrapper\Debug\whatever.hdf");
+			AssetTool a = new AssetTool();
+			
+			var packages = a.TryGetPackageInfo();
+			var hdf = a.GetHapticDefinitionFile(@"C:\Users\NullSpace Team\Documents\NullSpace SDK 0.1.1\Assets\StreamingAssets\Haptics\NS Demos\patterns\beating_heart_very_fast.pattern");
+			//CodePattern pat= FileToCodeHaptic.CreatePattern(hdf.root_effect.name, hdf);
+
+			CodeSequence s = new CodeSequence();
+			s.AddEffect(0.0, new CodeEffect("click"));
+			CodePattern t = new CodePattern();
+			t.AddSequence(0.0, AreaFlag.All_Areas, s);
+			while (true)
+			{
+				
+				Console.ReadLine();
+				t.Play();
+
+			}
 			return 0;
 		}
 

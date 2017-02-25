@@ -1,86 +1,150 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+
 using System.IO;
-using LitJson;
-namespace NullSpace.SDK
+
+
+namespace NullSpace.SDK.FileUtilities
 {
-	internal static class LoadingUtils
+
+
+	public static class LoadingUtils
 	{
-		public class RootEffect
+		internal static float parseFloat(object f)
+		{
+			double a = (double)f;
+			return (float)a;
+		}
+
+		public static IDictionary<string, IList<T>> parseDict<T>(IDictionary<string, object> dict) where T: IJsonDeserializable, new()
+		{
+			IDictionary<string, IList<T>> resultDict = new Dictionary<string, IList<T>>();
+			foreach (var kvp in dict)
+			{
+				//items.Add(kvp.Key, )
+				IList<object> items = kvp.Value as IList<object>;
+				resultDict.Add(kvp.Key, new List<T>());
+				foreach (var which in items)
+				{
+					T a = new T();
+					a.Deserialize(which as IDictionary<string, object>);
+					resultDict[kvp.Key].Add(a);
+				}
+			}
+
+			return resultDict;
+		}
+		public interface IJsonDeserializable
+		{
+			void Deserialize(IDictionary<string, object> dict);
+		}
+		public class RootEffect : IJsonDeserializable
 		{
 			public string name { get; set; }
 			public string type { get; set; }
-			
+		
+
+			public void Deserialize(IDictionary<string, object> dict)
+			{
+				this.name = (string)dict["name"];
+				this.type = (string)dict["type"];
+			}
 		}
 
-		public class JsonEffectAtom
+		public class JsonEffectAtom : IJsonDeserializable
 		{
 			public string effect;
 			public float duration;
 			public float strength;
 			public float time;
-			public JsonEffectAtom()
-			{
 
+			public void Deserialize(IDictionary<string, object> dict)
+			{
+				this.effect = dict["effect"] as string;
+				this.duration = parseFloat(dict["duration"]);
+				this.strength = parseFloat(dict["strength"]);
+				this.time = parseFloat(dict["time"]);
 			}
 		}
 
-		public class JsonSequenceAtom
+		public class JsonSequenceAtom : IJsonDeserializable
 		{
 			public string sequence;
 			public string area;
 			public float strength;
 			public float time;
-			public JsonSequenceAtom(){}
+
+			public void Deserialize(IDictionary<string, object> dict)
+			{
+				this.sequence = dict["sequence"] as string;
+				this.area = dict["area"] as string;
+				this.strength = parseFloat(dict["strength"]);
+				this.time = parseFloat(dict["time"]);
+			}
 		}
 
-		public class JsonPatternAtom
+		public class JsonPatternAtom : IJsonDeserializable
 		{
 			public string pattern;
 			public float strength;
 			public float time;
 			public JsonPatternAtom() { }
+
+			public void Deserialize(IDictionary<string, object> dict)
+			{
+				this.pattern = dict["pattern"] as string;
+				this.strength = parseFloat(dict["strength"]);
+				this.time = parseFloat(dict["time"]);
+			
+			}
 		}
-		public class PatternDefinitions
-		{
-			public IDictionary<string, IList<JsonSequenceAtom>> items;
-		}
-		public class SequenceDefinitions
-		{
-			public IDictionary<string, IList<JsonSequenceAtom>> items;
-		}
-		public class ExperienceDefinitions
-		{
-			public IDictionary<string, IList<JsonSequenceAtom>> items;
-		}
-		public class HapticDefinitionFile
+	
+		public class HapticDefinitionFile : IJsonDeserializable
 		{
 			public RootEffect root_effect;
-			SequenceDefinitions sequence_definitions;
-			PatternDefinitions pattern_definitions;
-			ExperienceDefinitions experience_definitions;
+			
+			public IDictionary<string, IList<JsonPatternAtom>> experience_definitions;
+			public IDictionary<string, IList<JsonSequenceAtom>> pattern_definitions;
+			public IDictionary<string, IList<JsonEffectAtom>> sequence_definitions;
 
+			public HapticDefinitionFile()
+			{
+				this.root_effect = new RootEffect();
+				
+			}
+			public void Deserialize(IDictionary<string, object> dict)
+			{
+				root_effect.Deserialize(dict["root_effect"] as IDictionary<string, object>);
+
+				pattern_definitions = parseDict<JsonSequenceAtom>(
+					dict["pattern_definitions"] as IDictionary<string, object>
+				);
+				sequence_definitions = parseDict<JsonEffectAtom>(
+					dict["sequence_definitions"] as IDictionary<string, object>
+				);
+				experience_definitions = parseDict<JsonPatternAtom>(
+					dict["experience_definitions"] as IDictionary<string, object>
+				);
+			}
 		}
-		internal static void LoadAsset(string path)
+
+
+	public static HapticDefinitionFile LoadAsset(string path)
 		{
 			try
 			{
+			
+				var json = File.ReadAllText(path);
 
-				var text = File.ReadAllText(path);
-				var jsonData = JsonMapper.ToObject(text);
+				IDictionary<string, object> obj = MiniJSON.Json.Deserialize(json) as IDictionary<string, object>;
 
-				var json = jsonData.IsObject;
-				var root = jsonData["root_effect"];
-				var x = JsonMapper.ToObject(new JsonReader(root.ToJson()));
-			//	RootEffect e = JsonMapper.ToObject<RootEffect>(what);
+				HapticDefinitionFile file = new HapticDefinitionFile();
+				file.Deserialize(obj);
+				return file;
+		
 
-				 
-				int y = 3;
-				
-				
-			} catch (IOException e)
+
+			}
+			catch (IOException e)
 			{
 				throw new HapticsLoadingException("Couldn't read the haptics asset at " + path, e);
 			}

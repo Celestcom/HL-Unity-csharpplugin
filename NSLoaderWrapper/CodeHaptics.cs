@@ -13,7 +13,7 @@ namespace NullSpace.SDK
 	/// to get a list of the currently available effects.</para><para> Effects can have time offsets, durations, and strengths, 
 	/// and are combined together to create CodeSequences. </para>
 	/// </summary>
-	public class CodeEffect  : IGeneratable
+	public class CodeEffect 
 	{
 
 		private float _time;
@@ -124,18 +124,7 @@ namespace NullSpace.SDK
 		}
 
 
-		Offset<Node> IGeneratable.Generate(FlatBufferBuilder builder) 
-		{
-			var effect = builder.CreateString(_effect);
-			Node.StartNode(builder);
-			Node.AddType(builder, NodeType.Effect);
-			Node.AddTime(builder, _time);
-			Node.AddEffect(builder, effect);
-			Node.AddStrength(builder, _strength);
-			Node.AddDuration(builder, _duration);
-			var root = Node.EndNode(builder);
-			return root;
-		}
+		
 	
 		/// <summary>
 		/// Create an independent copy of this CodeEffect
@@ -152,7 +141,7 @@ namespace NullSpace.SDK
 	/// <summary>
 	/// <para>CodeSequences are haptic effects which play on a given area on the suit. This area is specified with an AreaFlag, which can represent anything from one location to the entire suit.</para><para>A CodeSequence is composed of one or more CodeEffects with time offsets.</para>
 	/// </summary>
-	public class CodeSequence :Playable, IGeneratable
+	public class CodeSequence :Playable
 	{
 		private AreaFlag _area;
 		private float _strength;
@@ -265,26 +254,8 @@ namespace NullSpace.SDK
 			Effects.Add(clone);
 		}
 
-		Offset<Node> IGeneratable.Generate(FlatBufferBuilder builder) {
-			return this.Bake(Area, _strength)(builder);
-		}
-
 		
-		EncodingUtils.BuffEncoder Bake(AreaFlag area, double strength)
-		{
-			return delegate (FlatBufferBuilder builder)
-			{
-				var children = Node.CreateChildrenVector(builder,
-				_children.Select(child => ((IGeneratable)child).Generate(builder)).ToArray());
-				Node.StartNode(builder);
-				Node.AddType(builder, NodeType.Sequence);
-				Node.AddArea(builder, (uint)area);
-				Node.AddStrength(builder, (float)strength);
-				Node.AddTime(builder, _time);
-				Node.AddChildren(builder, children);
-				return Node.EndNode(builder);
-			};
-		}
+		
 		private Interop.CommandWithHandle _create(AreaFlag location, double strength = 1.0)
 		{
 			return new Interop.CommandWithHandle(handle => {
@@ -353,20 +324,12 @@ namespace NullSpace.SDK
 	{
 
 	}
-	internal interface IGeneratable
-	{
-		//IGeneratable[] Children { get; }
-		//float Strength { get; }
-		//float Time { get; }
 
-		Offset<Node> Generate(FlatBufferBuilder builder);
-		
-	}
-	
+
 	/// <summary>
 	/// CodePatterns are used to combine one or more CodeSequences into a single, playable effect. Each CodeSequence added to the CodePattern will have a time offset and optional strength. 
 	/// </summary>
-	public class CodePattern : Playable, IGeneratable
+	public class CodePattern : Playable
 	{
 		private float _strength;
 		private float _time;
@@ -463,27 +426,8 @@ namespace NullSpace.SDK
 			_children.Add(clone);
 		}
 
-		Offset<Node> IGeneratable.Generate(FlatBufferBuilder builder)
-		{
-			return this.Bake(_strength)(builder);
-			
-		}
-	
-		EncodingUtils.BuffEncoder Bake(double strength)
-		{
-			return delegate (FlatBufferBuilder builder)
-			{
-				var children = Node.CreateChildrenVector(builder,
-				_children.Select(child => ((IGeneratable)child).Generate(builder)).ToArray());
-				Node.StartNode(builder);
-				Node.AddType(builder, NodeType.Pattern);
-				Node.AddTime(builder, _time);
-				Node.AddStrength(builder, (float)strength);
-				Node.AddChildren(builder, children);
-				var root = Node.EndNode(builder);
-				return root;
-			};
-		}
+		
+		
 		private Interop.CommandWithHandle _create(double strength = 1.0)
 		{
 			return new Interop.CommandWithHandle(handle => {
@@ -543,5 +487,6 @@ namespace NullSpace.SDK
 		}
 	}
 	
+
 	
 }

@@ -5,6 +5,7 @@ using FlatBuffers;
 using NullSpace.Events;
 using System.Linq;
 using System.Collections.Generic;
+using NullSpace.SDK.FileUtilities;
 
 namespace NullSpace.SDK
 {
@@ -12,24 +13,7 @@ namespace NullSpace.SDK
 	{
 
 		
-		internal static byte[] Encode(IGeneratable effects, UInt32 handle)
-		{
-			var builder = new FlatBuffers.FlatBufferBuilder(128);
-			var packet = effects.Generate(builder);
-			
-
-
-			var name = builder.CreateString("Code generated Haptic Node");
-			HapticPacket.StartHapticPacket(builder);
-			HapticPacket.AddHandle(builder, handle);
-			HapticPacket.AddPacketType(builder, FileType.Node);
-			HapticPacket.AddName(builder, name);
-			HapticPacket.AddPacket(builder, packet.Value);
-			var rootTable = HapticPacket.EndHapticPacket(builder);
-			builder.Finish(rootTable.Value);
-			return builder.SizedByteArray();
-
-		}
+		
 		internal delegate Offset<Node> BuffEncoder(FlatBufferBuilder builder);
 
 		internal static byte[] EncodeDel(BuffEncoder encoder, UInt32 handle)
@@ -138,12 +122,91 @@ namespace NullSpace.SDK
 		*/
 		//their code
 	}
-
+	
 	internal interface IEncoder
 	{
 		byte[] Encode();
 	}
+	
+	internal class FileToCodeHaptic
+	{
+		
+		public static CodeSequence CreateSequence(string key,LoadingUtils.HapticDefinitionFile hdf)
+		{
+			CodeSequence s = new CodeSequence();
 
+			var sequence_def_array = hdf.sequence_definitions[key];
+			foreach (var effect in sequence_def_array)
+			{
+				s.AddEffect(effect.time, new CodeEffect(effect.effect, effect.duration, effect.strength));
+			}
+
+			return s;
+		}
+
+		public static CodePattern CreatePattern(string key, LoadingUtils.HapticDefinitionFile hdf)
+		{
+			CodePattern p = new CodePattern();
+			var pattern_def_array = hdf.pattern_definitions[key];
+			foreach (var seq in pattern_def_array)
+			{
+				AreaFlag area = new AreaParser(seq.area).GetArea();
+				CodeSequence thisSeq = CreateSequence(seq.sequence, hdf);
+				p.AddSequence(seq.time, area, thisSeq);
+			}
+			return p;
+		}
+
+		
+	}
+	//internal class FileHapticEncoder 
+	//{
+	//	EventList _events;
+	//	public FileHapticEncoder()
+	//	{
+	//		_events = new EventList();
+	//	}
+	//	private uint parseArea(string area)
+	//	{
+	//		//TODO: IMPLEMENT AREA PARSER!
+	//		return 1;
+	//	}
+		
+
+	//	private void _flattenSequenceDef(string key, LoadingUtils.HapticDefinitionFile hdf, uint area, float strength, float time)
+	//	{
+	//		var sequence_defs = hdf.sequence_definitions;
+	//		var atoms = sequence_defs[key];
+	//		foreach (var atom in atoms)
+	//		{
+	//			_events.AddEvent(new BasicHapticEvent(atom.time+time, atom.strength* strength, atom.duration, area, atom.effect));
+	//		}
+	//	}
+	//	private void _flattenPatternDef(string key, LoadingUtils.HapticDefinitionFile hdf, float strength, float time)
+	//	{
+	//		var pattern_defs = hdf.pattern_definitions;
+	//		var atoms = pattern_defs[key];
+	//		foreach (var atom in atoms)
+	//		{
+	//			var newStrength = strength * atom.strength;
+	//			var newTime = time + atom.time;
+	//			_flattenSequenceDef(atom.sequence, hdf, parseArea(atom.area), newStrength, newTime);
+	//		}
+	//	}
+	//	private void _flattenExperienceDef(string key, LoadingUtils.HapticDefinitionFile hdf)
+	//	{
+	//		var experience_defs = hdf.experience_definitions;
+	//		var atoms = experience_defs[key];
+	//		foreach (var atom in atoms)
+	//		{
+	//			_flattenPatternDef(atom.pattern, hdf, atom.strength, atom.time);
+	//		}
+	//	}
+	//	public byte[] Encode()
+	//	{
+	//		throw new NotImplementedException();
+	//	}
+	//}
 	internal class CodeHapticEncoder : IEncoder
 	{
 		EventList _events;
@@ -154,6 +217,7 @@ namespace NullSpace.SDK
 
 		public CodeHapticEncoder Flatten(CodePattern p)
 		{
+			
 			CreateEventList(p);
 			return this;
 		}
@@ -187,7 +251,6 @@ namespace NullSpace.SDK
 
 		private void CreateEventList(CodePattern p)
 		{
-			EventList events = new EventList();
 
 			double baseStrength = p.Strength;
 			double baseTime = p.Time;
