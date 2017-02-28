@@ -10,7 +10,7 @@ namespace NullSpace.SDK.FileUtilities
 	
 	public class AssetTool
 	{
-		public class PackageInfo : LoadingUtils.IJsonDeserializable
+		public class PackageInfo : ParsingUtils.IJsonDeserializable
 		{
 			public string version;
 			public string studio;
@@ -31,33 +31,55 @@ namespace NullSpace.SDK.FileUtilities
 			}
 		}
 
+		private class ArgList
+		{
+			private IDictionary<string, string> _args;
+			public ArgList()
+			{
+				_args = new Dictionary<string, string>();
+			}
+
+			public ArgList Add(string key, string value)
+			{
+				_args[key] = value;
+				return this;
+			}
+
+			public ArgList Add(string key)
+			{
+				_args[key] = "";
+				return this;
+			}
+
+			public List<KeyValuePair<string, string>> Args { get { return this._args.ToList(); } }
+		}
 		public class PackageInfoList
 		{
 			public List<PackageInfo> Packages { get; set; }
 		}
 
 		private string _toolName;
-		private string _toolLocation;
 		private Process _process;
 		private string _rootPath;
-		private IDictionary<string, string> _arguments;
 
 		//the HapticAssetTool must be in your path
 		public AssetTool()
 		{
-		//	_toolLocation = @"C:\Users\NullSpace Team\Documents\Visual Studio 2015\Projects\HapticAssetTools\Debug\";
+
+			const string userRoot = "HKEY_CURRENT_USER";
+			const string subkey = "SOFTWARE\\NullSpace VR\\AssetTool";
+			const string keyName = userRoot + "\\" + subkey;
+
+			string path = (string)Microsoft.Win32.Registry.GetValue(keyName, "InstallPath", "unknown");
+			UnityEngine.Debug.Log("Path of the asset tool: " + path);
 			_toolName = "HapticAssetTools.exe";
 			_process = new Process();
+			UnityEngine.Debug.Log("Is process null?" + (_process == null));
 			_process.StartInfo.RedirectStandardOutput = true;
 			_process.StartInfo.UseShellExecute = false;
 
 			_process.StartInfo.CreateNoWindow = true;
-			_process.StartInfo.FileName =  _toolName;
-			_arguments = new Dictionary<string, string>();
-			_rootPath = @"C:\Users\NullSpace Team\Documents\NullSpace SDK 0.1.1\Assets\StreamingAssets\Haptics";
-
-		
-
+			_process.StartInfo.FileName = path;
 		}
 
 	
@@ -70,15 +92,27 @@ namespace NullSpace.SDK.FileUtilities
 		{
 			_rootPath = path;
 		}
+
+		/// <summary>
+		/// Retrieve a list of the packages present in a haptics directory, along with associated info
+		/// </summary>
+		/// <exception cref="InvalidOperationException">If root haptics directory is not set</exception>
+		/// <returns>List of PackageInfo objects</returns>
 		public List<PackageInfo> TryGetPackageInfo()
 		{
 
-			var result = executeToolWithArgs(
-				new Dictionary<string, string>() {
-						{"root-path", _rootPath },
-						{"list-packages", "" },
-						{"json", "" }
-				}
+			if (_rootPath == null || _rootPath == "")
+			{
+				throw new InvalidOperationException("You must supply a non-empty root haptics path using the SetRootHapticsFolder(string path) before calling this");
+			}
+			UnityEngine.Debug.Log("Root path is?" + _rootPath) ;
+
+
+			var result = executeToolAndWaitForResult(
+				new ArgList()
+				.Add("root-path", _rootPath)
+				.Add("list-packages")
+				.Add("json")
 			);
 
 			var a = MiniJSON.Json.Deserialize(result) as IList<object>;
@@ -95,8 +129,10 @@ namespace NullSpace.SDK.FileUtilities
 
 		}
 
-		private string executeToolWithArgs(IDictionary<string, string> args)
+		private string executeToolAndWaitForResult(ArgList args)
 		{
+			UnityEngine.Debug.Log("Inside execute tool" + args == null);
+
 			var argString = createArgumentString(args);
 			_process.StartInfo.Arguments = argString;
 			_process.Start();
@@ -105,24 +141,47 @@ namespace NullSpace.SDK.FileUtilities
 			return output;
 		}
 
-		public LoadingUtils.HapticDefinitionFile GetHapticDefinitionFile(string path)
+		public HapticDefinitionFile GetHapticDefinitionFile(string path)
 		{
 	
 		
-			var result = executeToolWithArgs(
-				new Dictionary<string, string>() {
-					{ "root-path", _rootPath },
-					{ "generate-asset", path },
-					{"json", "" }
-				}
+		
+			var result = executeToolAndWaitForResult(
+				new ArgList()
+				.Add("root-path", _rootPath)
+				.Add("generate-asset", path)
+				.Add("json")
 			);
 
-			LoadingUtils.HapticDefinitionFile hdf = new LoadingUtils.HapticDefinitionFile();
+			HapticDefinitionFile hdf = new HapticDefinitionFile();
 			hdf.Deserialize(MiniJSON.Json.Deserialize(result) as IDictionary<string, object>);
 			return hdf;
 		
 		}
 
+		public void GetHapticDefinitionFile(string path, HapticDefinitionFile inFile)
+		{
+			var result = executeToolAndWaitForResult(
+							new ArgList()
+							.Add("root-path", _rootPath)
+							.Add("generate-asset", path)
+							.Add("json")
+						);
+
+			inFile.Deserialize(MiniJSON.Json.Deserialize(result) as IDictionary<string, object>);
+
+		}
+
+		public string GetHapticDefinitionFileJson(string path)
+		{
+			var result = executeToolAndWaitForResult(
+							new ArgList()
+							.Add("root-path", _rootPath)
+							.Add("generate-asset", path)
+							.Add("json")
+						);
+			return result;
+		}
 		private string getHapticType(string path)
 		{
 			var ext = Path.GetExtension(path);
@@ -145,10 +204,10 @@ namespace NullSpace.SDK.FileUtilities
 			return System.IO.Directory.GetParent(path).Parent.Parent.FullName;
 		}
 
-		private string createArgumentString(IDictionary<string, string> arguments)
+		private string createArgumentString(ArgList arguments)
 		{
 			StringBuilder sb = new StringBuilder();
-			foreach (var arg in arguments)
+			foreach (var arg in arguments.Args)
 			{
 				if (arg.Value == "")
 				{

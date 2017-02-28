@@ -1,13 +1,7 @@
 ﻿using System;
 
 using NullSpace.SDK;
-using NullSpace.SDK.Internal;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Threading;
 using System.Collections.Generic;
-using System.Linq;
-using NullSpace.SDK.FileUtilities;
 
 namespace NSLoaderWrapper
 {
@@ -105,10 +99,10 @@ namespace NSLoaderWrapper
 			//	uint handle = Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, bytes, (UInt32) bytes.Length);
 			//	Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, handle, 0);
 			//var hdf = LoadingUtils.LoadAsset(@"C:\Users\NullSpace Team\Documents\Visual Studio 2015\Projects//\NSLoaderWrapper\Debug\whatever.hdf");
-			AssetTool a = new AssetTool();
+			//AssetTool a = new AssetTool();
 			
-			var packages = a.TryGetPackageInfo();
-			var hdf = a.GetHapticDefinitionFile(@"C:\Users\NullSpace Team\Documents\NullSpace SDK 0.1.1\Assets\StreamingAssets\Haptics\NS Demos\patterns\beating_heart_very_fast.pattern");
+			//var packages = a.TryGetPackageInfo();
+		//	var hdf = a.GetHapticDefinitionFile(@"C:\Users\NullSpace Team\Documents\NullSpace SDK 0.1.1\Assets\StreamingAssets\Haptics\NS Demos\patterns\beating_heart_very_fast.pattern");
 			//CodePattern pat= FileToCodeHaptic.CreatePattern(hdf.root_effect.name, hdf);
 
 			CodeSequence s = new CodeSequence();
@@ -118,8 +112,8 @@ namespace NSLoaderWrapper
 			while (true)
 			{
 				
-				Console.ReadLine();
 				t.Play();
+				System.Threading.Thread.Sleep(1000);
 
 			}
 			return 0;

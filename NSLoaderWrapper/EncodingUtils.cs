@@ -6,85 +6,15 @@ using NullSpace.Events;
 using System.Linq;
 using System.Collections.Generic;
 using NullSpace.SDK.FileUtilities;
+using UnityEngine;
 
-namespace NullSpace.SDK
+namespace NullSpace.SDK.FileUtilities
 {
 	internal static class EncodingUtils
 	{
 
-		
-		
-		internal delegate Offset<Node> BuffEncoder(FlatBufferBuilder builder);
-
-		internal static byte[] EncodeDel(BuffEncoder encoder, UInt32 handle)
-		{
-			var builder = new FlatBuffers.FlatBufferBuilder(128);
-			var packet = encoder(builder);
-
-
-
-			var name = builder.CreateString("Code generated Haptic Node");
-			HapticPacket.StartHapticPacket(builder);
-			HapticPacket.AddHandle(builder, handle);
-			HapticPacket.AddPacketType(builder, FileType.Node);
-			HapticPacket.AddName(builder, name);
-			HapticPacket.AddPacket(builder, packet.Value);
-			var rootTable = HapticPacket.EndHapticPacket(builder);
-			builder.Finish(rootTable.Value);
-			return builder.SizedByteArray();
-		}
-
-
-
-		public interface IHapticGenerator<Input, Output>
-		{
-			Output Generate(Input input);
-		}
-
-		static void Traverse(Func<float, float> prevTransform, CodeSequence parent, EventList builder)
-		{
-			float[] propogatedStrengths = parent.Effects.Select(effect => prevTransform((float)(effect.Strength * parent.Strength))).ToArray();
-
-			float[] propogatedTimes = parent.Effects.Select(effect => (float)(effect.Time + parent.Time)).ToArray();
-
-			for (int i = 0; i < parent.Effects.Count; i++)
-			{
-				builder.AddEvent(new BasicHapticEvent(
-					propogatedTimes[i],
-					propogatedStrengths[i],
-					(float) parent.Effects[i].Duration,
-					(uint) parent.Area,
-					parent.Effects[i].Effect
-				));
-			}
-		}
-
-		static void Traverse(Func<float, float> prevTransform, CodePattern parent, EventList builder)
-		{
-			float[] propogatedStrengths = PropogateFrom(parent.Sequences, 
-				(seq) => { return (float)seq.Time + (float) parent.Time;
-			});
-
-			float[] propogatedTimes = PropogateFrom(parent.Sequences,
-				(seq) => { return (float)seq.Strength * (float) parent.Strength;
-			});
-
-
-			for (int i = 0; i < parent.Sequences.Count; i++)
-			{
-
-			}
-			
-
-		}
-
-		
-		
-		internal static float[] PropogateFrom<T>(IList<T> items, Func<T, float> transform)
-		{
-			return items.Select(item => transform(item)).ToArray();
-		}
-		/*
+	
+	/*
 		public class RandomGenerator : IHapticGenerator<CodeSequence, CodePattern>
 		{
 			private System.Random _random;
@@ -128,14 +58,21 @@ namespace NullSpace.SDK
 		byte[] Encode();
 	}
 	
-	internal class FileToCodeHaptic
+	public class FileToCodeHaptic
 	{
 		
-		public static CodeSequence CreateSequence(string key,LoadingUtils.HapticDefinitionFile hdf)
+		public static CodeSequence CreateSequence(string key,HapticDefinitionFile hdf)
 		{
+			Debug.Log("Using key " + key);
+			foreach (var val in hdf.sequenceDefinitions)
+			{
+				
+				Debug.Log("Key: " + val.Key + ", Val: " + val.Value.Count);
+			}
 			CodeSequence s = new CodeSequence();
 
-			var sequence_def_array = hdf.sequence_definitions[key];
+			var sequence_def_array = hdf.sequenceDefinitions[key];
+			Debug.Log("Size of the array is " + sequence_def_array.Count);
 			foreach (var effect in sequence_def_array)
 			{
 				s.AddEffect(effect.time, new CodeEffect(effect.effect, effect.duration, effect.strength));
@@ -144,10 +81,10 @@ namespace NullSpace.SDK
 			return s;
 		}
 
-		public static CodePattern CreatePattern(string key, LoadingUtils.HapticDefinitionFile hdf)
+		public static CodePattern CreatePattern(string key, HapticDefinitionFile hdf)
 		{
 			CodePattern p = new CodePattern();
-			var pattern_def_array = hdf.pattern_definitions[key];
+			var pattern_def_array = hdf.patternDefinitions[key];
 			foreach (var seq in pattern_def_array)
 			{
 				AreaFlag area = new AreaParser(seq.area).GetArea();
@@ -159,55 +96,39 @@ namespace NullSpace.SDK
 
 		
 	}
-	//internal class FileHapticEncoder 
-	//{
-	//	EventList _events;
-	//	public FileHapticEncoder()
-	//	{
-	//		_events = new EventList();
-	//	}
-	//	private uint parseArea(string area)
-	//	{
-	//		//TODO: IMPLEMENT AREA PARSER!
-	//		return 1;
-	//	}
-		
+	
+	public class CodeToFileHaptic
+	{
+		public CodeToFileHaptic()
+		{
 
-	//	private void _flattenSequenceDef(string key, LoadingUtils.HapticDefinitionFile hdf, uint area, float strength, float time)
-	//	{
-	//		var sequence_defs = hdf.sequence_definitions;
-	//		var atoms = sequence_defs[key];
-	//		foreach (var atom in atoms)
-	//		{
-	//			_events.AddEvent(new BasicHapticEvent(atom.time+time, atom.strength* strength, atom.duration, area, atom.effect));
-	//		}
-	//	}
-	//	private void _flattenPatternDef(string key, LoadingUtils.HapticDefinitionFile hdf, float strength, float time)
-	//	{
-	//		var pattern_defs = hdf.pattern_definitions;
-	//		var atoms = pattern_defs[key];
-	//		foreach (var atom in atoms)
-	//		{
-	//			var newStrength = strength * atom.strength;
-	//			var newTime = time + atom.time;
-	//			_flattenSequenceDef(atom.sequence, hdf, parseArea(atom.area), newStrength, newTime);
-	//		}
-	//	}
-	//	private void _flattenExperienceDef(string key, LoadingUtils.HapticDefinitionFile hdf)
-	//	{
-	//		var experience_defs = hdf.experience_definitions;
-	//		var atoms = experience_defs[key];
-	//		foreach (var atom in atoms)
-	//		{
-	//			_flattenPatternDef(atom.pattern, hdf, atom.strength, atom.time);
-	//		}
-	//	}
-	//	public byte[] Encode()
-	//	{
-	//		throw new NotImplementedException();
-	//	}
-	//}
-	internal class CodeHapticEncoder : IEncoder
+		}
+		//in progress
+		public HapticDefinitionFile Encode(string id, CodeSequence sequence)
+		{
+			HapticDefinitionFile hdf = new HapticDefinitionFile();
+			hdf.sequenceDefinitions[id] = new ParsingUtils.JsonEffectList();
+			foreach (var effect in sequence.Effects)
+			{
+				ParsingUtils.JsonEffectAtom atom = new ParsingUtils.JsonEffectAtom();
+				atom.duration = (float)effect.Duration;
+				atom.strength = (float) effect.Strength;
+				atom.effect = effect.Effect;
+				atom.time = effect.Time;
+
+				hdf.sequenceDefinitions[id].Add(atom);
+			}
+
+			hdf.rootEffect.name = id;
+			hdf.rootEffect.type = "sequence";
+
+			return hdf;
+			
+		}
+
+	
+	}
+	public class CodeHapticEncoder : IEncoder
 	{
 		EventList _events;
 		public CodeHapticEncoder()

@@ -48,14 +48,14 @@ namespace NullSpace.SDK
 			{
 				get
 				{
-					if (_created && !_disposed)
+					if (_created && !_disposed && _ptr != null)
 					{
 
 						return _ptr;
 					}
 					else
 					{
-						throw new ArgumentException("[NSVR] You may not initialize Sequences, Patterns, and Experiences at their point of declaration.\n\tPlease do it inside of Start(), Awake(), or other runtime methods.\n\tThis error may be caused by not having NS Manager in the scene as well.");
+						throw new MemberAccessException("[NSVR] You must have a NS Manager prefab in your scene!");
 
 					}
 
@@ -79,34 +79,34 @@ namespace NullSpace.SDK
 
 			public void PauseAll()
 			{
-				Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.PAUSE_ALL);
+				Interop.NSVR_EngineCommand(Ptr, (short)Interop.EngineCommand.PAUSE_ALL);
 			}
 
 			public void ResumeAll()
 			{
-				Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.PLAY_ALL);
+				Interop.NSVR_EngineCommand(Ptr, (short)Interop.EngineCommand.PLAY_ALL);
 			}
 
 			public void ClearAll()
 			{
-				Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.CLEAR_ALL);
+				Interop.NSVR_EngineCommand(Ptr, (short)Interop.EngineCommand.CLEAR_ALL);
 			}
 
 		
 
 			public SuitStatus PollStatus()
 			{
-				return (SuitStatus) Interop.NSVR_PollStatus(_ptr);
+				return (SuitStatus) Interop.NSVR_PollStatus(Ptr);
 			}
 
 			public void SetTrackingEnabled(bool wantTracking)
 			{
 				if (wantTracking)
 				{
-					Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.ENABLE_TRACKING);
+					Interop.NSVR_EngineCommand(Ptr, (short)Interop.EngineCommand.ENABLE_TRACKING);
 				}else
 				{
-					Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.DISABLE_TRACKING);
+					Interop.NSVR_EngineCommand(Ptr, (short)Interop.EngineCommand.DISABLE_TRACKING);
 
 				}
 			}
@@ -114,7 +114,7 @@ namespace NullSpace.SDK
 			public TrackingUpdate PollTracking()
 			{
 				InteropTrackingUpdate t = new InteropTrackingUpdate();
-				Interop.NSVR_PollTracking(_ptr, ref t);
+				Interop.NSVR_PollTracking(Ptr, ref t);
 			
 				TrackingUpdate update = new TrackingUpdate();
 				update.Chest = new UnityEngine.Quaternion(t.chest.x, t.chest.y, t.chest.z, t.chest.w);
@@ -218,7 +218,7 @@ namespace NullSpace.SDK
 			_resetDelegate = reset;
 			_createDelegate = create;
 			//Grab a handle from the DLL
-			_handle = Interop.NSVR_GenHandle(NSVR._ptr);
+			_handle = Interop.NSVR_GenHandle(NSVR.NSVR_Plugin.Ptr);
 			//This is a network call to the engine, to load the effect up
 			_createDelegate(_handle);
 		}
@@ -229,7 +229,7 @@ namespace NullSpace.SDK
 			_playDelegate = play;
 			_pauseDelegate = pause;
 			_resetDelegate = reset;
-			_handle = Interop.NSVR_GenHandle(NSVR._ptr);
+			_handle = Interop.NSVR_GenHandle(NSVR.NSVR_Plugin.Ptr);
 
 
 			create(_handle);

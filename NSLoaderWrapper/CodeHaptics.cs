@@ -5,7 +5,7 @@ using System.Text;
 using FlatBuffers;
 using NullSpace.HapticFiles;
 using NullSpace.SDK.Internal;
-
+using NullSpace.SDK.FileUtilities;
 namespace NullSpace.SDK
 {
 	/// <summary>
@@ -247,11 +247,12 @@ namespace NullSpace.SDK
 		/// </summary>
 		/// <param name="time">Time offset (fractional seconds)</param>
 		/// <param name="e">The CodeEffect to add</param>
-		public void AddEffect(double time, CodeEffect effect)
+		public CodeSequence AddEffect(double time, CodeEffect effect)
 		{
 			var clone = effect.Clone();
 			clone.Time = (float)time;
 			Effects.Add(clone);
+			return this;
 		}
 
 		
@@ -401,13 +402,14 @@ namespace NullSpace.SDK
 		/// <param name="time">Time offset (fractional seconds)</param>
 		/// <param name="area">AreaFlag on which to play the CodeSequence</param>
 		/// <param name="sequence">The CodeSequence to be added</param>
-		public void AddSequence(double time, AreaFlag area, CodeSequence sequence)
+		public CodePattern AddSequence(double time, AreaFlag area, CodeSequence sequence)
 		{
 			var clone = sequence.Clone();
 			clone.Time = time;
 			clone.Area = area;
 			clone.Strength = 1.0;
 			_children.Add(clone);
+			return this;
 		}
 
 		/// <summary>
@@ -417,13 +419,14 @@ namespace NullSpace.SDK
 		/// <param name="area">AreaFlag on which to play the CodeSequence</param>
 		/// <param name="strength">Strength of the CodeSequence (0.0 - 1.0)</param>
 		/// <param name="sequence">The CodeSequence to be added</param>
-		public void AddSequence(double time, AreaFlag area, double strength, CodeSequence sequence)
+		public CodePattern AddSequence(double time, AreaFlag area, double strength, CodeSequence sequence)
 		{
 			var clone = sequence.Clone();
 			clone.Strength = strength;
 			clone.Time = time;
 			clone.Area = area;
 			_children.Add(clone);
+			return this;
 		}
 
 		
@@ -469,9 +472,7 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle Play()
 		{
-			var handle = CreateHandle();
-			handle.Play();
-			return handle;
+			return CreateHandle().Play();
 		}
 
 		/// <summary>
@@ -481,9 +482,7 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle Play(double strength)
 		{
-			var handle = CreateHandle(strength);
-			handle.Play();
-			return handle;
+			return CreateHandle(strength).Play();
 		}
 	}
 	
