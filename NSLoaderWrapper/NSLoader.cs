@@ -17,7 +17,7 @@ namespace NullSpace.SDK
 		public HapticsLoadingException(string message) : base(message) { }
 		public HapticsLoadingException(string message, System.Exception inner) : base(message, inner) { }
 
-	
+
 		protected HapticsLoadingException(System.Runtime.Serialization.SerializationInfo info,
 			System.Runtime.Serialization.StreamingContext context)
 		{ }
@@ -38,7 +38,7 @@ namespace NullSpace.SDK
 
 
 
-		
+
 
 		public sealed class NSVR_Plugin : IDisposable
 		{
@@ -68,7 +68,7 @@ namespace NullSpace.SDK
 				{
 					Debug.LogWarning("[NSVR] NSVR_Plugin should only be created by the NullSpace SDK");
 					return;
-				} 
+				}
 				_ptr = Interop.NSVR_Create();
 				//New plugin doesn't do FS stuff?
 				//Interop.NSVR_InitializeFromFilesystem(_ptr, path);
@@ -92,11 +92,11 @@ namespace NullSpace.SDK
 				Interop.NSVR_EngineCommand(Ptr, (short)Interop.EngineCommand.CLEAR_ALL);
 			}
 
-		
+
 
 			public SuitStatus PollStatus()
 			{
-				return (SuitStatus) Interop.NSVR_PollStatus(Ptr);
+				return (SuitStatus)Interop.NSVR_PollStatus(Ptr);
 			}
 
 			public void SetTrackingEnabled(bool wantTracking)
@@ -104,7 +104,8 @@ namespace NullSpace.SDK
 				if (wantTracking)
 				{
 					Interop.NSVR_EngineCommand(Ptr, (short)Interop.EngineCommand.ENABLE_TRACKING);
-				}else
+				}
+				else
 				{
 					Interop.NSVR_EngineCommand(Ptr, (short)Interop.EngineCommand.DISABLE_TRACKING);
 
@@ -115,7 +116,7 @@ namespace NullSpace.SDK
 			{
 				InteropTrackingUpdate t = new InteropTrackingUpdate();
 				Interop.NSVR_PollTracking(Ptr, ref t);
-			
+
 				TrackingUpdate update = new TrackingUpdate();
 				update.Chest = new UnityEngine.Quaternion(t.chest.x, t.chest.y, t.chest.z, t.chest.w);
 				update.LeftUpperArm = new UnityEngine.Quaternion(t.left_upper_arm.x, t.left_upper_arm.y, t.left_upper_arm.z, t.left_upper_arm.w);
@@ -169,7 +170,7 @@ namespace NullSpace.SDK
 
 		}
 	}
-	
+
 	public struct TrackingUpdate
 	{
 		public UnityEngine.Quaternion Chest;
@@ -182,7 +183,7 @@ namespace NullSpace.SDK
 	/// <summary>
 	/// HapticHandle is a handle used to control the playback of haptic effects. If you are concerned about performance, please call Dispose on a HapticHandle which is no longer needed. This will tell the engine that it may dispose of the resources dedicated to this HapticHandle.
 	/// </summary>
-	public sealed class HapticHandle 
+	public sealed class HapticHandle
 	{
 		/// <summary>
 		/// Retain the effect name, so that someone calling ToString() can get useful information
@@ -233,7 +234,7 @@ namespace NullSpace.SDK
 
 
 			create(_handle);
-			
+
 		}
 
 		/// <summary>
@@ -243,7 +244,7 @@ namespace NullSpace.SDK
 		public HapticHandle Clone()
 		{
 			return new HapticHandle(_playDelegate, _pauseDelegate, _createDelegate, _resetDelegate, _effectName);
-	
+
 		}
 
 		/// <summary>
@@ -307,8 +308,8 @@ namespace NullSpace.SDK
 				{
 					Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, _handle, (short)Interop.Command.RELEASE);
 				}
-					
-				
+
+
 				// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
 				// TODO: set large fields to null.
 
@@ -317,9 +318,9 @@ namespace NullSpace.SDK
 		}
 
 		// TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-	//	 ~HapticHandle() {
+		//	 ~HapticHandle() {
 		//   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-			//  Dispose(false);
+		//  Dispose(false);
 		// }
 
 		/// <summary>
@@ -331,15 +332,11 @@ namespace NullSpace.SDK
 			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 			Dispose(true);
 			// TODO: uncomment the following line if the finalizer is overridden above.
-			 GC.SuppressFinalize(this);
+			GC.SuppressFinalize(this);
 		}
 		#endregion
 	}
-	public abstract class Generatable
-	{
-		abstract internal Offset<Node> Generate(FlatBufferBuilder builder);
 
-	}
 	public abstract class Playable
 	{
 
@@ -364,141 +361,9 @@ namespace NullSpace.SDK
 			return GenerateCommandDelegate(Interop.Command.PAUSE);
 		}
 
-		
-	}
-
-
-
-	/// <summary>
-	/// Sequences live on the filesystem as static assets. They can be loaded at runtime using this class.
-	/// </summary>
-	public class Sequence : Playable
-	{
-		private string _name;
-		
-		/// <summary>
-		/// <para>Construct a new Sequence with the given fully-qualified name. Ex: new Sequence("ns.click")</para>
-		/// <para>Throws HapticsLoadingException on failure to load the file</para>
-		/// </summary>
-		/// <param name="name">Fully-qualified name</param>
-		public Sequence(string name)
-		{
-			_name = name;
-			
-			bool loaded = Interop.NSVR_Load(NSVR.NSVR_Plugin.Ptr, name, 0);
-			
-			if (!loaded)
-			{
-				throw new HapticsLoadingException(NSVR.GetError());
-					
-			}
-		}
-		
-	
-		private CommandWithHandle _create(uint location)
-		{
-			return new CommandWithHandle(handle => Interop.NSVR_CreateSequence(NSVR.NSVR_Plugin.Ptr, handle, _name, location));
-		}
-
-		/// <summary>
-		/// Create a HapticHandle with a given AreaFlag for this Sequence
-		/// </summary>
-		/// <param name="location">The AreaFlag on which to play this Sequence</param>
-		/// <returns>A new HapticHandle to control this Sequence</returns>
-		public HapticHandle CreateHandle(AreaFlag location)
-		{
-
-			return new HapticHandle(_Play(), _Pause(), _create((uint)location), _Reset(), _name);
-
-		}
-
-
-
-		
-	}
-
-	/// <summary>
-	/// Patterns live on the filesystem as static assets. They can be loaded at runtime using this class.
-	/// </summary>
-	public class Pattern : Playable
-	{
-		private string _name;
-
-		/// <summary>
-		/// Construct a new Pattern with the given fully-qualified name. Ex: new Pattern("ns.demos.beating_heart")
-		/// </summary>
-		/// <param name="name">The fully-qualified name</param>
-		public Pattern(string name)
-		{
-			_name = name;
-		
-			bool loaded = Interop.NSVR_Load(NSVR.NSVR_Plugin.Ptr, name, 1);
-			if (!loaded)
-			{
-				throw new HapticsLoadingException(NSVR.GetError());
-
-			}
-		}
-
-		private CommandWithHandle _create()
-		{
-			return new CommandWithHandle(handle => Interop.NSVR_CreatePattern(NSVR.NSVR_Plugin.Ptr, handle, _name));
-		}
-		/// <summary>
-		/// Create a HapticHandle for this Pattern
-		/// </summary>
-		/// <returns>A new HapticHandle for controlling this Pattern</returns>
-		public HapticHandle CreateHandle()
-		{
-			return new HapticHandle(_Play(), _Pause(), _create(), _Reset(), _name);
-		}
-
-		
-	}
-
-	/// <summary>
-	/// Experiences live on the filesystem as static assets. They can be loaded at runtime using this class.
-	/// </summary>
-	public class Experience : Playable
-	{
-		private string _name;
-		/// <summary>
-		/// <para>Construct a new Experience from the filesystem with a given fully-qualified name. Ex: new Experience("ns.demos.chest_swirl")</para>
-		/// <para>Throws HapticsLoadingException on failure to load file</para>
-		/// </summary>
-		/// <param name="name">The fully-qualified name</param>
-		public Experience(string name)
-		{
-			_name = name;
-
-			bool loaded = Interop.NSVR_Load(NSVR.NSVR_Plugin.Ptr, name, 2);
-			if (!loaded)
-			{
-				throw new HapticsLoadingException(NSVR.GetError());
-
-			}
-		}
-
-		private CommandWithHandle _create()
-		{
-			return new CommandWithHandle(handle => Interop.NSVR_CreateExperience(NSVR.NSVR_Plugin.Ptr, handle, _name));
-		}
-
-		/// <summary>
-		/// Create a HapticHandle to control this Experience
-		/// </summary>
-		/// <returns>A new HapticHandle</returns>
-		public HapticHandle CreateHandle()
-		{
-			return new HapticHandle(_Play(), _Pause(), _create(), _Reset(), _name);
-		}
-
 
 	}
-
-
-	
-
-
-
 }
+
+
+

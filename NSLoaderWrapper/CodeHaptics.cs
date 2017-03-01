@@ -13,7 +13,7 @@ namespace NullSpace.SDK
 	/// to get a list of the currently available effects.</para><para> Effects can have time offsets, durations, and strengths, 
 	/// and are combined together to create CodeSequences. </para>
 	/// </summary>
-	public class CodeEffect 
+	public class HapticEffect 
 	{
 
 		private float _time;
@@ -88,10 +88,10 @@ namespace NullSpace.SDK
 	
 
 		/// <summary>
-		/// Construct a CodeEffect with a given effect family, default duration of 0, and strength of 1.
+		/// Construct a HapticEffect with a given effect family, default duration of 0, and strength of 1.
 		/// </summary>
 		/// <param name="effect">Effect name</param>
-		public CodeEffect(string effect)
+		public HapticEffect(string effect)
 		{
 			_effect = effect;
 			_duration = 0f;
@@ -99,11 +99,11 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
-		/// Construct a CodeEffect with a given effect family, duration, and default strength of 1
+		/// Construct a HapticEffect with a given effect family, duration, and default strength of 1
 		/// </summary>
 		/// <param name="effect">Effect name</param>
 		/// <param name="duration">Effect duration (fractional seconds)</param>
-		public CodeEffect(string effect, double duration)
+		public HapticEffect(string effect, double duration)
 		{
 			_effect = effect;
 			Duration = duration;
@@ -111,12 +111,12 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
-		/// Construct a CodeEffect with a given effect family, duration, and strength
+		/// Construct a HapticEffect with a given effect family, duration, and strength
 		/// </summary>
 		/// <param name="effect">Effect name</param>
 		/// <param name="duration">Effect duration (fractional seconds)</param>
 		/// <param name="strength">Effect strength (0.0-1.0)</param>
-		public CodeEffect(string effect, double duration, double strength)
+		public HapticEffect(string effect, double duration, double strength)
 		{
 			_effect = effect;
 			Duration = duration;
@@ -127,29 +127,29 @@ namespace NullSpace.SDK
 		
 	
 		/// <summary>
-		/// Create an independent copy of this CodeEffect
+		/// Create an independent copy of this HapticEffect
 		/// </summary>
 		/// <returns>A copy</returns>
-		public CodeEffect Clone()
+		public HapticEffect Clone()
 		{
-			return new CodeEffect(_effect, Duration, Strength);
+			return new HapticEffect(_effect, Duration, Strength);
 		}
 
 	
 	}
 
 	/// <summary>
-	/// <para>CodeSequences are haptic effects which play on a given area on the suit. This area is specified with an AreaFlag, which can represent anything from one location to the entire suit.</para><para>A CodeSequence is composed of one or more CodeEffects with time offsets.</para>
+	/// <para>CodeSequences are haptic effects which play on a given area on the suit. This area is specified with an AreaFlag, which can represent anything from one location to the entire suit.</para><para>A HapticSequence is composed of one or more CodeEffects with time offsets.</para>
 	/// </summary>
-	public class CodeSequence :Playable
+	public class HapticSequence :Playable
 	{
 		private AreaFlag _area;
 		private float _strength;
-		private IList<CodeEffect> _children;
+		private IList<HapticEffect> _children;
 		private float _time;
 
 		/// <summary>
-		/// Retrieve the AreaFlag associated with this CodeSequence
+		/// Retrieve the AreaFlag associated with this HapticSequence
 		/// </summary>
 		public AreaFlag Area
 		{
@@ -165,7 +165,7 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
-		/// Retrieve the strength of this CodeSequence (0.0-1.0)
+		/// Retrieve the strength of this HapticSequence (0.0-1.0)
 		/// </summary>
 		public double Strength
 		{
@@ -181,9 +181,9 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
-		/// Retrieve the list of CodeEffects associated with this CodeSequence
+		/// Retrieve the list of CodeEffects associated with this HapticSequence
 		/// </summary>
-		public IList<CodeEffect> Effects
+		public IList<HapticEffect> Effects
 		{
 			get
 			{
@@ -197,7 +197,7 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
-		/// Retrieve the time offset of this CodeSequence (fractional seconds)
+		/// Retrieve the time offset of this HapticSequence (fractional seconds)
 		/// </summary>
 		public double Time
 		{
@@ -214,40 +214,40 @@ namespace NullSpace.SDK
 
 
 		/// <summary>
-		/// Construct an empty CodeSequence with a default area of AreaFlag.None, and strength of 1.
+		/// Construct an empty HapticSequence with a default area of AreaFlag.None, and strength of 1.
 		/// </summary>
-		public CodeSequence()
+		public HapticSequence()
 		{
 			_area = AreaFlag.None;
 			_strength = 1f;
-			_children = new List<CodeEffect>();
+			_children = new List<HapticEffect>();
 		}
 
-		public CodeSequence(string id)
+		public HapticSequence(string id)
 		{
 			
 		}
 
 		/// <summary>
-		/// Create an independent copy of this CodeSequence
+		/// Create an independent copy of this HapticSequence
 		/// </summary>
 		/// <returns></returns>
-		public CodeSequence Clone()
+		public HapticSequence Clone()
 		{
-			var clone = new CodeSequence();
+			var clone = new HapticSequence();
 			clone.Area = _area;
 			clone.Strength = _strength;
 			clone.Time = _time;
-			clone.Effects = new List<CodeEffect>(_children);
+			clone.Effects = new List<HapticEffect>(_children);
 			return clone;
 		}
 		
 		/// <summary>
-		/// Add a CodeEffect with a given time offset
+		/// Add a HapticEffect with a given time offset
 		/// </summary>
 		/// <param name="time">Time offset (fractional seconds)</param>
-		/// <param name="e">The CodeEffect to add</param>
-		public CodeSequence AddEffect(double time, CodeEffect effect)
+		/// <param name="e">The HapticEffect to add</param>
+		public HapticSequence AddEffect(double time, HapticEffect effect)
 		{
 			var clone = effect.Clone();
 			clone.Time = (float)time;
@@ -274,9 +274,9 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
-		/// Create a HapticHandle for this CodeSequence, specifying an AreaFlag to play on.
+		/// Create a HapticHandle for this HapticSequence, specifying an AreaFlag to play on.
 		/// </summary>
-		/// <param name="area">The AreaFlag where this CodeSequence should play</param>
+		/// <param name="area">The AreaFlag where this HapticSequence should play</param>
 		/// <returns></returns>
 		public HapticHandle CreateHandle(AreaFlag area)
 		{
@@ -284,10 +284,10 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
-		/// Create a HapticHandle for this CodeSequence, specifying an AreaFlag and a strength.
+		/// Create a HapticHandle for this HapticSequence, specifying an AreaFlag and a strength.
 		/// </summary>
-		/// <param name="area">The AreaFlag where this CodeSequence should play</param>
-		/// <param name="strength">The strength of this CodeSequence (0.0-1.0)</param>
+		/// <param name="area">The AreaFlag where this HapticSequence should play</param>
+		/// <param name="strength">The strength of this HapticSequence (0.0-1.0)</param>
 		/// <returns></returns>
 		public HapticHandle CreateHandle(AreaFlag area, double strength)
 		{
@@ -321,23 +321,20 @@ namespace NullSpace.SDK
 			return handle;
 		}
 	}
-	class TinyEffect
-	{
-
-	}
+	
 
 
 	/// <summary>
-	/// CodePatterns are used to combine one or more CodeSequences into a single, playable effect. Each CodeSequence added to the CodePattern will have a time offset and optional strength. 
+	/// CodePatterns are used to combine one or more CodeSequences into a single, playable effect. Each HapticSequence added to the HapticPattern will have a time offset and optional strength. 
 	/// </summary>
-	public class CodePattern : Playable
+	public class HapticPattern : Playable
 	{
 		private float _strength;
 		private float _time;
-		private IList<CodeSequence> _children;
+		private IList<HapticSequence> _children;
 
 		/// <summary>
-		/// Retrieve the strength of this CodePattern (0.0 - 1.0)
+		/// Retrieve the strength of this HapticPattern (0.0 - 1.0)
 		/// </summary>
 		public double Strength
 		{
@@ -353,7 +350,7 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
-		/// Retrieve the time offset of this CodePattern (fractional seconds)
+		/// Retrieve the time offset of this HapticPattern (fractional seconds)
 		/// </summary>
 		public double Time
 		{
@@ -369,9 +366,9 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
-		/// Retrieve the list of CodeSequences that make up this CodePattern
+		/// Retrieve the list of CodeSequences that make up this HapticPattern
 		/// </summary>
-		public IList<CodeSequence> Sequences
+		public IList<HapticSequence> Sequences
 		{
 			get
 			{
@@ -387,22 +384,22 @@ namespace NullSpace.SDK
 	
 
 		/// <summary>
-		/// Construct an empty CodePattern with a default strength of 1
+		/// Construct an empty HapticPattern with a default strength of 1
 		/// </summary>
-		public CodePattern()
+		public HapticPattern()
 		{
-			_children = new List<CodeSequence>();
+			_children = new List<HapticSequence>();
 			_time = 0f;
 			_strength = 1f;
 		}
 		
 		/// <summary>
-		/// Add a CodeSequence to this CodePattern with a given time offset and AreaFlag, and default strength of 1
+		/// Add a HapticSequence to this HapticPattern with a given time offset and AreaFlag, and default strength of 1
 		/// </summary>
 		/// <param name="time">Time offset (fractional seconds)</param>
-		/// <param name="area">AreaFlag on which to play the CodeSequence</param>
-		/// <param name="sequence">The CodeSequence to be added</param>
-		public CodePattern AddSequence(double time, AreaFlag area, CodeSequence sequence)
+		/// <param name="area">AreaFlag on which to play the HapticSequence</param>
+		/// <param name="sequence">The HapticSequence to be added</param>
+		public HapticPattern AddSequence(double time, AreaFlag area, HapticSequence sequence)
 		{
 			var clone = sequence.Clone();
 			clone.Time = time;
@@ -413,13 +410,13 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
-		/// Add a CodeSequence to this CodePattern with a given time offset, AreaFlag, and strength.
+		/// Add a HapticSequence to this HapticPattern with a given time offset, AreaFlag, and strength.
 		/// </summary>
 		/// <param name="time">Time offset (fractional seconds)</param>
-		/// <param name="area">AreaFlag on which to play the CodeSequence</param>
-		/// <param name="strength">Strength of the CodeSequence (0.0 - 1.0)</param>
-		/// <param name="sequence">The CodeSequence to be added</param>
-		public CodePattern AddSequence(double time, AreaFlag area, double strength, CodeSequence sequence)
+		/// <param name="area">AreaFlag on which to play the HapticSequence</param>
+		/// <param name="strength">Strength of the HapticSequence (0.0 - 1.0)</param>
+		/// <param name="sequence">The HapticSequence to be added</param>
+		public HapticPattern AddSequence(double time, AreaFlag area, double strength, HapticSequence sequence)
 		{
 			var clone = sequence.Clone();
 			clone.Strength = strength;
@@ -446,7 +443,7 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
-		/// Create a HapticHandle from this CodePattern, which can be used to manipulate the effect. 
+		/// Create a HapticHandle from this HapticPattern, which can be used to manipulate the effect. 
 		/// </summary>
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle()
@@ -455,7 +452,7 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
-		/// Create a HapticHandle from this CodePattern, passing in a given strength. 
+		/// Create a HapticHandle from this HapticPattern, passing in a given strength. 
 		/// </summary>
 		/// <param name="strength"></param>
 		/// <returns>A new HapticHandle</returns>

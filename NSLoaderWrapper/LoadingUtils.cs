@@ -8,9 +8,10 @@ namespace NullSpace.SDK.FileUtilities
 {
 	public static class HapticResources
 	{
-		public static object Load<T>(string path)
+
+		private static HapticDefinitionFile LoadHDF(string path)
 		{
-			var file = Resources.Load<HapticDefinitionFile>(path);
+			var file = Resources.Load<JsonAsset>(path);
 
 			if (file == null)
 			{
@@ -18,36 +19,40 @@ namespace NullSpace.SDK.FileUtilities
 				return null;
 			}
 
-			Type fileType = typeof(T);
+			HapticDefinitionFile hdf = new HapticDefinitionFile();
+			hdf.Deserialize(file.GetJson());
+			return hdf;
+		}
+		public static HapticSequence LoadSequence(string path)
+		{
 			
-			if (fileType == typeof(CodeSequence))
+			HapticDefinitionFile hdf = LoadHDF(path);
+
+			if (hdf.rootEffect.type == "sequence")
 			{
-				if (file.rootEffect.type != "sequence")
-				{
-					Debug.LogException(new InvalidOperationException("Could not load a CodeSequence from the file at path " + path + ": the file is a " + file.rootEffect.type));
-					return null;
-				}
-
-				return FileToCodeHaptic.CreateSequence(file.rootEffect.name, file);
+				var seq = FileToCodeHaptic.CreateSequence(hdf.rootEffect.name, hdf);
+				return seq;
 			}
-
-			else if (fileType == typeof(CodePattern))
-			{
-				if (file.rootEffect.type != "pattern")
-				{
-					Debug.LogException(new InvalidOperationException("Could not load a CodePattern from the file at path " + path + ": the file is a " + file.rootEffect.type));
-				}
-
-				return FileToCodeHaptic.CreatePattern(file.rootEffect.type, file);
-			}
-
 			else
 			{
-				throw new NotImplementedException("Loading " + fileType + " is not implemented yet.");
+				throw new InvalidOperationException("Unable to load " + hdf.rootEffect.name + " as a HapticSequence because it is a " + hdf.rootEffect.type);
 			}
-
-
 		}
+
+		public static HapticPattern LoadPattern(string path)
+		{
+			HapticDefinitionFile hdf = LoadHDF(path);
+			if (hdf.rootEffect.type == "pattern")
+			{
+				var pat = FileToCodeHaptic.CreatePattern(hdf.rootEffect.name, hdf);
+				return pat;
+			} else
+			{
+				throw new InvalidOperationException("Unable to load " + hdf.rootEffect.name + " as a HapticPattern because it is a " + hdf.rootEffect.type);
+			}
+		}
+
+	
 	}
 
 	public static class ParsingUtils
@@ -65,39 +70,38 @@ namespace NullSpace.SDK.FileUtilities
 		/// <param name="potentialFloat">The json object represented as a double</param>
 		/// <param name="defaultValue">A default value if the parse fails</param>
 		/// <returns></returns>
-		internal static T tryParse<T>(object potentialFloat, T defaultValue)
+		internal static float tryParseFloatFromObject(object potentialFloat, float defaultValue)
 		{
 			try
 			{
-				//double intermediate = (double)potentialFloat;
-				return (T)potentialFloat;
+				
+				double intermediate = (double)potentialFloat;
+				return (float)intermediate;
 			} catch (System.InvalidCastException e)
 			{
+				Debug.LogException(e);
 				return defaultValue;
 			}
 		}
 
-		//This is actually terrible now that we have to deal with Unity serialization. 
-		//Should probably just make overloads at this point?
+	
 		/// <summary>
 		/// Parse a json object into a list of atoms (smallest unit that describes a sequence, pattern, or experience)
 		/// </summary>
 		/// <typeparam name="T">The json atom type</typeparam>
 		/// <param name="dict">The raw json object</param>
 		/// <returns>A dictionary representing the list of haptic effect IDs and their associated atoms</returns>
-		public static TResult parseDefinitionsDict<TResult, TAtomType, TListType>(IDictionary<string, object> dict) 
+		public static DefDictionary<TAtomType> parseDefinitionsDict<TAtomType>(IDictionary<string, object> dict) 
 			where TAtomType: IJsonDeserializable, new() 
-			where TResult: SerializableDictionary<string, TListType>, new()
-			where TListType: List<TAtomType>, new()
 		{
 			//setup a dictionary from string -> list of atoms for our result
-			TResult resultDict = new TResult();
+			DefDictionary<TAtomType> resultDict = new DefDictionary<TAtomType>();
 
 			foreach (var kvp in dict)
 			{
 				IList<object> atoms = kvp.Value as IList<object>;
 				//make sure to instantiate the list for this key
-				resultDict.Add(kvp.Key, new TListType());
+				resultDict.Add(kvp.Key, new List<TAtomType>());
 
 				foreach (var atom in atoms)
 				{
@@ -131,72 +135,37 @@ namespace NullSpace.SDK.FileUtilities
 			}
 		}
 	
-		[Serializable]
 		public class JsonEffectAtom : IJsonDeserializable
 		{
-			[SerializeField]
 			public string effect;
-			[SerializeField]
 
 			public float duration;
-			[SerializeField]
 
 			public float strength;
-			[SerializeField]
 
 			public float time;
 
 			public void Deserialize(IDictionary<string, object> dict)
 			{
 				this.effect = dict["effect"] as string;
-				this.duration = tryParse((double)dict["duration"], 0f);
-				this.strength = tryParse((double)dict["strength"], 1f);
-				this.time = tryParse((double)dict["time"], 0f);
+				this.duration = tryParseFloatFromObject(dict["duration"], 0f);
+				this.strength = tryParseFloatFromObject(dict["strength"], 1f);
+				this.time = tryParseFloatFromObject(dict["time"], 0f);
 			}
 		}
 
 
 	
-		public static T LoadHapticAsset<T>(string resourceID) where T: CodeSequence
-		{
-			Debug.Log("Trying to LoadHapticAsset with path " + resourceID);
-			var hdf = AssetDatabase.LoadAssetAtPath(resourceID, typeof(HapticDefinitionFile)) as HapticDefinitionFile;
-			if (hdf == null)
-			{
-				throw new ArgumentException("Couldn't find an asset with name " + resourceID);
-			}
-			Type typeParam = typeof(T);
+		
 
-			if (typeParam == typeof(CodeSequence))
-			{
-				if (hdf.rootEffect.type != "sequence")
-				{
-					throw new InvalidOperationException("A " + typeParam.ToString() + " was requested, but the haptic asset is a " + hdf.rootEffect.type);
-				}
-
-				object a = FileToCodeHaptic.CreateSequence(hdf.rootEffect.name, hdf);
-				return (T)a;
-			} else
-			{
-				throw new InvalidOperationException("Could not deal with type " + typeParam.ToString());
-			}
-			
-
-		}
-
-		[Serializable]
 		public class JsonSequenceAtom : IJsonDeserializable
 		{
-			[SerializeField]
 
 			public string sequence;
-			[SerializeField]
 
 			public string area;
-			[SerializeField]
 
 			public float strength;
-			[SerializeField]
 
 			public float time;
 
@@ -205,21 +174,17 @@ namespace NullSpace.SDK.FileUtilities
 			{
 				this.sequence = dict["sequence"] as string;
 				this.area = dict["area"] as string;
-				this.strength = tryParse((double)dict["strength"], 1f);
-				this.time = tryParse((double)dict["time"], 0f);
+				this.strength = tryParseFloatFromObject(dict["strength"], 1f);
+				this.time = tryParseFloatFromObject(dict["time"], 0f);
 			}
 		}
 
-		[Serializable]
 		public class JsonPatternAtom : IJsonDeserializable
 		{
-			[SerializeField]
 
 			public string pattern;
-			[SerializeField]
 
 			public float strength;
-			[SerializeField]
 
 			public float time;
 			public JsonPatternAtom() { }
@@ -227,28 +192,14 @@ namespace NullSpace.SDK.FileUtilities
 			public void Deserialize(IDictionary<string, object> dict)
 			{
 				this.pattern = dict["pattern"] as string;
-				this.strength = tryParse((double)dict["strength"], 1f);
-				this.time = tryParse((double)dict["time"], 0f);
+				this.strength = tryParseFloatFromObject(dict["strength"], 1f);
+				this.time = tryParseFloatFromObject(dict["time"], 0f);
 			
 			}
 		}
 
 
-		[Serializable]
-		public class JsonEffectList : List<JsonEffectAtom> { }
-		[Serializable]
-		public class StringToEffectAtom : SerializableDictionary<string, JsonEffectList> { }
-
-		[Serializable]
-		public class JsonSequenceList : List<JsonSequenceAtom> { }
-		[Serializable]
-		public class StringToSequenceAtom: SerializableDictionary<string, JsonSequenceList> { }
-
-
-		[Serializable]
-		public class JsonPatternList : List<JsonPatternAtom> { }
-		[Serializable]
-		public class StringToPatternAtom : SerializableDictionary<string, JsonPatternList> { }
+	
 		
 
 		public static HapticDefinitionFile ParseHDF(string path)

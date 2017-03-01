@@ -15,7 +15,7 @@ namespace NullSpace.SDK.FileUtilities
 
 	
 	/*
-		public class RandomGenerator : IHapticGenerator<CodeSequence, CodePattern>
+		public class RandomGenerator : IHapticGenerator<HapticSequence, HapticPattern>
 		{
 			private System.Random _random;
 			private IList<AreaFlag> _areas;
@@ -37,13 +37,13 @@ namespace NullSpace.SDK.FileUtilities
 				_currentArea = _areas[which];
 				return this;
 			}
-			public CodePattern Generate(CodeSequence s)
+			public HapticPattern Generate(HapticSequence s)
 			{
-				CodePattern p = new CodePattern();
+				HapticPattern p = new HapticPattern();
 				p.AddChild(0f, _currentArea, s);
 				return p;
 			}
-			public CodePattern GenerateNext(CodeSequence s)
+			public HapticPattern GenerateNext(HapticSequence s)
 			{
 				return Next().Generate(s);
 			}
@@ -60,35 +60,31 @@ namespace NullSpace.SDK.FileUtilities
 	
 	public class FileToCodeHaptic
 	{
+
 		
-		public static CodeSequence CreateSequence(string key,HapticDefinitionFile hdf)
+		
+		public static HapticSequence CreateSequence(string key,HapticDefinitionFile hdf)
 		{
-			Debug.Log("Using key " + key);
-			foreach (var val in hdf.sequenceDefinitions)
-			{
-				
-				Debug.Log("Key: " + val.Key + ", Val: " + val.Value.Count);
-			}
-			CodeSequence s = new CodeSequence();
+		
+			HapticSequence s = new HapticSequence();
 
 			var sequence_def_array = hdf.sequenceDefinitions[key];
-			Debug.Log("Size of the array is " + sequence_def_array.Count);
 			foreach (var effect in sequence_def_array)
 			{
-				s.AddEffect(effect.time, new CodeEffect(effect.effect, effect.duration, effect.strength));
+				s.AddEffect(effect.time, new HapticEffect(effect.effect, effect.duration, effect.strength));
 			}
 
 			return s;
 		}
 
-		public static CodePattern CreatePattern(string key, HapticDefinitionFile hdf)
+		public static HapticPattern CreatePattern(string key, HapticDefinitionFile hdf)
 		{
-			CodePattern p = new CodePattern();
+			HapticPattern p = new HapticPattern();
 			var pattern_def_array = hdf.patternDefinitions[key];
 			foreach (var seq in pattern_def_array)
 			{
 				AreaFlag area = new AreaParser(seq.area).GetArea();
-				CodeSequence thisSeq = CreateSequence(seq.sequence, hdf);
+				HapticSequence thisSeq = CreateSequence(seq.sequence, hdf);
 				p.AddSequence(seq.time, area, thisSeq);
 			}
 			return p;
@@ -104,10 +100,10 @@ namespace NullSpace.SDK.FileUtilities
 
 		}
 		//in progress
-		public HapticDefinitionFile Encode(string id, CodeSequence sequence)
+		public HapticDefinitionFile Encode(string id, HapticSequence sequence)
 		{
 			HapticDefinitionFile hdf = new HapticDefinitionFile();
-			hdf.sequenceDefinitions[id] = new ParsingUtils.JsonEffectList();
+			hdf.sequenceDefinitions[id] = new List<ParsingUtils.JsonEffectAtom>();
 			foreach (var effect in sequence.Effects)
 			{
 				ParsingUtils.JsonEffectAtom atom = new ParsingUtils.JsonEffectAtom();
@@ -136,20 +132,20 @@ namespace NullSpace.SDK.FileUtilities
 			_events = new EventList();
 		}
 
-		public CodeHapticEncoder Flatten(CodePattern p)
+		public CodeHapticEncoder Flatten(HapticPattern p)
 		{
 			
 			CreateEventList(p);
 			return this;
 		}
 		
-		public CodeHapticEncoder Flatten(CodeSequence s)
+		public CodeHapticEncoder Flatten(HapticSequence s)
 		{
 			CreateEventList(s, 0.0, 1.0);
 			return this;
 		}
 
-		private void CreateEventList(CodeSequence s, double parentTime, double parentStrength) 
+		private void CreateEventList(HapticSequence s, double parentTime, double parentStrength) 
 		{
 			
 			var strength = parentStrength * s.Strength;
@@ -170,7 +166,7 @@ namespace NullSpace.SDK.FileUtilities
 
 		}
 
-		private void CreateEventList(CodePattern p)
+		private void CreateEventList(HapticPattern p)
 		{
 
 			double baseStrength = p.Strength;

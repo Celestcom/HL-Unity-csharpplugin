@@ -71,10 +71,8 @@ namespace NullSpace.SDK.FileUtilities
 			const string keyName = userRoot + "\\" + subkey;
 
 			string path = (string)Microsoft.Win32.Registry.GetValue(keyName, "InstallPath", "unknown");
-			UnityEngine.Debug.Log("Path of the asset tool: " + path);
 			_toolName = "HapticAssetTools.exe";
 			_process = new Process();
-			UnityEngine.Debug.Log("Is process null?" + (_process == null));
 			_process.StartInfo.RedirectStandardOutput = true;
 			_process.StartInfo.UseShellExecute = false;
 
@@ -105,7 +103,6 @@ namespace NullSpace.SDK.FileUtilities
 			{
 				throw new InvalidOperationException("You must supply a non-empty root haptics path using the SetRootHapticsFolder(string path) before calling this");
 			}
-			UnityEngine.Debug.Log("Root path is?" + _rootPath) ;
 
 
 			var result = executeToolAndWaitForResult(
@@ -131,14 +128,21 @@ namespace NullSpace.SDK.FileUtilities
 
 		private string executeToolAndWaitForResult(ArgList args)
 		{
-			UnityEngine.Debug.Log("Inside execute tool" + args == null);
 
 			var argString = createArgumentString(args);
+
 			_process.StartInfo.Arguments = argString;
 			_process.Start();
 			string output = _process.StandardOutput.ReadToEnd();
-			_process.WaitForExit();
+	
+			_process.WaitForExit(500);
+
+			if (output.Contains("Error:"))
+			{
+				throw new HapticsAssetException(output.Substring(output.IndexOf("Error:")));
+			}
 			return output;
+
 		}
 
 		public HapticDefinitionFile GetHapticDefinitionFile(string path)
@@ -180,29 +184,10 @@ namespace NullSpace.SDK.FileUtilities
 							.Add("generate-asset", path)
 							.Add("json")
 						);
+
 			return result;
 		}
-		private string getHapticType(string path)
-		{
-			var ext = Path.GetExtension(path);
-			if (ext == ".sequence" || ext == ".pattern" || ext == ".experience")
-			{
-				return ext.Substring(1);
-			} else
-			{
-				throw new FileLoadException("Could not recognize file extension of " + path + ", should be one of: sequence, pattern, experience");
-			}
-		}
-
-		private string getFileName(string path)
-		{
-			return Path.GetFileName(path);
-		}
-
-		private string getRootPath(string path)
-		{
-			return System.IO.Directory.GetParent(path).Parent.Parent.FullName;
-		}
+		
 
 		private string createArgumentString(ArgList arguments)
 		{
