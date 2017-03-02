@@ -32,7 +32,7 @@ namespace NullSpace.SDK
 		{
 			IntPtr ptr = Interop.NSVR_GetError(NSVR.NSVR_Plugin.Ptr);
 			string s = Marshal.PtrToStringAnsi(ptr);
-			Interop.NSVR_FreeString(ptr);
+			Interop.NSVR_FreeError(ptr);
 			return s;
 		}
 
@@ -79,17 +79,17 @@ namespace NullSpace.SDK
 
 			public void PauseAll()
 			{
-				Interop.NSVR_EngineCommand(Ptr, (short)Interop.EngineCommand.PAUSE_ALL);
+				Interop.NSVR_DoEngineCommand(Ptr, (short)Interop.EngineCommand.PAUSE_ALL);
 			}
 
 			public void ResumeAll()
 			{
-				Interop.NSVR_EngineCommand(Ptr, (short)Interop.EngineCommand.PLAY_ALL);
+				Interop.NSVR_DoEngineCommand(Ptr, (short)Interop.EngineCommand.PLAY_ALL);
 			}
 
 			public void ClearAll()
 			{
-				Interop.NSVR_EngineCommand(Ptr, (short)Interop.EngineCommand.CLEAR_ALL);
+				Interop.NSVR_DoEngineCommand(Ptr, (short)Interop.EngineCommand.CLEAR_ALL);
 			}
 
 
@@ -103,11 +103,11 @@ namespace NullSpace.SDK
 			{
 				if (wantTracking)
 				{
-					Interop.NSVR_EngineCommand(Ptr, (short)Interop.EngineCommand.ENABLE_TRACKING);
+					Interop.NSVR_DoEngineCommand(Ptr, (short)Interop.EngineCommand.ENABLE_TRACKING);
 				}
 				else
 				{
-					Interop.NSVR_EngineCommand(Ptr, (short)Interop.EngineCommand.DISABLE_TRACKING);
+					Interop.NSVR_DoEngineCommand(Ptr, (short)Interop.EngineCommand.DISABLE_TRACKING);
 
 				}
 			}
@@ -142,7 +142,6 @@ namespace NullSpace.SDK
 					// TODO: set large fields to null.
 
 					_created = false;
-
 					Interop.NSVR_Delete(_ptr);
 
 					disposedValue = true;
@@ -306,7 +305,7 @@ namespace NullSpace.SDK
 				}
 				if (!NSVR.NSVR_Plugin._disposed)
 				{
-					Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, _handle, (short)Interop.Command.RELEASE);
+					Interop.NSVR_DoHandleCommand(NSVR.NSVR_Plugin.Ptr, _handle, (short)Interop.Command.RELEASE);
 				}
 
 
@@ -343,7 +342,7 @@ namespace NullSpace.SDK
 		internal Playable() { }
 		internal static CommandWithHandle GenerateCommandDelegate(Interop.Command c)
 		{
-			return new CommandWithHandle(x => Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, x, (short)c));
+			return new CommandWithHandle(x => Interop.NSVR_DoHandleCommand(NSVR.NSVR_Plugin.Ptr, x, (short)c));
 		}
 
 		internal CommandWithHandle _Play()

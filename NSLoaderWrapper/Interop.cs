@@ -13,55 +13,18 @@ namespace NullSpace.SDK
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			public static extern IntPtr NSVR_Create();
 
-
-
-
-
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			public static extern int NSVR_PollStatus(IntPtr value);
 
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern void NSVR_SetTrackingEnabled(IntPtr value, bool wantTracking);
+	
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			public static extern uint NSVR_GenHandle(IntPtr value);
 
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			[return: MarshalAs(UnmanagedType.I1)]
-
-			public static extern bool NSVR_Load(IntPtr value, String s, int fileType);
-
-			#region Sequence
-			
-
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			[return: MarshalAs(UnmanagedType.I1)]
-
-			public static extern bool NSVR_CreateSequence(IntPtr value, uint handle, [MarshalAs(UnmanagedType.LPStr)] string s, uint location);
-
-		
-			#endregion
-
-			#region Pattern
-			
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			[return: MarshalAs(UnmanagedType.I1)]
-			public static extern bool NSVR_CreatePattern(IntPtr value, uint handle, [MarshalAs(UnmanagedType.LPStr)] string s);
-			
-
-
-			#endregion
-
-			#region Experience
-			
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			[return: MarshalAs(UnmanagedType.I1)]
-			public static extern bool NSVR_CreateExperience(IntPtr value, uint handle, [MarshalAs(UnmanagedType.LPStr)]string s);
-			#endregion
 
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern void NSVR_HandleCommand(IntPtr value, uint handle, short command);
+			public static extern void NSVR_DoHandleCommand(IntPtr value, uint handle, short command);
 			public enum Command
 			{
 				PLAY = 0, PAUSE, RESET, RELEASE
@@ -71,7 +34,7 @@ namespace NullSpace.SDK
 				PLAY_ALL=1, PAUSE_ALL, CLEAR_ALL, ENABLE_TRACKING, DISABLE_TRACKING
 			}
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern bool NSVR_EngineCommand(IntPtr value, short command);
+			public static extern bool NSVR_DoEngineCommand(IntPtr value, short command);
 			
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			public static extern int NSVR_PollTracking(IntPtr value, ref InteropTrackingUpdate q);
@@ -84,18 +47,9 @@ namespace NullSpace.SDK
 			public static extern IntPtr NSVR_GetError(IntPtr value);
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern void NSVR_FreeString(IntPtr value);
+			public static extern void NSVR_FreeError(IntPtr value);
 
 
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			[return: MarshalAs(UnmanagedType.I1)]
-
-			public static extern bool NSVR_InitializeFromFilesystem(IntPtr value, [MarshalAs(UnmanagedType.LPStr)]string path);
-
-
-
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern void NSVR_CreateHaptic(IntPtr value, uint handle, byte[] data, uint size);
 
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
