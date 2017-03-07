@@ -1,46 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using FlatBuffers;
-using NullSpace.HapticFiles;
+﻿using System.Collections.Generic;
 using NullSpace.SDK.Internal;
-using NullSpace.SDK.FileUtilities;
+using System.Text;
+
 namespace NullSpace.SDK
 {
 	/// <summary>
-	/// <para>CodeEffects are the base atoms used to create more complex haptics. See documentation for Effect Families
-	/// to get a list of the currently available effects.</para><para> Effects can have time offsets, durations, and strengths, 
-	/// and are combined together to create CodeSequences. </para>
+	/// HapticEffects are the base building blocks of more complex effects. They can be strung together, repeated over a duration, and given strengths and time offsets.
 	/// </summary>
-	public class HapticEffect 
+	public sealed class HapticEffect 
 	{
-
-		private float _time;
-		private string _effect;
+		private Effect _effect;
 		private float _duration;
-		private float _strength;
-
+	
 		/// <summary>
-		/// Retrieve the time offset (fractional seconds)
+		/// Retrieve the associated Effect
 		/// </summary>
-		public float Time
-		{
-			get
-			{
-				return _time;
-			}
-
-			set
-			{
-				_time = value;
-			}
-		}
-
-		/// <summary>
-		/// Retrieve the effect name 
-		/// </summary>
-		public string Effect
+		public Effect Effect
 		{
 			get
 			{
@@ -69,165 +44,69 @@ namespace NullSpace.SDK
 			}
 		}
 
-		/// <summary>
-		/// Retrieve the strength (0.0 - 1.0)
-		/// </summary>
-		public double Strength
-		{
-			get
-			{
-				return _strength;
-			}
-
-			set
-			{
-				_strength = (float)value;
-			}
-		}
-
 	
-
 		/// <summary>
-		/// Construct a HapticEffect with a given effect family, default duration of 0, and strength of 1.
+		/// Construct a HapticEffect with a given Effect, and default duration of 0.0
 		/// </summary>
-		/// <param name="effect">Effect name</param>
-		public HapticEffect(string effect)
+		/// <param name="effect"></param>
+		public HapticEffect(Effect effect)
 		{
 			_effect = effect;
 			_duration = 0f;
-			_strength = 1f;
 		}
 
 		/// <summary>
-		/// Construct a HapticEffect with a given effect family, duration, and default strength of 1
+		/// Construct a HapticEffect with a given Effect and duration
 		/// </summary>
-		/// <param name="effect">Effect name</param>
+		/// <param name="effect"></param>
 		/// <param name="duration">Effect duration (fractional seconds)</param>
-		public HapticEffect(string effect, double duration)
+		public HapticEffect(Effect effect, double duration)
 		{
 			_effect = effect;
 			Duration = duration;
-			_strength = 1f;
 		}
-
-		/// <summary>
-		/// Construct a HapticEffect with a given effect family, duration, and strength
-		/// </summary>
-		/// <param name="effect">Effect name</param>
-		/// <param name="duration">Effect duration (fractional seconds)</param>
-		/// <param name="strength">Effect strength (0.0-1.0)</param>
-		public HapticEffect(string effect, double duration, double strength)
-		{
-			_effect = effect;
-			Duration = duration;
-			Strength = strength;
-		}
-
 
 		
-	
 		/// <summary>
 		/// Create an independent copy of this HapticEffect
 		/// </summary>
 		/// <returns>A copy</returns>
 		public HapticEffect Clone()
 		{
-			return new HapticEffect(_effect, Duration, Strength);
+			HapticEffect clone = new HapticEffect(_effect);
+			clone.Duration = this._duration;
+			return clone;
 		}
 
-	
+		public override string ToString()
+		{
+			return "Effect " + this.Effect.ToString() + " for " + this.Duration + " seconds";
+		}
 	}
 
 	/// <summary>
-	/// <para>CodeSequences are haptic effects which play on a given area on the suit. This area is specified with an AreaFlag, which can represent anything from one location to the entire suit.</para><para>A HapticSequence is composed of one or more CodeEffects with time offsets.</para>
+	/// <para>CodeSequences are haptic effects which play on a given area on the suit. The area is specified with an AreaFlag, which can represent anything from one location to the entire suit.</para>
+	/// <para>A HapticSequence is composed of one or more HapticEffects with time offsets.</para>
 	/// </summary>
-	public class HapticSequence :Playable
+	public sealed class HapticSequence 
 	{
-		private AreaFlag _area;
-		private float _strength;
-		private IList<HapticEffect> _children;
-		private float _time;
+		private IList<CommonArgs<HapticEffect>> _children;
 
-		/// <summary>
-		/// Retrieve the AreaFlag associated with this HapticSequence
-		/// </summary>
-		public AreaFlag Area
+		internal IList<CommonArgs<HapticEffect>> Effects
 		{
-			get
-			{
-				return _area;
-			}
-
-			set
-			{
-				_area = value;
-			}
+			get { return _children; }
+			set { _children = value; }
 		}
 
 		/// <summary>
-		/// Retrieve the strength of this HapticSequence (0.0-1.0)
-		/// </summary>
-		public double Strength
-		{
-			get
-			{
-				return _strength;
-			}
-
-			set
-			{
-				_strength = (float)value;
-			}
-		}
-
-		/// <summary>
-		/// Retrieve the list of CodeEffects associated with this HapticSequence
-		/// </summary>
-		public IList<HapticEffect> Effects
-		{
-			get
-			{
-				return _children;
-			}
-
-			set
-			{
-				_children = value;
-			}
-		}
-
-		/// <summary>
-		/// Retrieve the time offset of this HapticSequence (fractional seconds)
-		/// </summary>
-		public double Time
-		{
-			get
-			{
-				return _time;
-			}
-
-			set
-			{
-				_time = (float) value;
-			}
-		}
-
-
-		/// <summary>
-		/// Construct an empty HapticSequence with a default area of AreaFlag.None, and strength of 1.
+		/// Construct an empty HapticSequence
 		/// </summary>
 		public HapticSequence()
 		{
-			_area = AreaFlag.None;
-			_strength = 1f;
-			_children = new List<HapticEffect>();
+			_children = new List<CommonArgs<HapticEffect>>();
 		}
 
-		public HapticSequence(string id)
-		{
-			
-		}
-
+	
 		/// <summary>
 		/// Create an independent copy of this HapticSequence
 		/// </summary>
@@ -235,10 +114,7 @@ namespace NullSpace.SDK
 		public HapticSequence Clone()
 		{
 			var clone = new HapticSequence();
-			clone.Area = _area;
-			clone.Strength = _strength;
-			clone.Time = _time;
-			clone.Effects = new List<HapticEffect>(_children);
+			clone.Effects = new List<CommonArgs<HapticEffect>>(_children);
 			return clone;
 		}
 		
@@ -249,38 +125,39 @@ namespace NullSpace.SDK
 		/// <param name="e">The HapticEffect to add</param>
 		public HapticSequence AddEffect(double time, HapticEffect effect)
 		{
-			var clone = effect.Clone();
-			clone.Time = (float)time;
-			Effects.Add(clone);
+			Effects.Add(new CommonArgs<HapticEffect>((float)time, 1f, effect.Clone()));
 			return this;
 		}
 
-		
-		
-		private Interop.CommandWithHandle _create(AreaFlag location, double strength = 1.0)
-		{
-			return new Interop.CommandWithHandle(handle => {
-				var oldArea = this.Area;
-				this.Area = location;
-				CodeHapticEncoder encoder = new CodeHapticEncoder();
-				encoder.Flatten(this);
-				var bytes = encoder.Encode();
-				this.Area = oldArea;
-			
-				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (UInt32)bytes.Length);
-			});
-			
-
-		}
-
 		/// <summary>
-		/// Create a HapticHandle for this HapticSequence, specifying an AreaFlag to play on.
+		/// Add a HapticEffect with a given time offset and strength 
+		/// </summary>
+		/// <param name="time">Time offset (fractional seconds)</param>
+		/// <param name="strength">Strength (0.0-1.0)</param>
+		/// <param name="effect">The HapticEffect to add</param>
+		/// <returns></returns>
+		public HapticSequence AddEffect(double time, double strength, HapticEffect effect)
+		{
+			Effects.Add(new CommonArgs<HapticEffect>((float)time, (float)strength, effect.Clone()));
+			return this;
+		}
+		
+	
+		/// <summary>
+		/// Create a HapticHandle from this HapticSequence, specifying an AreaFlag to play on.
 		/// </summary>
 		/// <param name="area">The AreaFlag where this HapticSequence should play</param>
-		/// <returns></returns>
+		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
 		public HapticHandle CreateHandle(AreaFlag area)
 		{
-			return new HapticHandle(_Play(), _Pause(), _create(area), _Reset());
+			HapticHandle.CommandWithHandle creator = delegate (uint handle)
+			{
+				EventList e = new ParameterizedSequence(this, area).Generate(1f, 0f);
+				byte[] bytes = e.GetBytes();
+				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+			};
+
+			return new HapticHandle(creator);
 		}
 
 		/// <summary>
@@ -288,87 +165,69 @@ namespace NullSpace.SDK
 		/// </summary>
 		/// <param name="area">The AreaFlag where this HapticSequence should play</param>
 		/// <param name="strength">The strength of this HapticSequence (0.0-1.0)</param>
-		/// <returns></returns>
+		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
 		public HapticHandle CreateHandle(AreaFlag area, double strength)
 		{
-			return new HapticHandle(_Play(), _Pause(), _create(area, strength), _Reset());
+			HapticHandle.CommandWithHandle creator = delegate (uint handle)
+			{
+				EventList e = new ParameterizedSequence(this, area).Generate((float)strength, 0f);
+				byte[] bytes = e.GetBytes();
+				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+			};
+
+			return new HapticHandle(creator);
 		}
 
 		/// <summary>
 		/// <para>A helper which calls Play on a newly created HapticHandle.</para>
 		/// <para>Synonymous with someSequence.CreateHandle(area).Play() </para>
 		/// </summary>
-		/// <param name="area"></param>
-		/// <returns></returns>
+		/// <param name="area">The area on which to play this sequence</param>
+		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
 		public HapticHandle Play(AreaFlag area)
 		{
-			var handle = CreateHandle(area);
-			handle.Play();
-			return handle;
+			return CreateHandle(area).Play();
 		}
 
 		/// <summary>
 		/// <para>A helper which calls Play on a newly created HapticHandle.</para>
 		/// <para>Synonymous with someSequence.CreateHandle(area, strength).Play()</para>
 		/// </summary>
-		/// <param name="area"></param>
-		/// <param name="strength"></param>
-		/// <returns></returns>
+		/// <param name="area">The area on which to play this sequence</param>
+		/// <param name="strength">The strength with which to play this sequence</param>
+		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
 		public HapticHandle Play(AreaFlag area, double strength)
 		{
-			var handle = CreateHandle(area, strength);
-			handle.Play();
-			return handle;
+			return CreateHandle(area, strength).Play();
+		}
+
+
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.Append("Sequence of ");
+			sb.Append(this.Effects.Count);
+			sb.Append(" HapticEffects: \n");
+			foreach (var child in this.Effects)
+			{
+				sb.Append("	" + child.ToString());
+			}
+			sb.Append("\n");
+			return sb.ToString();
 		}
 	}
 	
 
 
 	/// <summary>
-	/// CodePatterns are used to combine one or more CodeSequences into a single, playable effect. Each HapticSequence added to the HapticPattern will have a time offset and optional strength. 
+	/// HapticPatterns are used to combine one or more HapticSequences into a single, playable effect. Each HapticSequence added to the HapticPattern will have a time offset and optional strength, as well as a specified area.
 	/// </summary>
-	public class HapticPattern : Playable
+	public sealed class HapticPattern 
 	{
-		private float _strength;
-		private float _time;
-		private IList<HapticSequence> _children;
+	
+		private IList<CommonArgs<ParameterizedSequence>> _children;
 
-		/// <summary>
-		/// Retrieve the strength of this HapticPattern (0.0 - 1.0)
-		/// </summary>
-		public double Strength
-		{
-			get
-			{
-				return _strength;
-			}
-
-			set
-			{
-				_strength = (float)value;
-			}
-		}
-
-		/// <summary>
-		/// Retrieve the time offset of this HapticPattern (fractional seconds)
-		/// </summary>
-		public double Time
-		{
-			get
-			{
-				return _time;
-			}
-
-			set
-			{
-				_time = (float)value;
-			}
-		}
-
-		/// <summary>
-		/// Retrieve the list of CodeSequences that make up this HapticPattern
-		/// </summary>
-		public IList<HapticSequence> Sequences
+		internal IList<CommonArgs<ParameterizedSequence>> Sequences
 		{
 			get
 			{
@@ -381,31 +240,25 @@ namespace NullSpace.SDK
 			}
 		}
 
-	
 
 		/// <summary>
-		/// Construct an empty HapticPattern with a default strength of 1
+		/// Construct an empty HapticPattern
 		/// </summary>
 		public HapticPattern()
 		{
-			_children = new List<HapticSequence>();
-			_time = 0f;
-			_strength = 1f;
+			_children = new List<CommonArgs<ParameterizedSequence>>();
 		}
 		
 		/// <summary>
-		/// Add a HapticSequence to this HapticPattern with a given time offset and AreaFlag, and default strength of 1
+		/// Add a HapticSequence to this HapticPattern with a given time offset and AreaFlag, and default strength of 1.0
 		/// </summary>
 		/// <param name="time">Time offset (fractional seconds)</param>
 		/// <param name="area">AreaFlag on which to play the HapticSequence</param>
 		/// <param name="sequence">The HapticSequence to be added</param>
 		public HapticPattern AddSequence(double time, AreaFlag area, HapticSequence sequence)
 		{
-			var clone = sequence.Clone();
-			clone.Time = time;
-			clone.Area = area;
-			clone.Strength = 1.0;
-			_children.Add(clone);
+			ParameterizedSequence clone = new ParameterizedSequence(sequence.Clone(), area);
+			_children.Add(new CommonArgs<ParameterizedSequence>((float)time, 1f, clone));
 			return this;
 		}
 
@@ -418,29 +271,12 @@ namespace NullSpace.SDK
 		/// <param name="sequence">The HapticSequence to be added</param>
 		public HapticPattern AddSequence(double time, AreaFlag area, double strength, HapticSequence sequence)
 		{
-			var clone = sequence.Clone();
-			clone.Strength = strength;
-			clone.Time = time;
-			clone.Area = area;
-			_children.Add(clone);
+			ParameterizedSequence clone = new ParameterizedSequence(sequence.Clone(), area);
+			_children.Add(new CommonArgs<ParameterizedSequence>((float)time, (float)strength, clone));
 			return this;
 		}
 
 		
-		
-		private Interop.CommandWithHandle _create(double strength = 1.0)
-		{
-			return new Interop.CommandWithHandle(handle => {
-
-				CodeHapticEncoder encoder = new CodeHapticEncoder();
-				encoder.Flatten(this);
-				var bytes = encoder.Encode();
-
-				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (UInt32)bytes.Length);
-			});
-		
-
-		}
 
 		/// <summary>
 		/// Create a HapticHandle from this HapticPattern, which can be used to manipulate the effect. 
@@ -448,7 +284,14 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle()
 		{
-			return new HapticHandle(_Play(), _Pause(), _create(_strength), _Reset());
+			HapticHandle.CommandWithHandle creator = delegate (uint handle)
+			{
+				EventList e = new ParameterizedPattern(this).Generate(1f, 0f);
+				byte[] bytes = e.GetBytes();
+				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+			};
+
+			return new HapticHandle(creator);
 		}
 
 		/// <summary>
@@ -458,7 +301,14 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle(double strength)
 		{
-			return new HapticHandle(_Play(), _Pause(), _create(strength), _Reset());
+			HapticHandle.CommandWithHandle creator = delegate (uint handle)
+			{
+				EventList e = new ParameterizedPattern(this).Generate((float) strength, 0f);
+				byte[] bytes = e.GetBytes();
+				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+			};
+
+			return new HapticHandle(creator);
 		}
 
 
@@ -480,6 +330,21 @@ namespace NullSpace.SDK
 		public HapticHandle Play(double strength)
 		{
 			return CreateHandle(strength).Play();
+		}
+
+
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.Append("Pattern of ");
+			sb.Append(this.Sequences.Count);
+			sb.Append(" HapticSequences: \n");
+			foreach (var child in this.Sequences)
+			{
+				sb.Append("	" + child.ToString());
+			}
+			sb.Append("\n");
+			return sb.ToString();
 		}
 	}
 	

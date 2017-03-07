@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{CE8AF7A0-F6CC-4623-94C0-855EA27349CA}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NSLoaderWrapper</RootNamespace>
     <AssemblyName>NSLoaderWrapper</AssemblyName>
@@ -116,6 +116,8 @@
     <Compile Include="BasicHapticEvent.cs" />
     <Compile Include="ByteBuffer.cs" />
     <Compile Include="CodeHaptics.cs" />
+    <Compile Include="CommonArgs.cs" />
+    <Compile Include="Effect.cs" />
     <Compile Include="EncodingUtils.cs" />
     <Compile Include="EventList.cs" />
     <Compile Include="FlatBufferBuilder.cs" />
@@ -147,6 +149,8 @@
     <Compile Include="MiniJson.cs" />
     <Compile Include="NSLoader.cs" />
     <Compile Include="Offset.cs" />
+    <Compile Include="ParameterizedPattern.cs" />
+    <Compile Include="ParameterizedSequence.cs" />
     <Compile Include="Platform.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

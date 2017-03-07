@@ -7,14 +7,35 @@ using System.IO;
 
 namespace NullSpace.SDK.FileUtilities
 {
-	
+	/// <summary>
+	/// A wrapper over the Haptic Asset Tool binary. Retrieves json responses from the tool, 
+	/// allowing the retrieval of a package list or .hdf
+	/// </summary>
 	public class AssetTool
 	{
+		/// <summary>
+		/// Holds relevant information about a haptic package
+		/// </summary>
 		public class PackageInfo : ParsingUtils.IJsonDeserializable
 		{
+			/// <summary>
+			/// Version of the packages
+			/// </summary>
 			public string version;
+
+			/// <summary>
+			/// Studio that created the packages
+			/// </summary>
 			public string studio;
+
+			/// <summary>
+			/// Namespace of the packages
+			/// </summary>
 			public string @namespace;
+
+			/// <summary>
+			/// Absolute file path to the package's root directory
+			/// </summary>
 			public string path;
 
 			public PackageInfo()
@@ -22,7 +43,11 @@ namespace NullSpace.SDK.FileUtilities
 
 			}
 
-			public void Deserialize(IDictionary<string, object> dict)
+			/// <summary>
+			/// Given a dictionary representing the json object of a package, deserialize into a PackageInfo
+			/// </summary>
+			/// <param name="dict">json object</param>
+			void ParsingUtils.IJsonDeserializable.Deserialize(IDictionary<string, object> dict)
 			{
 				version = dict["version"] as string;
 				studio = dict["studio"] as string;
@@ -53,25 +78,35 @@ namespace NullSpace.SDK.FileUtilities
 
 			public List<KeyValuePair<string, string>> Args { get { return this._args.ToList(); } }
 		}
-		public class PackageInfoList
-		{
-			public List<PackageInfo> Packages { get; set; }
-		}
 
-		private string _toolName;
+		/// <summary>
+		/// This will deal with opening and running the asset tool binary
+		/// </summary>
 		private Process _process;
+
+		/// <summary>
+		/// The root path of the haptics folder
+		/// </summary>
 		private string _rootPath;
 
-		//the HapticAssetTool must be in your path
+		/// <summary>
+		/// Create a new AssetTool. Note that the asset tool MUST be in the user's registry, which means
+		/// the service MUST be installed. 
+		/// </summary>
 		public AssetTool()
 		{
 
 			const string userRoot = "HKEY_CURRENT_USER";
 			const string subkey = "SOFTWARE\\NullSpace VR\\AssetTool";
 			const string keyName = userRoot + "\\" + subkey;
-
+			
 			string path = (string)Microsoft.Win32.Registry.GetValue(keyName, "InstallPath", "unknown");
-			_toolName = "HapticAssetTools.exe";
+
+			if (path == "unknown")
+			{
+				UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory. Is the Service installed?");
+			}
+
 			_process = new Process();
 			_process.StartInfo.RedirectStandardOutput = true;
 			_process.StartInfo.UseShellExecute = false;
@@ -83,9 +118,9 @@ namespace NullSpace.SDK.FileUtilities
 	
 
 		/// <summary>
-		/// Set the root haptics directory
+		/// Set the user's root haptics directory
 		/// </summary>
-		/// <param name="path"></param>
+		/// <param name="path">Absolute path to the root haptics directory</param>
 		public void SetRootHapticsFolder(string path)
 		{
 			_rootPath = path;
@@ -101,7 +136,7 @@ namespace NullSpace.SDK.FileUtilities
 
 			if (_rootPath == null || _rootPath == "")
 			{
-				throw new InvalidOperationException("You must supply a non-empty root haptics path using the SetRootHapticsFolder(string path) before calling this");
+				throw new InvalidOperationException("You must supply a non-empty root haptics path using SetRootHapticsFolder before calling this method");
 			}
 
 
@@ -117,7 +152,7 @@ namespace NullSpace.SDK.FileUtilities
 			foreach (var p in a)
 			{
 				PackageInfo package = new PackageInfo();
-				package.Deserialize(p as IDictionary<string, object>);
+				((ParsingUtils.IJsonDeserializable)package).Deserialize(p as IDictionary<string, object>);
 				packages.Add(package);
 			}
 			return packages;
@@ -145,11 +180,14 @@ namespace NullSpace.SDK.FileUtilities
 
 		}
 
+		/// <summary>
+		/// Given a path to the raw haptic asset, generate a HapticDefinitionFile 
+		/// </summary>
+		/// <param name="path">Path to haptic asset. Ex: C:\Haptics\my\patterns\test.pattern</param>
+		/// <returns></returns>
 		public HapticDefinitionFile GetHapticDefinitionFile(string path)
 		{
-	
-		
-		
+
 			var result = executeToolAndWaitForResult(
 				new ArgList()
 				.Add("root-path", _rootPath)
@@ -163,19 +201,12 @@ namespace NullSpace.SDK.FileUtilities
 		
 		}
 
-		public void GetHapticDefinitionFile(string path, HapticDefinitionFile inFile)
-		{
-			var result = executeToolAndWaitForResult(
-							new ArgList()
-							.Add("root-path", _rootPath)
-							.Add("generate-asset", path)
-							.Add("json")
-						);
 
-			inFile.Deserialize(MiniJSON.Json.Deserialize(result) as IDictionary<string, object>);
-
-		}
-
+		/// <summary>
+		/// Given a path to the raw haptic asset, return the json representation of a HapticDefinitionFile
+		/// </summary>
+		/// <param name="path">Path to haptic asset. Ex: C:\Haptics\my\patterns\test.pattern</param>
+		/// <returns>JSON string representing a HapticDefinitionFile</returns>
 		public string GetHapticDefinitionFileJson(string path)
 		{
 			var result = executeToolAndWaitForResult(

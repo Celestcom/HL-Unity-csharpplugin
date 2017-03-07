@@ -42,7 +42,7 @@ namespace NullSpace.SDK
 		private float _strength;
 		private float _duration;
 		private UInt32 _area;
-		private string _effect;
+		private Effect _effect;
 
 	
 
@@ -56,13 +56,12 @@ namespace NullSpace.SDK
 
 		protected override int _generate(FlatBufferBuilder b)
 		{
-			var effect = b.CreateString(_effect);
 			Events.BasicHapticEvent.StartBasicHapticEvent(b);
 			Events.BasicHapticEvent.AddArea(b, _area);
 			Events.BasicHapticEvent.AddStrength(b, _strength);
 			Events.BasicHapticEvent.AddDuration(b, _duration);
 			Events.BasicHapticEvent.AddTime(b, _time);
-			Events.BasicHapticEvent.AddEffect(b, effect);
+			Events.BasicHapticEvent.AddEffect(b, (uint)_effect);
 			return Events.BasicHapticEvent.EndBasicHapticEvent(b).Value;
 		}
 
@@ -73,7 +72,7 @@ namespace NullSpace.SDK
 
 		}
 
-		public BasicHapticEvent(float time, float strength, float duration, UInt32 area, string effect)
+		public BasicHapticEvent(float time, float strength, float duration, UInt32 area, Effect effect)
 			:base(SuitEventType.BasicHapticEvent)
 		{
 			
@@ -106,7 +105,7 @@ namespace NullSpace.SDK
 				_events.Add(e);
 			}
 		}
-		public byte[] Generate()
+		public byte[] GetBytes()
 		{
 			_events.Sort();
 			Console.WriteLine("WTF1");

@@ -5,9 +5,17 @@ namespace NullSpace.SDK
 {
 	namespace Internal
 	{
-
 		internal static class Interop
 		{
+			public enum HandleCommand
+			{
+				PLAY = 0, PAUSE, RESET, RELEASE
+			}
+			public enum EngineCommand
+			{
+				PLAY_ALL = 1, PAUSE_ALL, CLEAR_ALL, ENABLE_TRACKING, DISABLE_TRACKING
+			}
+
 			public delegate void CommandWithHandle(uint handle);
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
@@ -16,29 +24,17 @@ namespace NullSpace.SDK
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			public static extern int NSVR_PollStatus(IntPtr value);
 
-	
-
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			public static extern uint NSVR_GenHandle(IntPtr value);
 
-
-
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			public static extern void NSVR_DoHandleCommand(IntPtr value, uint handle, short command);
-			public enum Command
-			{
-				PLAY = 0, PAUSE, RESET, RELEASE
-			}
-			public enum EngineCommand
-			{
-				PLAY_ALL=1, PAUSE_ALL, CLEAR_ALL, ENABLE_TRACKING, DISABLE_TRACKING
-			}
+			
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			public static extern bool NSVR_DoEngineCommand(IntPtr value, short command);
 			
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			public static extern int NSVR_PollTracking(IntPtr value, ref InteropTrackingUpdate q);
-
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
 			public static extern void NSVR_Delete(IntPtr value);
@@ -48,9 +44,6 @@ namespace NullSpace.SDK
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			public static extern void NSVR_FreeError(IntPtr value);
-
-
-
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 			public static extern int NSVR_TransmitEvents(IntPtr value, uint handle, byte[] data, uint size);
@@ -96,7 +89,7 @@ namespace NullSpace.SDK
 
 	
 
-			};
+		};
 
 	public enum Imu
 	{

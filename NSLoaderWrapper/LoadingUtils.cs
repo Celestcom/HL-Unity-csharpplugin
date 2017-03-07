@@ -30,7 +30,7 @@ namespace NullSpace.SDK.FileUtilities
 
 			if (hdf.rootEffect.type == "sequence")
 			{
-				var seq = FileToCodeHaptic.CreateSequence(hdf.rootEffect.name, hdf);
+				var seq = CodeHapticFactory.CreateSequence(hdf.rootEffect.name, hdf);
 				return seq;
 			}
 			else
@@ -44,7 +44,7 @@ namespace NullSpace.SDK.FileUtilities
 			HapticDefinitionFile hdf = LoadHDF(path);
 			if (hdf.rootEffect.type == "pattern")
 			{
-				var pat = FileToCodeHaptic.CreatePattern(hdf.rootEffect.name, hdf);
+				var pat = CodeHapticFactory.CreatePattern(hdf.rootEffect.name, hdf);
 				return pat;
 			} else
 			{
