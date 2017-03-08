@@ -80,7 +80,7 @@ namespace NullSpace.SDK
 
 		public override string ToString()
 		{
-			return "Effect " + this.Effect.ToString() + " for " + this.Duration + " seconds";
+			return string.Format("{0} for {1} seconds", this.Effect.ToString(), _duration);
 		}
 	}
 
@@ -205,12 +205,10 @@ namespace NullSpace.SDK
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder();
-			sb.Append("Sequence of ");
-			sb.Append(this.Effects.Count);
-			sb.Append(" HapticEffects: \n");
+			sb.Append(string.Format("Sequence of {0} HapticEffects:\n", this.Effects.Count));
 			foreach (var child in this.Effects)
 			{
-				sb.Append("	" + child.ToString());
+				sb.Append(string.Format("[{0}]\n", child.ToString()));
 			}
 			sb.Append("\n");
 			return sb.ToString();
@@ -336,12 +334,11 @@ namespace NullSpace.SDK
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder();
-			sb.Append("Pattern of ");
-			sb.Append(this.Sequences.Count);
-			sb.Append(" HapticSequences: \n");
+			sb.Append(string.Format("Pattern of {0} sequences: \n", this.Sequences.Count));
+
 			foreach (var child in this.Sequences)
 			{
-				sb.Append("	" + child.ToString());
+				sb.Append(string.Format("{0}\n", child.ToString()));
 			}
 			sb.Append("\n");
 			return sb.ToString();

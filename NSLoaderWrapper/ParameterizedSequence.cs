@@ -34,5 +34,10 @@ namespace NullSpace.SDK
 			return events;
 		}
 
+		public override string ToString()
+		{
+			return string.Format("On area {0}: \n{1}", _area,  _sequence.ToString());
+		}
+
 	}
 }

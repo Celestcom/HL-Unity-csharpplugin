@@ -1,12 +1,7 @@
 ﻿using System;
-using NullSpace.SDK.Internal;
-using static NullSpace.SDK.Internal.Interop;
 using UnityEngine;
 using System.Runtime.InteropServices;
-using System.Collections.Generic;
-using NullSpace.HapticFiles;
-using FlatBuffers;
-using NullSpace.HapticFiles.Mixed;
+using NullSpace.SDK.Internal;
 
 namespace NullSpace.SDK
 {
@@ -23,23 +18,29 @@ namespace NullSpace.SDK
 		{ }
 	}
 
-
+	/// <summary>
+	/// Wrapper around the main access point of the plugin, NSVR_Plugin
+	/// </summary>
 	public static class NSVR
 	{
 		internal static IntPtr _ptr;
 		internal static bool _created = false;
+
+		/// <summary>
+		/// Retrieve the latest error from the plugin, freeing the string and returning a copy
+		/// </summary>
+		/// <returns></returns>
 		internal static string GetError()
 		{
-			IntPtr ptr = Interop.NSVR_GetError(NSVR.NSVR_Plugin.Ptr);
+			IntPtr ptr = Interop.NSVR_GetError(NSVR_Plugin.Ptr);
 			string s = Marshal.PtrToStringAnsi(ptr);
 			Interop.NSVR_FreeError(ptr);
 			return s;
 		}
 
-
-
-
-
+		/// <summary>
+		/// Main point of access to the plugin, implements IDisposable
+		/// </summary>
 		public sealed class NSVR_Plugin : IDisposable
 		{
 			internal static bool _disposed = false;
@@ -61,7 +62,8 @@ namespace NullSpace.SDK
 
 				}
 			}
-			public NSVR_Plugin(string path)
+
+			public NSVR_Plugin()
 			{
 				_disposed = false;
 				if (_created)
@@ -70,38 +72,70 @@ namespace NullSpace.SDK
 					return;
 				}
 				_ptr = Interop.NSVR_Create();
-				//New plugin doesn't do FS stuff?
-				//Interop.NSVR_InitializeFromFilesystem(_ptr, path);
 				_created = true;
 
 			}
 
-
+			/// <summary>
+			/// Pause all currently active effects
+			/// </summary>
 			public void PauseAll()
 			{
 				Interop.NSVR_DoEngineCommand(Ptr, (short)Interop.EngineCommand.PAUSE_ALL);
 			}
 
+
+			/// <summary>
+			/// Resume all effects that were paused with a call to PauseAll()
+			/// </summary>
 			public void ResumeAll()
 			{
 				Interop.NSVR_DoEngineCommand(Ptr, (short)Interop.EngineCommand.PLAY_ALL);
 			}
 
+			/// <summary>
+			/// Destroy all effects (invalidates any HapticHandles)
+			/// </summary>
 			public void ClearAll()
 			{
 				Interop.NSVR_DoEngineCommand(Ptr, (short)Interop.EngineCommand.CLEAR_ALL);
 			}
 
 
-
+			/// <summary>
+			/// Poll the status of suit connection 
+			/// </summary>
+			/// <returns>Connected if the service is running and a suit is plugged in, else Disconnected</returns>
 			public SuitStatus PollStatus()
 			{
 				return (SuitStatus)Interop.NSVR_PollStatus(Ptr);
 			}
 
-			public void SetTrackingEnabled(bool wantTracking)
+			/// <summary>
+			/// Enable tracking on the suit
+			/// </summary>
+			public void EnableTracking()
 			{
-				if (wantTracking)
+				Interop.NSVR_DoEngineCommand(Ptr, (short)Interop.EngineCommand.ENABLE_TRACKING);
+
+			}
+
+			/// <summary>
+			/// Disable tracking on the suit 
+			/// </summary>
+			public void DisableTracking()
+			{
+				Interop.NSVR_DoEngineCommand(Ptr, (short)Interop.EngineCommand.DISABLE_TRACKING);
+
+			}
+
+			/// <summary>
+			/// Enable or disable tracking
+			/// </summary>
+			/// <param name="enableTracking">If true, enables tracking. Else disables tracking.</param>
+			public void SetTrackingEnabled(bool enableTracking)
+			{
+				if (enableTracking)
 				{
 					Interop.NSVR_DoEngineCommand(Ptr, (short)Interop.EngineCommand.ENABLE_TRACKING);
 				}
@@ -112,6 +146,10 @@ namespace NullSpace.SDK
 				}
 			}
 
+			/// <summary>
+			/// Poll the suit for the latest tracking data
+			/// </summary>
+			/// <returns>A data structure containing all valid quaternion data</returns>
 			public TrackingUpdate PollTracking()
 			{
 				InteropTrackingUpdate t = new InteropTrackingUpdate();
@@ -170,6 +208,9 @@ namespace NullSpace.SDK
 		}
 	}
 
+	/// <summary>
+	/// Able to hold tracking data for chest and arm IMUs
+	/// </summary>
 	public struct TrackingUpdate
 	{
 		public UnityEngine.Quaternion Chest;
@@ -179,6 +220,9 @@ namespace NullSpace.SDK
 		public UnityEngine.Quaternion RightForearm;
 	}
 
+	/// <summary>
+	/// Use a HapticHandle to Play, Pause, or Stop an effect. A HapticHandle represents a particular instance of an effect.
+	/// </summary>
 	public sealed class HapticHandle 
 	{
 		private uint _handle;
@@ -188,24 +232,36 @@ namespace NullSpace.SDK
 
 		internal HapticHandle(CommandWithHandle creator)
 		{
+			//The reason we are storing the creator is so that people can clone the handle
 			_creator = creator;
-
-
 			_handle = Interop.NSVR_GenHandle(NSVR.NSVR_Plugin.Ptr);
-
 			_creator(_handle);
 		}
 
+		/// <summary>
+		/// Cause the associated effect to play. If paused, play will resume where it left off. If stopped, play will resume from the beginning. 
+		/// </summary>
+		/// <returns>Reference to this HapticHandle</returns>
 		public HapticHandle Play()
 		{
 			Interop.NSVR_DoHandleCommand(NSVR.NSVR_Plugin.Ptr, _handle, (short)Interop.HandleCommand.PLAY);
 			return this;
 		}
+
+		/// <summary>
+		/// Cause the associated effect to pause. 
+		/// </summary>
+		/// <returns>Reference to this HapticHandle</returns>
 		public HapticHandle Pause()
 		{
 			Interop.NSVR_DoHandleCommand(NSVR.NSVR_Plugin.Ptr, _handle, (short)Interop.HandleCommand.PAUSE);
 			return this;
 		}
+
+		/// <summary>
+		/// Cause the associated effect to stop. Will reset the effect to the beginning in a paused state. 
+		/// </summary>
+		/// <returns>Reference to this HapticHandle</returns>
 		public HapticHandle Stop()
 		{
 			Interop.NSVR_DoHandleCommand(NSVR.NSVR_Plugin.Ptr, _handle, (short)Interop.HandleCommand.RESET);
@@ -213,6 +269,15 @@ namespace NullSpace.SDK
 		}
 
 
+		/// <summary>
+		/// Clone this HapticHandle, allowing an identical effect to be controlled independently 
+		/// </summary>
+		/// <returns></returns>
+		public HapticHandle Clone()
+		{
+			HapticHandle newHandle = new HapticHandle(this._creator);
+			return newHandle;
+		}
 
 	}
 	

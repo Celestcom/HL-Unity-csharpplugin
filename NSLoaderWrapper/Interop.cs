@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace NullSpace.SDK
 {
@@ -86,10 +88,7 @@ namespace NullSpace.SDK
 		Left_All = 0x000000FF,
 		Right_All = 0x00FF0000,
 		All_Areas = Left_All | Right_All,
-
-	
-
-		};
+	};
 
 	public enum Imu
 	{
@@ -98,6 +97,73 @@ namespace NullSpace.SDK
 		Left_Upper_Arm = 2,
 		Right_Forearm = 3,
 		Left_Forearm = 4
+	}
+
+	public static class AreaFlagExtensions
+	{
+		/// <summary>
+		/// Checks if an AreaFlag contains another AreaFlag
+		/// </summary>
+		/// <param name="lhs"></param>
+		/// <param name="rhs"></param>
+		/// <returns>True of the AreaFlag contains the other, else false</returns>
+		public static bool ContainsArea(this AreaFlag lhs, AreaFlag rhs)
+		{
+			if ((lhs & rhs) == rhs)
+			{
+				return true;
+			} else
+			{
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Adds the given area. Make sure to use the return value! Equivalent to area1 | area2
+		/// </summary>
+		/// <param name="lhs"></param>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		public static AreaFlag AddArea(this AreaFlag lhs, AreaFlag other)
+		{
+			return lhs = lhs | other;
+		}
+
+		/// <summary>
+		/// Removes the given area. Make sure to use the return value! Equivalent to area1 & ~area2
+		/// </summary>
+		/// <param name="lhs"></param>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		public static AreaFlag RemoveArea(this AreaFlag lhs, AreaFlag other)
+		{
+			return lhs & ~other;
+		}
+
+		/// <summary>
+		/// Return a debug string containing all areas in this AreaFlag
+		/// </summary>
+		/// <param name="lhs"></param>
+		/// <returns></returns>
+		public static string ToStringIncludedAreas(this AreaFlag lhs)
+		{
+			if (lhs == AreaFlag.None)
+			{
+				return "None";
+			}
+
+			List<string> result = new List<string>();
+			foreach (AreaFlag a in Enum.GetValues(typeof(AreaFlag)))
+			{
+				var areaString = a.ToString();
+				if (a != AreaFlag.None && lhs.ContainsArea(a) && !areaString.Contains("Both") && !areaString.Contains("All"))
+				{
+					result.Add(a.ToString());
+				}
+			}
+			return string.Join("|", result.ToArray());
+
+		}
 	}
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]

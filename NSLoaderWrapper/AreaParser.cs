@@ -30,7 +30,7 @@ namespace NullSpace.SDK
 				}
 				catch (ArgumentException e)
 				{
-
+					//do not add this unrecognized area flag
 				}
 			}
 		}

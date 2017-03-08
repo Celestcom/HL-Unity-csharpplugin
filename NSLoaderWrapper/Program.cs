@@ -14,7 +14,7 @@ namespace NSLoaderWrapper
 		public static int Main()
 		{
 
-			NSVR.NSVR_Plugin loader = new NSVR.NSVR_Plugin(@"C:\Users\NullSpace Team\Documents\NullSpace SDK 0.1.1\Assets\StreamingAssets\Haptics");
+			NSVR.NSVR_Plugin loader = new NSVR.NSVR_Plugin();
 
 
 			//var s = new HapticSequence();
@@ -45,7 +45,23 @@ namespace NSLoaderWrapper
 
 			var hdf = a.GetHapticDefinitionFile(@"C:\Users\NullSpace Team\Documents\NullSpace SDK 0.1.1\Assets\StreamingAssets\Haptics\NS Demos\patterns\beating_heart.pattern");
 
-			CodeHapticFactory.CreatePattern(hdf.rootEffect.name, hdf);
+			var pat = CodeHapticFactory.CreatePattern(hdf.rootEffect.name, hdf);
+		//	Console.WriteLine(pat.ToString());
+		
+
+			AreaFlag myArea = AreaFlag.None;
+			myArea = myArea.AddArea(AreaFlag.Chest_Left);
+
+		
+
+			Console.WriteLine(myArea.ToStringIncludedAreas());
+			
+			Console.ReadLine();
+
+
+
+
+
 			//int counter = 0;
 			//bool which = true;
 			//while (true)
@@ -59,7 +75,6 @@ namespace NSLoaderWrapper
 			//	}
 			//	var trackingData = loader.PollTracking();
 			//	Console.WriteLine(trackingData.Chest.x);
-			//	System.Threading.Thread.Sleep(16);
 			//}
 
 			return 0;

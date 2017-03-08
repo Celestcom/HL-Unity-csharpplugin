@@ -6,7 +6,7 @@ using System.Text;
 namespace NullSpace.SDK
 {
 	
-	public class CommonArgs<THapticType>
+	public sealed class CommonArgs<THapticType>
 	{
 		private THapticType _item;
 		float _time;
@@ -22,6 +22,9 @@ namespace NullSpace.SDK
 			_strength = strength;
 		}
 
-		
+		public override string ToString()
+		{
+			return string.Format("Time: {0}, Strength: {1}, Item: {2}", _time, _strength, _item.ToString());
+		}
 	}
 }
