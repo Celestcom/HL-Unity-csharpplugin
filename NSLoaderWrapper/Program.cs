@@ -45,6 +45,7 @@ namespace NSLoaderWrapper
 
 			var hdf = a.GetHapticDefinitionFile(@"C:\Users\NullSpace Team\Documents\NullSpace SDK 0.1.1\Assets\StreamingAssets\Haptics\NS Demos\patterns\beating_heart.pattern");
 
+			HapticSequence s = new HapticSequence();		
 			var pat = CodeHapticFactory.CreatePattern(hdf.rootEffect.name, hdf);
 		//	Console.WriteLine(pat.ToString());
 		

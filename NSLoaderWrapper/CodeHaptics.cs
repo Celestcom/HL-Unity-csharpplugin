@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using NullSpace.SDK.Internal;
 using System.Text;
+using NullSpace.SDK.FileUtilities;
 
 namespace NullSpace.SDK
 {
@@ -77,7 +78,7 @@ namespace NullSpace.SDK
 			clone.Duration = this._duration;
 			return clone;
 		}
-
+		
 		public override string ToString()
 		{
 			return string.Format("{0} for {1} seconds", this.Effect.ToString(), _duration);
@@ -88,7 +89,7 @@ namespace NullSpace.SDK
 	/// <para>CodeSequences are haptic effects which play on a given area on the suit. The area is specified with an AreaFlag, which can represent anything from one location to the entire suit.</para>
 	/// <para>A HapticSequence is composed of one or more HapticEffects with time offsets.</para>
 	/// </summary>
-	public sealed class HapticSequence 
+	public sealed class HapticSequence : SerializableHaptic
 	{
 		private IList<CommonArgs<HapticEffect>> _children;
 
@@ -101,11 +102,24 @@ namespace NullSpace.SDK
 		/// <summary>
 		/// Construct an empty HapticSequence
 		/// </summary>
-		public HapticSequence()
+		public HapticSequence() : base("sequence")
 		{
 			_children = new List<CommonArgs<HapticEffect>>();
 		}
 
+		/// <summary>
+		/// Internal use: turns an HDF into a sequence
+		/// </summary>
+		/// <param name="hdf"></param>
+		internal override void doLoadFromHDF(string key, HapticDefinitionFile hdf)
+		{
+			var sequence_def_array = hdf.sequenceDefinitions[key];
+			foreach (var effect in sequence_def_array)
+			{
+				Effect e = FileEffectToCodeEffect.TryParse(effect.effect, Effect.Click);
+				this.AddEffect(effect.time, effect.strength, new HapticEffect(e, effect.duration));
+			}
+		}
 	
 		/// <summary>
 		/// Create an independent copy of this HapticSequence
@@ -220,7 +234,7 @@ namespace NullSpace.SDK
 	/// <summary>
 	/// HapticPatterns are used to combine one or more HapticSequences into a single, playable effect. Each HapticSequence added to the HapticPattern will have a time offset and optional strength, as well as a specified area.
 	/// </summary>
-	public sealed class HapticPattern 
+	public sealed class HapticPattern : SerializableHaptic
 	{
 	
 		private IList<CommonArgs<ParameterizedSequence>> _children;
@@ -242,7 +256,7 @@ namespace NullSpace.SDK
 		/// <summary>
 		/// Construct an empty HapticPattern
 		/// </summary>
-		public HapticPattern()
+		public HapticPattern() : base("pattern")
 		{
 			_children = new List<CommonArgs<ParameterizedSequence>>();
 		}
@@ -274,7 +288,22 @@ namespace NullSpace.SDK
 			return this;
 		}
 
-		
+
+		/// <summary>
+		/// Internal use: turns an HDF into a pattern
+		/// </summary>
+		/// <param name="hdf"></param>
+		internal override void doLoadFromHDF(string key, HapticDefinitionFile hdf)
+		{
+			var pattern_def_array = hdf.patternDefinitions[key];
+			foreach (var seq in pattern_def_array)
+			{
+				AreaFlag area = new AreaParser(seq.area).GetArea();
+				HapticSequence thisSeq = new HapticSequence();
+				thisSeq.doLoadFromHDF(seq.sequence, hdf);
+				AddSequence(seq.time, area, thisSeq);
+			}
+		}
 
 		/// <summary>
 		/// Create a HapticHandle from this HapticPattern, which can be used to manipulate the effect. 
@@ -330,6 +359,16 @@ namespace NullSpace.SDK
 			return CreateHandle(strength).Play();
 		}
 
+		/// <summary>
+		/// Create an independent copy of this HapticPattern
+		/// </summary>
+		/// <returns></returns>
+		public HapticPattern Clone()
+		{
+			var clone = new HapticPattern();
+			clone.Sequences = new List<CommonArgs<ParameterizedSequence>>(_children);
+			return clone;
+		}
 
 		public override string ToString()
 		{
@@ -337,6 +376,158 @@ namespace NullSpace.SDK
 			sb.Append(string.Format("Pattern of {0} sequences: \n", this.Sequences.Count));
 
 			foreach (var child in this.Sequences)
+			{
+				sb.Append(string.Format("{0}\n", child.ToString()));
+			}
+			sb.Append("\n");
+			return sb.ToString();
+		}
+	}
+
+	/// <summary>
+	/// HapticExperiences are containers for one or more HapticPatterns.
+	/// </summary>
+	public sealed class HapticExperience : SerializableHaptic
+	{
+		private IList<CommonArgs<ParameterizedPattern>> _children;
+
+		internal IList<CommonArgs<ParameterizedPattern>> Patterns
+		{
+			get
+			{
+				return _children;
+			}
+
+			set
+			{
+				_children = value;
+			}
+		}
+
+
+		/// <summary>
+		/// Construct an empty HapticExperience
+		/// </summary>
+		public HapticExperience() : base("experience")
+		{
+			_children = new List<CommonArgs<ParameterizedPattern>>();
+		}
+
+		/// <summary>
+		/// Add a HapticPattern to this HapticExperience with a given time offset and default strength of 1.0
+		/// </summary>
+		/// <param name="time">Time offset (fractional seconds)</param>
+		/// <param name="area">AreaFlag on which to play the HapticSequence</param>
+		/// <param name="sequence">The HapticSequence to be added</param>
+		public HapticExperience AddPattern(double time, HapticPattern pattern)
+		{
+			ParameterizedPattern clone = new ParameterizedPattern(pattern.Clone());
+			_children.Add(new CommonArgs<ParameterizedPattern>((float)time, 1f, clone));
+			return this;
+		}
+
+		/// <summary>
+		/// Add a HapticPattern to this HapticExperience with a given time offset and strength.
+		/// </summary>
+		/// <param name="time">Time offset (fractional seconds)</param>
+		/// <param name="area">AreaFlag on which to play the HapticSequence</param>
+		/// <param name="strength">Strength of the HapticSequence (0.0 - 1.0)</param>
+		/// <param name="sequence">The HapticSequence to be added</param>
+		public HapticExperience AddPattern(double time, double strength, HapticPattern pattern)
+		{
+			ParameterizedPattern clone = new ParameterizedPattern(pattern.Clone());
+			_children.Add(new CommonArgs<ParameterizedPattern>((float)time, (float)strength, clone));
+			return this;
+		}
+
+
+		/// <summary>
+		/// Internal use: turns an HDF into an experience
+		/// </summary>
+		/// <param name="hdf"></param>
+		internal override void doLoadFromHDF(string key, HapticDefinitionFile hdf)
+		{
+			var experience_def_array = hdf.experienceDefinitions[key];
+			foreach (var pat in experience_def_array)
+			{
+				HapticPattern p = new HapticPattern();
+				p.doLoadFromHDF(pat.pattern, hdf);
+				AddPattern(pat.time, p);
+			}
+		}
+
+
+		////// <summary>
+		/// Create a HapticHandle from this HapticExperience, which can be used to manipulate the effect. 
+		/// </summary>
+		/// <returns>A new HapticHandle</returns>
+		public HapticHandle CreateHandle()
+		{
+			HapticHandle.CommandWithHandle creator = delegate (uint handle)
+			{
+				EventList e = new ParameterizedExperience(this).Generate(1f, 0f);
+				byte[] bytes = e.GetBytes();
+				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+			};
+
+			return new HapticHandle(creator);
+		}
+
+		/// <summary>
+		/// Create a HapticHandle from this HapticExperience, passing in a given strength. 
+		/// </summary>
+		/// <param name="strength"></param>
+		/// <returns>A new HapticHandle</returns>
+		public HapticHandle CreateHandle(double strength)
+		{
+			HapticHandle.CommandWithHandle creator = delegate (uint handle)
+			{
+				EventList e = new ParameterizedExperience(this).Generate((float)strength, 0f);
+				byte[] bytes = e.GetBytes();
+				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+			};
+
+			return new HapticHandle(creator);
+		}
+
+
+		/// <summary>
+		/// <para>Helper method which calls Play on a newly-created HapticHandle.</para>
+		/// <para>Synonymous with somePattern.CreateHandle().Play()</para>
+		/// </summary>
+		/// <returns>A new HapticHandle</returns>
+		public HapticHandle Play()
+		{
+			return CreateHandle().Play();
+		}
+
+		/// <summary>
+		/// <para>Helper method which calls Play on a newly-created HapticHandle with a given strength</para>
+		/// <para>Synonymous with somePattern.CreateHandle(strength).Play()</para>
+		/// </summary>
+		/// <returns>A new HapticHandle</returns>
+		public HapticHandle Play(double strength)
+		{
+			return CreateHandle(strength).Play();
+		}
+
+		/// <summary>
+		/// Create an independent copy of this HapticExperience
+		/// </summary>
+		/// <returns></returns>
+		public HapticExperience Clone()
+		{
+			var clone = new HapticExperience();
+			clone.Patterns = new List<CommonArgs<ParameterizedPattern>>(_children);
+			return clone;
+		}
+
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.Append(string.Format("Experience of {0} patterns: \n", this.Patterns.Count));
+
+			foreach (var child in this.Patterns)
 			{
 				sb.Append(string.Format("{0}\n", child.ToString()));
 			}

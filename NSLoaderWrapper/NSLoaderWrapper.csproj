@@ -149,6 +149,7 @@
     <Compile Include="MiniJson.cs" />
     <Compile Include="NSLoader.cs" />
     <Compile Include="Offset.cs" />
+    <Compile Include="ParameterizedExperience.cs" />
     <Compile Include="ParameterizedPattern.cs" />
     <Compile Include="ParameterizedSequence.cs" />
     <Compile Include="Platform.cs" />
@@ -160,6 +161,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SerializableDictionary.cs" />
+    <Compile Include="SerializableHaptic.cs" />
     <Compile Include="Struct.cs" />
     <Compile Include="SuitEvent.cs" />
     <Compile Include="SuitEventList.cs" />

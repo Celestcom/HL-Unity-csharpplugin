@@ -60,5 +60,23 @@ namespace NullSpace.SDK.FileUtilities
 			}
 			return p;
 		}
+
+		/// <summary>
+		/// Create a HapticExperience from a HapticDefinitionFile
+		/// </summary>
+		/// <param name="key"></param>
+		/// <param name="hdf"></param>
+		/// <returns></returns>
+		public static HapticExperience CreateExperience(string key, HapticDefinitionFile hdf)
+		{
+			HapticExperience e = new HapticExperience();
+			var experience_def_array = hdf.experienceDefinitions[key];
+			foreach (var pat in experience_def_array)
+			{
+				HapticPattern thisPat = CreatePattern(pat.pattern, hdf);
+				e.AddPattern(pat.time, thisPat);
+			}
+			return e;
+		}
 	}
 }
