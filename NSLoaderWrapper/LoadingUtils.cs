@@ -70,12 +70,17 @@ namespace NullSpace.SDK.FileUtilities
 		/// <param name="potentialFloat">The json object represented as a double</param>
 		/// <param name="defaultValue">A default value if the parse fails</param>
 		/// <returns></returns>
-		internal static float tryParseFloatFromObject(object potentialFloat, float defaultValue)
+		internal static float tryParseFloatFromObject(IDictionary<string, object> map, string key, float defaultValue)
 		{
+			if (!map.ContainsKey(key))
+			{
+				return defaultValue;
+			}
+			
 			try
 			{
 				
-				double intermediate = (double)potentialFloat;
+				double intermediate = (double)map[key];
 				return (float)intermediate;
 			} catch (System.InvalidCastException e)
 			{
@@ -148,9 +153,9 @@ namespace NullSpace.SDK.FileUtilities
 			public void Deserialize(IDictionary<string, object> dict)
 			{
 				this.effect = dict["effect"] as string;
-				this.duration = tryParseFloatFromObject(dict["duration"], 0f);
-				this.strength = tryParseFloatFromObject(dict["strength"], 1f);
-				this.time = tryParseFloatFromObject(dict["time"], 0f);
+				this.duration = tryParseFloatFromObject(dict, "duration", 0f);
+				this.strength = tryParseFloatFromObject(dict, "strength", 1f);
+				this.time = tryParseFloatFromObject(dict, "time", 0f);
 			}
 		}
 
@@ -174,8 +179,8 @@ namespace NullSpace.SDK.FileUtilities
 			{
 				this.sequence = dict["sequence"] as string;
 				this.area = dict["area"] as string;
-				this.strength = tryParseFloatFromObject(dict["strength"], 1f);
-				this.time = tryParseFloatFromObject(dict["time"], 0f);
+				this.strength = tryParseFloatFromObject(dict, "strength",  1f);
+				this.time = tryParseFloatFromObject(dict, "time",  0f);
 			}
 		}
 
@@ -192,8 +197,8 @@ namespace NullSpace.SDK.FileUtilities
 			public void Deserialize(IDictionary<string, object> dict)
 			{
 				this.pattern = dict["pattern"] as string;
-				this.strength = tryParseFloatFromObject(dict["strength"], 1f);
-				this.time = tryParseFloatFromObject(dict["time"], 0f);
+				this.strength = tryParseFloatFromObject(dict, "strength", 1f);
+				this.time = tryParseFloatFromObject(dict, "time", 0f);
 			
 			}
 		}

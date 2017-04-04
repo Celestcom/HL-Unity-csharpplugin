@@ -66,20 +66,41 @@ namespace NullSpace.SDK.FileUtilities
 
 				//Generics = worthless at this point. Thanks unity!
 				//Should probably redesign a better native format for unity, parsed from the hdf
-				patternDefinitions = parseDefinitionsDict<JsonSequenceAtom>(
+
+				try
+				{
+					patternDefinitions = parseDefinitionsDict<JsonSequenceAtom>(
 					dict["pattern_definitions"] as IDictionary<string, object>
 				);
 
+				} catch (KeyNotFoundException e)
+				{
+					Debug.LogError("In pats: " + e.Message);
+				}
 
+				try { 
 				sequenceDefinitions = parseDefinitionsDict<JsonEffectAtom>(
 					dict["sequence_definitions"] as IDictionary<string, object>
 				);
+				}
+				catch (KeyNotFoundException e)
+				{
+					Debug.LogError("In pats: " + e.Message);
+				}
+				try { 
 				experienceDefinitions = parseDefinitionsDict<JsonPatternAtom>(
 					dict["experience_definitions"] as IDictionary<string, object>
 				);
+				}
+				catch (KeyNotFoundException e)
+				{
+					Debug.LogError("In pats: " + e.Message);
+				}
 			} catch (Exception e)
 			{
-				throw new HapticsAssetException("Couldn't parse the haptic asset", e);
+				var exep = new HapticsAssetException("Couldn't parse the haptic asset", e);
+
+				Debug.LogException(exep);
 			}
 		}
 	}

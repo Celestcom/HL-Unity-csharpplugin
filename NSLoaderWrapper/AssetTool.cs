@@ -139,14 +139,19 @@ namespace NullSpace.SDK.FileUtilities
 				throw new InvalidOperationException("You must supply a non-empty root haptics path using SetRootHapticsFolder before calling this method");
 			}
 
-
+			UnityEngine.Debug.Log("Hi");
 			var result = executeToolAndWaitForResult(
 				new ArgList()
 				.Add("root-path", _rootPath)
 				.Add("list-packages")
 				.Add("json")
 			);
-
+			//We need better error reporting for the json communication
+			if (result.Contains("Malformed config"))
+			{
+				UnityEngine.Debug.LogError("[NSVR] Asset tool stumbled over a malformed config file in the haptic asset directory;");
+				return new List<PackageInfo>();
+			}
 			var a = MiniJSON.Json.Deserialize(result) as IList<object>;
 			List<PackageInfo> packages = new List<PackageInfo>();
 			foreach (var p in a)
@@ -194,7 +199,6 @@ namespace NullSpace.SDK.FileUtilities
 				.Add("generate-asset", path)
 				.Add("json")
 			);
-
 			HapticDefinitionFile hdf = new HapticDefinitionFile();
 			hdf.Deserialize(MiniJSON.Json.Deserialize(result) as IDictionary<string, object>);
 			return hdf;

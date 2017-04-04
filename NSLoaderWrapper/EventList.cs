@@ -5,6 +5,9 @@ using System.Text;
 
 using FlatBuffers;
 using NullSpace.Events;
+using NullSpace.SDK.Internal;
+using System.Diagnostics;
+using static NullSpace.SDK.NSVR;
 
 namespace NullSpace.SDK
 {
@@ -18,19 +21,15 @@ namespace NullSpace.SDK
 
 		public abstract float Time { get; }
 
-		protected abstract int _generate(FlatBufferBuilder b);
+		protected abstract void  _generateEvent(IntPtr timelinePtr);
 
 		protected SuitEvent(SuitEventType eventType)
 		{
 			this._eventType = eventType;
 		}
-		public Offset<Events.SuitEvent> Generate(FlatBufferBuilder b)
+		public void Generate(IntPtr timelinePtr)
 		{
-			int realValue = _generate(b);
-			Events.SuitEvent.StartSuitEvent(b);
-			Events.SuitEvent.AddEvent(b, realValue);
-			Events.SuitEvent.AddEventType(b, _eventType);
-			return Events.SuitEvent.EndSuitEvent(b);
+			_generateEvent(timelinePtr);
 		}
 
 		public abstract int CompareTo(object obj);
@@ -54,15 +53,25 @@ namespace NullSpace.SDK
 			}
 		}
 
-		protected override int _generate(FlatBufferBuilder b)
+		protected override void _generateEvent(IntPtr timelinePtr)
 		{
-			Events.BasicHapticEvent.StartBasicHapticEvent(b);
-			Events.BasicHapticEvent.AddArea(b, _area);
-			Events.BasicHapticEvent.AddStrength(b, _strength);
-			Events.BasicHapticEvent.AddDuration(b, _duration);
-			Events.BasicHapticEvent.AddTime(b, _time);
-			Events.BasicHapticEvent.AddEffect(b, (uint)_effect);
-			return Events.BasicHapticEvent.EndBasicHapticEvent(b).Value;
+			Debug.Assert(timelinePtr != IntPtr.Zero);
+
+			IntPtr eventPtr = IntPtr.Zero;
+			Interop.NSVR_Event_Create(ref eventPtr, Interop.NSVR_EventType.Basic_Haptic_Event);
+			Debug.Assert(eventPtr != IntPtr.Zero);
+
+			Interop.NSVR_Event_SetFloat(eventPtr, "duration", _duration);
+			Interop.NSVR_Event_SetInteger(eventPtr, "area",(int) _area);
+			Interop.NSVR_Event_SetFloat(eventPtr, "strength", _strength);
+
+			Interop.NSVR_Event_SetFloat(eventPtr, "time", _time);
+			Interop.NSVR_Event_SetInteger(eventPtr, "effect", (int)_effect);
+
+			Interop.NSVR_Timeline_AddEvent(timelinePtr, eventPtr);
+
+			Interop.NSVR_Event_Release(ref eventPtr);
+			Debug.Assert(eventPtr == IntPtr.Zero);
 		}
 
 		public override int CompareTo(object obj)
@@ -105,29 +114,28 @@ namespace NullSpace.SDK
 				_events.Add(e);
 			}
 		}
-		public byte[] GetBytes()
+		public void Transmit(IntPtr playbackHandle)
 		{
-			_events.Sort();
-			Console.WriteLine("WTF1");
-			
-			FlatBufferBuilder builder = new FlatBufferBuilder(1);
-			
-			Console.WriteLine("WTF2");
-			Offset<Events.SuitEvent>[] generatedEvents = new Offset<Events.SuitEvent>[_events.Count];
-			for (int i = 0; i < _events.Count; i++) {
-				generatedEvents[i] = _events[i].Generate(builder);
+			//_events.Sort();
+
+
+			IntPtr timelinePtr = IntPtr.Zero;
+
+			unsafe
+			{
+				Interop.NSVR_Timeline_Create(ref timelinePtr, NSVR_Plugin.Ptr);
 			}
+
+			for (int i = 0; i < _events.Count; i++) {
+				Debug.Assert(timelinePtr != IntPtr.Zero);
+
+				_events[i].Generate(timelinePtr);
+			}
+			Interop.NSVR_Timeline_Transmit(timelinePtr, playbackHandle);
+			Interop.NSVR_Timeline_Release(ref timelinePtr);
+			Debug.Assert(timelinePtr == IntPtr.Zero);
 			
-			
-			var offsetGeneratedEvents = Events.SuitEventList.CreateEventsVector(builder, generatedEvents);
-			Events.SuitEventList.StartSuitEventList(builder);
-			Events.SuitEventList.AddEvents(builder, offsetGeneratedEvents);
-			var list = Events.SuitEventList.EndSuitEventList(builder);
-
-			builder.Finish(list.Value);
-
-
-			return builder.SizedByteArray();
+		
 			
 	
 

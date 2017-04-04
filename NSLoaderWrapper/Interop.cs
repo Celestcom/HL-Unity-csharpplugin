@@ -5,58 +5,181 @@ using System.Text;
 
 namespace NullSpace.SDK
 {
+
+	unsafe struct NSVR_System { }
+	unsafe struct NSVR_Event { }
+	unsafe struct NSVR_Timeline { }
+	unsafe struct NSVR_PlaybackHandle { }
 	namespace Internal
 	{
 		internal static class Interop
 		{
-			public enum HandleCommand
+			public static bool NSVR_SUCCESS(int result)
+			{
+				return result >= 0;
+			}
+
+			public static bool NSVR_FAILURE(int result)
+			{
+				return !NSVR_SUCCESS(result);
+			}
+
+			[StructLayout(LayoutKind.Sequential, Pack = 1)]
+			public struct NSVR_Quaternion
+			{
+				public float w;
+				public float x;
+				public float y;
+				public float z;
+			}
+
+			[StructLayout(LayoutKind.Sequential, Pack = 1)]
+			public struct NSVR_TrackingUpdate
+			{
+				public NSVR_Quaternion chest;
+				public NSVR_Quaternion left_upper_arm;
+				public NSVR_Quaternion left_forearm;
+				public NSVR_Quaternion right_upper_arm;
+				public NSVR_Quaternion right_forearm;
+			}
+
+			public enum NSVR_HandleCommand
 			{
 				PLAY = 0, PAUSE, RESET, RELEASE
-			}
-			public enum EngineCommand
+			};
+
+
+
+			[StructLayout(LayoutKind.Sequential, Pack = 1)]
+			public struct NSVR_ServiceInfo
 			{
-				PLAY_ALL = 1, PAUSE_ALL, CLEAR_ALL, ENABLE_TRACKING, DISABLE_TRACKING
+				uint ServiceMajor;
+				uint ServiceMinor;
+			};
+
+
+			public enum NSVR_EventType
+			{
+				Basic_Haptic_Event = 1,
+				NSVR_EventType_MAX = 65535
+			};
+
+			public enum NSVR_PlaybackCommand
+			{
+				Play = 0,
+				Pause,
+				Reset
 			}
 
-			public delegate void CommandWithHandle(uint handle);
+			[StructLayout(LayoutKind.Sequential, Pack = 1)]
+			public struct NSVR_DeviceInfo
+			{
+				[MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
+				char[] ProductName;
+				short FirmwareMajor;
+				short FirmwareMinor;
+				//tracking capabilities?
+			};
 
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern IntPtr NSVR_Create();
-
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern int NSVR_PollStatus(IntPtr value);
-
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern uint NSVR_GenHandle(IntPtr value);
-
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern void NSVR_DoHandleCommand(IntPtr value, uint handle, short command);
-			
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern bool NSVR_DoEngineCommand(IntPtr value, short command);
-			
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern int NSVR_PollTracking(IntPtr value, ref InteropTrackingUpdate q);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
-			public static extern void NSVR_Delete(IntPtr value);
+			public static extern unsafe int NSVR_System_Create(NSVR_System** systemPtr);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern unsafe void NSVR_System_Release(NSVR_System** value);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern uint NSVR_GetVersion();
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern int NSVR_IsCompatibleDLL();
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern unsafe int NSVR_System_GetServiceInfo(NSVR_System* systemPtr, ref NSVR_ServiceInfo infoPtr);
+
+			/* Haptics Engine */
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static unsafe extern int NSVR_System_Haptics_Pause(NSVR_System* systemPtr);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern unsafe int NSVR_System_Haptics_Resume(NSVR_System* systemPtr);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern unsafe int NSVR_System_Haptics_Destroy(NSVR_System* systemPtr);
+
+			/* Devices */
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern unsafe int NSVR_System_GetDeviceInfo(NSVR_System* systemPtr, ref NSVR_DeviceInfo infoPtr);
+
+			/* Tracking */
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern unsafe int NSVR_System_Tracking_Poll(NSVR_System* systemPtr, ref NSVR_TrackingUpdate updatePtr);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern unsafe int NSVR_System_Tracking_Enable(NSVR_System* ptr);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern unsafe int NSVR_System_Tracking_Disable(NSVR_System* ptr);
+
+
+			/* Timeline API */
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern int NSVR_Event_Create(ref IntPtr eventPtr, NSVR_EventType type);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern void NSVR_Event_Release(ref IntPtr eventPtr);
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern IntPtr NSVR_GetError(IntPtr value);
+			public static extern int NSVR_Event_SetFloat(IntPtr eventPtr, string key, float value);
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern void NSVR_FreeError(IntPtr value);
+			public static extern int NSVR_Event_SetInteger(IntPtr eventPtr, string key, int value);
 
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-			public static extern int NSVR_TransmitEvents(IntPtr value, uint handle, byte[] data, uint size);
+
+			/* Timelines */
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern unsafe int NSVR_Timeline_Create(ref IntPtr eventListPtr, NSVR_System* systemPtr);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern void NSVR_Timeline_Release(ref IntPtr listPtr);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern int NSVR_Timeline_AddEvent(IntPtr list, IntPtr eventPtr);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern int NSVR_Timeline_Transmit(IntPtr timeline, IntPtr handlePr);
+
+			/* Playback */
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern int NSVR_PlaybackHandle_Create(ref IntPtr handlePtr);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern int NSVR_PlaybackHandle_Command(IntPtr handlePtr, NSVR_PlaybackCommand command);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern void NSVR_PlaybackHandle_Release(ref IntPtr handlePtr);
+
+
 		}
+
+		
 	}
-	
 	public enum SuitStatus
 	{
 		Disconnected = 0,
-		Connected = 2
+		Connected = 1
 	}
+	public enum Imu
+	{
+		Chest = 0,
+		Right_Upper_Arm = 1,
+		Left_Upper_Arm = 2,
+		Right_Forearm = 3,
+		Left_Forearm = 4
+	};
+
 	public enum AreaFlag
 	{
 		None,
@@ -89,16 +212,6 @@ namespace NullSpace.SDK
 		Right_All = 0x00FF0000,
 		All_Areas = Left_All | Right_All,
 	};
-
-	public enum Imu
-	{
-		Chest = 0,
-		Right_Upper_Arm = 1,
-		Left_Upper_Arm = 2,
-		Right_Forearm = 3,
-		Left_Forearm = 4
-	}
-
 	public static class AreaFlagExtensions
 	{
 		/// <summary>
@@ -166,23 +279,5 @@ namespace NullSpace.SDK
 		}
 	}
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-	internal struct Quaternion
-	{
-		public float w;
-		public float x;
-		public float y;
-		public float z;
-	}
-
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-	internal struct InteropTrackingUpdate
-	{
-		public Quaternion chest;
-		public Quaternion left_upper_arm;
-		public Quaternion left_forearm;
-		public Quaternion right_upper_arm;
-		public Quaternion right_forearm;
-	}
 	
 }

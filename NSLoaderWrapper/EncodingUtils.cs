@@ -73,6 +73,7 @@ namespace NullSpace.SDK.FileUtilities
 			var experience_def_array = hdf.experienceDefinitions[key];
 			foreach (var pat in experience_def_array)
 			{
+
 				HapticPattern thisPat = CreatePattern(pat.pattern, hdf);
 				e.AddPattern(pat.time, thisPat);
 			}

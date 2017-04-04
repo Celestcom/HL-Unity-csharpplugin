@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
-using NullSpace.SDK.Internal;
 using System.Text;
 using NullSpace.SDK.FileUtilities;
+using System;
+using System.Diagnostics;
 
 namespace NullSpace.SDK
 {
@@ -164,11 +165,11 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
 		public HapticHandle CreateHandle(AreaFlag area)
 		{
-			HapticHandle.CommandWithHandle creator = delegate (uint handle)
+			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
 			{
+				Debug.Assert(handle != IntPtr.Zero);
 				EventList e = new ParameterizedSequence(this, area).Generate(1f, 0f);
-				byte[] bytes = e.GetBytes();
-				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+				e.Transmit(handle);
 			};
 
 			return new HapticHandle(creator);
@@ -182,25 +183,24 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
 		public HapticHandle CreateHandle(AreaFlag area, double strength)
 		{
-			HapticHandle.CommandWithHandle creator = delegate (uint handle)
+			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
 			{
 				EventList e = new ParameterizedSequence(this, area).Generate((float)strength, 0f);
-				byte[] bytes = e.GetBytes();
-				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+				e.Transmit(handle);
 			};
 
 			return new HapticHandle(creator);
 		}
 
 		/// <summary>
-		/// <para>A helper which calls Play on a newly created HapticHandle.</para>
-		/// <para>Synonymous with someSequence.CreateHandle(area).Play() </para>
+		/// <para>If you want to play a sequence but don't care about controlling playback, use this method. It will automatically clean up resources.</para>
+		/// <para>Synonymous with someSequence.CreateHandle(area).Play().Release() </para>
 		/// </summary>
 		/// <param name="area">The area on which to play this sequence</param>
 		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
-		public HapticHandle Play(AreaFlag area)
+		public void Play(AreaFlag area)
 		{
-			return CreateHandle(area).Play();
+			CreateHandle(area).Play().Release();
 		}
 
 		/// <summary>
@@ -311,11 +311,10 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle()
 		{
-			HapticHandle.CommandWithHandle creator = delegate (uint handle)
+			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
 			{
 				EventList e = new ParameterizedPattern(this).Generate(1f, 0f);
-				byte[] bytes = e.GetBytes();
-				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+				e.Transmit(handle);
 			};
 
 			return new HapticHandle(creator);
@@ -328,11 +327,11 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle(double strength)
 		{
-			HapticHandle.CommandWithHandle creator = delegate (uint handle)
+			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
 			{
 				EventList e = new ParameterizedPattern(this).Generate((float) strength, 0f);
-				byte[] bytes = e.GetBytes();
-				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+				e.Transmit(handle);
+
 			};
 
 			return new HapticHandle(creator);
@@ -340,23 +339,23 @@ namespace NullSpace.SDK
 
 
 		/// <summary>
-		/// <para>Helper method which calls Play on a newly-created HapticHandle.</para>
-		/// <para>Synonymous with somePattern.CreateHandle().Play()</para>
+		/// <para>If you want to play a pattern but don't care about controlling playback, use this method. It will automatically clean up resources.</para>
+		/// <para>Synonymous with somePattern.CreateHandle().Play().Release()</para>
 		/// </summary>
 		/// <returns>A new HapticHandle</returns>
-		public HapticHandle Play()
+		public void Play()
 		{
-			return CreateHandle().Play();
+			CreateHandle().Play().Release();
 		}
 
 		/// <summary>
-		/// <para>Helper method which calls Play on a newly-created HapticHandle with a given strength</para>
-		/// <para>Synonymous with somePattern.CreateHandle(strength).Play()</para>
+		/// <para>If you want to play a pattern but don't care about controlling playback, use this method. It will automatically clean up resources.</para>
+		/// <para>Synonymous with somePattern.CreateHandle(strength).Play().Release()</para>
 		/// </summary>
 		/// <returns>A new HapticHandle</returns>
-		public HapticHandle Play(double strength)
+		public void Play(double strength)
 		{
-			return CreateHandle(strength).Play();
+			CreateHandle(strength).Play().Release();
 		}
 
 		/// <summary>
@@ -463,11 +462,10 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle()
 		{
-			HapticHandle.CommandWithHandle creator = delegate (uint handle)
+			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
 			{
 				EventList e = new ParameterizedExperience(this).Generate(1f, 0f);
-				byte[] bytes = e.GetBytes();
-				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+				e.Transmit(handle);
 			};
 
 			return new HapticHandle(creator);
@@ -480,11 +478,10 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle(double strength)
 		{
-			HapticHandle.CommandWithHandle creator = delegate (uint handle)
+			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
 			{
 				EventList e = new ParameterizedExperience(this).Generate((float)strength, 0f);
-				byte[] bytes = e.GetBytes();
-				Interop.NSVR_TransmitEvents(NSVR.NSVR_Plugin.Ptr, handle, bytes, (uint)bytes.Length);
+				e.Transmit(handle);
 			};
 
 			return new HapticHandle(creator);
@@ -492,23 +489,23 @@ namespace NullSpace.SDK
 
 
 		/// <summary>
-		/// <para>Helper method which calls Play on a newly-created HapticHandle.</para>
-		/// <para>Synonymous with somePattern.CreateHandle().Play()</para>
+		/// <para>If you want to play an experience but don't care about controlling playback, use this method. It will automatically clean up resources.</para>
+		/// <para>Synonymous with someExperience.CreateHandle().Play()</para>
 		/// </summary>
 		/// <returns>A new HapticHandle</returns>
-		public HapticHandle Play()
+		public void Play()
 		{
-			return CreateHandle().Play();
+			CreateHandle().Play().Release();
 		}
 
 		/// <summary>
-		/// <para>Helper method which calls Play on a newly-created HapticHandle with a given strength</para>
-		/// <para>Synonymous with somePattern.CreateHandle(strength).Play()</para>
+		/// <para>If you want to play an experience but don't care about controlling playback, use this method. It will automatically clean up resources.</para>
+		/// <para>Synonymous with someExperience.CreateHandle(strength).Play().Release()</para>
 		/// </summary>
 		/// <returns>A new HapticHandle</returns>
-		public HapticHandle Play(double strength)
+		public void Play(double strength)
 		{
-			return CreateHandle(strength).Play();
+			CreateHandle(strength).Play().Release();
 		}
 
 		/// <summary>
