@@ -24,64 +24,11 @@ namespace NullSpace.SDK
 	/// </summary>
 	public static class NSVR
 	{
-		//public delegate void ServiceControllerCallback(bool success);
-		//private delegate bool AsyncMethodCaller();
-
-		//public static void TryServiceStartAsync(ServiceControllerCallback callback)
-		//{
-		//	AsyncMethodCaller caller = new AsyncMethodCaller(StartService);
-		//	IAsyncResult asyncResult = caller.BeginInvoke(delegate (IAsyncResult iar) {
-
-		//		AsyncResult result = (AsyncResult)iar;
-		//		AsyncMethodCaller cbDelegate = (AsyncMethodCaller)result.AsyncDelegate;
-		//		ServiceControllerCallback scCallback = (ServiceControllerCallback)iar.AsyncState;
-		//		bool successfulStart = cbDelegate.EndInvoke(iar);
-		//		scCallback(successfulStart);
-
-		//	}, callback);
-		//}
-
-
-		//private static bool StartService()
-		//{
-		//	ServiceController sc = new ServiceController();
-		//	sc.ServiceName = "NullSpace VR Runtime";
-		//	sc.MachineName = 
-		//	sc.Refresh();
-		//	if (sc.Status == ServiceControllerStatus.Stopped)
-		//	{
-		//		try
-		//		{
-		//			sc.Start();
-		//			sc.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 0, 5));
-		//			return true;
-		//		} catch (InvalidOperationException e)
-		//		{
-		//			Debug.LogWarning("Couldn't start the NullSpace VR Runtime service: " + e.Message);
-		//		} catch(System.ServiceProcess.TimeoutException)
-		//		{
-		//			Debug.LogWarning("Couldn't start the NullSpace VR Runtime service in time. Runtime is stopped.");
-		//		}
-		//	}
-		//	return false;
-		//}
-
+		
 		internal static unsafe NSVR_System* _ptr;
 		internal static bool _created = false;
 
-		/// <summary>
-		/// Retrieve the latest error from the plugin, freeing the string and returning a copy
-		/// </summary>
-		/// <returns></returns>
-		//internal static string GetError()
-		//{
-		//	//Interop
-		//	//IntPtr ptr = Interop.NSVR_GetError(NSVR_Plugin.Ptr);
-		//	string s = Marshal.PtrToStringAnsi(ptr);
-		//	Interop.NSVR_FreeError(ptr);
-		//	return s;
-		//}
-
+	
 		/// <summary>
 		/// Main point of access to the plugin, implements IDisposable
 		/// </summary>
@@ -162,20 +109,45 @@ namespace NullSpace.SDK
 			/// Poll the status of suit connection 
 			/// </summary>
 			/// <returns>Connected if the service is running and a suit is plugged in, else Disconnected</returns>
-			public SuitStatus PollStatus()
+			public DeviceConnectionStatus TestDeviceConnection()
 			{
 
 				Interop.NSVR_DeviceInfo deviceInfo = new Interop.NSVR_DeviceInfo();
 				
 				if (Interop.NSVR_SUCCESS(Interop.NSVR_System_GetDeviceInfo(Ptr, ref deviceInfo)))
 				{
-					return SuitStatus.Connected;
+					return DeviceConnectionStatus.Connected;
 				}
 
 
-				return SuitStatus.Disconnected;
+				return DeviceConnectionStatus.Disconnected;
 			}
 
+			//public ServiceConnectionStatus TestServiceConnection()
+			//{
+			//	Interop.NSVR_ServiceInfo serviceInfo = new Interop.NSVR_ServiceInfo();
+			//	if (Interop.NSVR_SUCCESS(Interop.NSVR_System_GetServiceInfo(Ptr, ref serviceInfo)))
+			//	{
+			//		return ServiceConnectionStatus.Connected;
+			//	}
+
+			//	return ServiceConnectionStatus.Disconnected;
+			//}
+
+			public ServiceConnectionStatus TestServiceConnection()
+			{
+				Interop.NSVR_ServiceInfo serviceInfo = new Interop.NSVR_ServiceInfo();
+				int value = Interop.NSVR_System_GetServiceInfo(Ptr, ref serviceInfo);
+
+				//	Debug.Log(string.Format("Value is {0}", value));
+				if (Interop.NSVR_SUCCESS(value))
+				{
+					return ServiceConnectionStatus.Connected;
+				} else
+				{
+					return ServiceConnectionStatus.Disconnected;
+				}
+			}
 
 			/// <summary>
 			/// Enable tracking on the suit

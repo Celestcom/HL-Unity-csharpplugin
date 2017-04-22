@@ -17,15 +17,11 @@ namespace NSLoaderWrapper
 
 			NSVR.NSVR_Plugin loader = new NSVR.NSVR_Plugin();
 
-			HapticSequence s = new HapticSequence();
-
-			s.AddEffect(0.0, new HapticEffect(Effect.Click));
-			s.AddEffect(0.2, new HapticEffect(Effect.Click));
-			s.AddEffect(0.4, new HapticEffect(Effect.Click));
-
-			s.Play(AreaFlag.All_Areas);
-
-			Console.ReadLine();
+			while (true)
+			{
+				var status = loader.TestServiceConnection();
+				Console.WriteLine(status);
+			}
 			return 0;
 		}
 

@@ -43,11 +43,7 @@ namespace NullSpace.SDK
 				public NSVR_Quaternion right_forearm;
 			}
 
-			public enum NSVR_HandleCommand
-			{
-				PLAY = 0, PAUSE, RESET, RELEASE
-			};
-
+		
 
 
 			[StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -89,10 +85,10 @@ namespace NullSpace.SDK
 			public static extern unsafe void NSVR_System_Release(NSVR_System** value);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
-			public static extern uint NSVR_GetVersion();
+			public static extern uint NSVR_Version_Get();
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
-			public static extern int NSVR_IsCompatibleDLL();
+			public static extern int NSVR_Version_IsCompatibleDLL();
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
 			public static extern unsafe int NSVR_System_GetServiceInfo(NSVR_System* systemPtr, ref NSVR_ServiceInfo infoPtr);
@@ -166,7 +162,14 @@ namespace NullSpace.SDK
 
 		
 	}
-	public enum SuitStatus
+	public enum ServiceConnectionStatus
+	{
+		Disconnected = 0,
+		Connected = 1
+	}
+
+
+	public enum DeviceConnectionStatus
 	{
 		Disconnected = 0,
 		Connected = 1

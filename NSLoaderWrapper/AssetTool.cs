@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using System.IO;
+using System.Security;
 
 namespace NullSpace.SDK.FileUtilities
 {
@@ -96,23 +97,44 @@ namespace NullSpace.SDK.FileUtilities
 		public AssetTool()
 		{
 
-			const string userRoot = "HKEY_CURRENT_USER";
-			const string subkey = "SOFTWARE\\NullSpace VR\\AssetTool";
-			const string keyName = userRoot + "\\" + subkey;
-			
-			string path = (string)Microsoft.Win32.Registry.GetValue(keyName, "InstallPath", "unknown");
-
-			if (path == "unknown")
-			{
-				UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory. Is the Service installed?");
-			}
-
 			_process = new Process();
 			_process.StartInfo.RedirectStandardOutput = true;
 			_process.StartInfo.UseShellExecute = false;
 
 			_process.StartInfo.CreateNoWindow = true;
-			_process.StartInfo.FileName = path;
+
+			const string userRoot = "HKEY_CURRENT_USER";
+			const string subkey = "SOFTWARE\\NullSpace VR\\AssetTool";
+			const string keyName = userRoot + "\\" + subkey;
+			try
+			{
+				string path = (string)Microsoft.Win32.Registry.GetValue(keyName, "InstallPath", "unknown");
+
+				if (path == "unknown")
+				{
+					UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory. Is the Service installed?");
+				} else
+				{
+					_process.StartInfo.FileName = path;
+
+				}
+			} catch (ArgumentException)
+			{
+				UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory. Is the Service installed?");
+
+			}
+			catch (IOException)
+			{
+				UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory. Try reinstalling the service.");
+
+			}
+			catch (SecurityException)
+			{
+				UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory, because I don't have permission to read the registry. Try running as administrator?");
+
+			}
+
+		
 		}
 
 	
@@ -139,7 +161,6 @@ namespace NullSpace.SDK.FileUtilities
 				throw new InvalidOperationException("You must supply a non-empty root haptics path using SetRootHapticsFolder before calling this method");
 			}
 
-			UnityEngine.Debug.Log("Hi");
 			var result = executeToolAndWaitForResult(
 				new ArgList()
 				.Add("root-path", _rootPath)
