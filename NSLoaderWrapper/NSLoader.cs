@@ -1,13 +1,9 @@
 ﻿using System;
-using NullSpace.SDK.Internal;
-using static NullSpace.SDK.Internal.Interop;
 using UnityEngine;
 using System.Runtime.InteropServices;
-using System.Collections.Generic;
-using NullSpace.HapticFiles;
-using FlatBuffers;
-using NullSpace.HapticFiles.Mixed;
-
+using NullSpace.SDK.Internal;
+using System.ServiceProcess;
+using System.Runtime.Remoting.Messaging;
 namespace NullSpace.SDK
 {
 
@@ -17,102 +13,185 @@ namespace NullSpace.SDK
 		public HapticsLoadingException(string message) : base(message) { }
 		public HapticsLoadingException(string message, System.Exception inner) : base(message, inner) { }
 
-	
+
 		protected HapticsLoadingException(System.Runtime.Serialization.SerializationInfo info,
 			System.Runtime.Serialization.StreamingContext context)
 		{ }
 	}
 
-
+	/// <summary>
+	/// Wrapper around the main access point of the plugin, NSVR_Plugin
+	/// </summary>
 	public static class NSVR
 	{
-		internal static IntPtr _ptr;
-		internal static bool _created = false;
-		internal static string GetError()
-		{
-			IntPtr ptr = Interop.NSVR_GetError(NSVR.NSVR_Plugin.Ptr);
-			string s = Marshal.PtrToStringAnsi(ptr);
-			Interop.NSVR_FreeString(ptr);
-			return s;
-		}
-
-
-
 		
+		internal static unsafe NSVR_System* _ptr;
+		internal static bool _created = false;
 
-		public sealed class NSVR_Plugin : IDisposable
+	
+		/// <summary>
+		/// Main point of access to the plugin, implements IDisposable
+		/// </summary>
+		public unsafe sealed class NSVR_Plugin : IDisposable
 		{
 			internal static bool _disposed = false;
 
-			internal static IntPtr Ptr
+			internal static unsafe NSVR_System* Ptr
 			{
 				get
 				{
-					if (_created && !_disposed)
+					if (_created && !_disposed && _ptr != null)
 					{
 
 						return _ptr;
 					}
 					else
 					{
-						throw new ArgumentException("[NSVR] You may not initialize Sequences, Patterns, and Experiences at their point of declaration.\n\tPlease do it inside of Start(), Awake(), or other runtime methods.\n\tThis error may be caused by not having NS Manager in the scene as well.");
+						throw new MemberAccessException("[NSVR] You must have a NS Manager prefab in your scene!");
 
 					}
 
 				}
 			}
-			public NSVR_Plugin(string path)
+
+			public NSVR_Plugin()
 			{
 				_disposed = false;
 				if (_created)
 				{
 					Debug.LogWarning("[NSVR] NSVR_Plugin should only be created by the NullSpace SDK");
 					return;
-				} 
-				_ptr = Interop.NSVR_Create();
-				Interop.NSVR_InitializeFromFilesystem(_ptr, path);
-				_created = true;
+				}
+
+				fixed (NSVR_System** system_ptr = &_ptr)
+				{
+					if (Interop.NSVR_FAILURE(Interop.NSVR_System_Create(system_ptr)))
+					{
+						Debug.LogError("[NSVR] NSVR_Plugin could not be instantiated");
+
+					}
+					else
+					{
+						_created = true;
+					}
+				}
+				
 
 			}
 
-
+			/// <summary>
+			/// Pause all currently active effects
+			/// </summary>
 			public void PauseAll()
 			{
-				Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.PAUSE_ALL);
+				Interop.NSVR_System_Haptics_Pause(Ptr);
 			}
 
+
+			/// <summary>
+			/// Resume all effects that were paused with a call to PauseAll()
+			/// </summary>
 			public void ResumeAll()
 			{
-				Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.PLAY_ALL);
+				Interop.NSVR_System_Haptics_Resume(Ptr);
 			}
 
+			/// <summary>
+			/// Destroy all effects (invalidates any HapticHandles)
+			/// </summary>
 			public void ClearAll()
 			{
-				Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.CLEAR_ALL);
+				Interop.NSVR_System_Haptics_Destroy(Ptr);
 			}
 
-			public SuitStatus PollStatus()
+
+			/// <summary>
+			/// Poll the status of suit connection 
+			/// </summary>
+			/// <returns>Connected if the service is running and a suit is plugged in, else Disconnected</returns>
+			public DeviceConnectionStatus TestDeviceConnection()
 			{
-				return (SuitStatus) Interop.NSVR_PollStatus(_ptr);
+
+				Interop.NSVR_DeviceInfo deviceInfo = new Interop.NSVR_DeviceInfo();
+				
+				if (Interop.NSVR_SUCCESS(Interop.NSVR_System_GetDeviceInfo(Ptr, ref deviceInfo)))
+				{
+					return DeviceConnectionStatus.Connected;
+				}
+
+
+				return DeviceConnectionStatus.Disconnected;
 			}
 
-			public void SetTrackingEnabled(bool wantTracking)
+			//public ServiceConnectionStatus TestServiceConnection()
+			//{
+			//	Interop.NSVR_ServiceInfo serviceInfo = new Interop.NSVR_ServiceInfo();
+			//	if (Interop.NSVR_SUCCESS(Interop.NSVR_System_GetServiceInfo(Ptr, ref serviceInfo)))
+			//	{
+			//		return ServiceConnectionStatus.Connected;
+			//	}
+
+			//	return ServiceConnectionStatus.Disconnected;
+			//}
+
+			public ServiceConnectionStatus TestServiceConnection()
 			{
-				if (wantTracking)
+				Interop.NSVR_ServiceInfo serviceInfo = new Interop.NSVR_ServiceInfo();
+				int value = Interop.NSVR_System_GetServiceInfo(Ptr, ref serviceInfo);
+
+				//	Debug.Log(string.Format("Value is {0}", value));
+				if (Interop.NSVR_SUCCESS(value))
 				{
-					Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.ENABLE_TRACKING);
-				}else
+					return ServiceConnectionStatus.Connected;
+				} else
 				{
-					Interop.NSVR_EngineCommand(_ptr, (short)Interop.EngineCommand.DISABLE_TRACKING);
+					return ServiceConnectionStatus.Disconnected;
+				}
+			}
+
+			/// <summary>
+			/// Enable tracking on the suit
+			/// </summary>
+			public void EnableTracking()
+			{
+				Interop.NSVR_System_Tracking_Enable(Ptr);
+
+			}
+
+			/// <summary>
+			/// Disable tracking on the suit 
+			/// </summary>
+			public void DisableTracking()
+			{
+				Interop.NSVR_System_Tracking_Disable(Ptr);
+			}
+
+			/// <summary>
+			/// Enable or disable tracking
+			/// </summary>
+			/// <param name="enableTracking">If true, enables tracking. Else disables tracking.</param>
+			public void SetTrackingEnabled(bool enableTracking)
+			{
+				if (enableTracking)
+				{
+					Interop.NSVR_System_Tracking_Enable(Ptr);
+				}
+				else
+				{
+					Interop.NSVR_System_Tracking_Disable(Ptr);
 
 				}
 			}
 
+			/// <summary>
+			/// Poll the suit for the latest tracking data
+			/// </summary>
+			/// <returns>A data structure containing all valid quaternion data</returns>
 			public TrackingUpdate PollTracking()
 			{
-				InteropTrackingUpdate t = new InteropTrackingUpdate();
-				Interop.NSVR_PollTracking(_ptr, ref t);
-			
+				Interop.NSVR_TrackingUpdate t = new Interop.NSVR_TrackingUpdate();
+				Interop.NSVR_System_Tracking_Poll(Ptr, ref t);
+
 				TrackingUpdate update = new TrackingUpdate();
 				update.Chest = new UnityEngine.Quaternion(t.chest.x, t.chest.y, t.chest.z, t.chest.w);
 				update.LeftUpperArm = new UnityEngine.Quaternion(t.left_upper_arm.x, t.left_upper_arm.y, t.left_upper_arm.z, t.left_upper_arm.w);
@@ -139,7 +218,10 @@ namespace NullSpace.SDK
 
 					_created = false;
 
-					Interop.NSVR_Delete(_ptr);
+					fixed (NSVR_System** ptr = &_ptr)
+					{
+						Interop.NSVR_System_Release(ptr);
+					}
 
 					disposedValue = true;
 					_disposed = true;
@@ -166,7 +248,10 @@ namespace NullSpace.SDK
 
 		}
 	}
-	
+
+	/// <summary>
+	/// Able to hold tracking data for chest and arm IMUs
+	/// </summary>
 	public struct TrackingUpdate
 	{
 		public UnityEngine.Quaternion Chest;
@@ -177,325 +262,76 @@ namespace NullSpace.SDK
 	}
 
 	/// <summary>
-	/// HapticHandle is a handle used to control the playback of haptic effects. If you are concerned about performance, please call Dispose on a HapticHandle which is no longer needed. This will tell the engine that it may dispose of the resources dedicated to this HapticHandle.
+	/// Use a HapticHandle to Play, Pause, or Stop an effect. A HapticHandle represents a particular instance of an effect.
 	/// </summary>
 	public sealed class HapticHandle 
 	{
-		/// <summary>
-		/// Retain the effect name, so that someone calling ToString() can get useful information
-		/// </summary>
-		private string _effectName;
-		/// <summary>
-		/// Handle is used to interact with the engine
-		/// </summary>
-		private uint _handle;
-		/// <summary>
-		/// _playDelegate contains knowledge of how to play the effect
-		/// </summary>
-		private CommandWithHandle _playDelegate;
-		/// <summary>
-		/// _pauseDelegate contains knowledege of how to pause the effect
-		/// </summary>
-		private CommandWithHandle _pauseDelegate;
-		/// <summary>
-		/// _resetDelegate contains knowledge of how to reset the effect
-		/// </summary>
-		private CommandWithHandle _resetDelegate;
-		/// <summary>
-		/// Store this for clone functionality
-		/// </summary>
-		private CommandWithHandle _createDelegate;
+		private IntPtr _handle;
+		private CommandWithHandle _creator; 
 
-		internal HapticHandle() { }
-		internal HapticHandle(CommandWithHandle play, CommandWithHandle pause, CommandWithHandle create, CommandWithHandle reset, string name)
+		internal delegate void CommandWithHandle(IntPtr handle);
+
+		internal HapticHandle(CommandWithHandle creator)
 		{
-			_effectName = name;
-			_playDelegate = play;
-			_pauseDelegate = pause;
-			_resetDelegate = reset;
-			_createDelegate = create;
-			//Grab a handle from the DLL
-			_handle = Interop.NSVR_GenHandle(NSVR._ptr);
-			//This is a network call to the engine, to load the effect up
-			_createDelegate(_handle);
-		}
-
-		internal HapticHandle(CommandWithHandle play, CommandWithHandle pause, CommandWithHandle create, CommandWithHandle reset)
-		{
-			_effectName = "Custom effect";
-			_playDelegate = play;
-			_pauseDelegate = pause;
-			_resetDelegate = reset;
-			_handle = Interop.NSVR_GenHandle(NSVR._ptr);
-
-
-			create(_handle);
-			
+			//The reason we are storing the creator is so that people can clone the handle
+			_creator = creator;
+			Interop.NSVR_PlaybackHandle_Create(ref _handle);
+			_creator(_handle);
 		}
 
 		/// <summary>
-		/// Clone this HapticHandle
+		/// Cause the associated effect to play. If paused, play will resume where it left off. If stopped, play will resume from the beginning. 
 		/// </summary>
-		/// <returns>A new HapticHandle</returns>
-		public HapticHandle Clone()
-		{
-			return new HapticHandle(_playDelegate, _pauseDelegate, _createDelegate, _resetDelegate, _effectName);
-	
-		}
-
-		/// <summary>
-		/// Play the associated effect
-		/// </summary>
-		/// <returns></returns>
+		/// <returns>Reference to this HapticHandle</returns>
 		public HapticHandle Play()
 		{
-			_playDelegate(_handle);
+			Interop.NSVR_PlaybackHandle_Command(_handle, Interop.NSVR_PlaybackCommand.Play);
 			return this;
 		}
 
 		/// <summary>
-		/// Cause the effect to stop playing and return to time 0. Will not continue playing until Play is called again
+		/// Cause the associated effect to pause. 
 		/// </summary>
-		/// <returns></returns>
-		public HapticHandle Reset()
-		{
-			_resetDelegate(_handle);
-			return this;
-		}
-
-		/// <summary>
-		/// Cause the effect to pause. Can be resumed by calling Play
-		/// </summary>
-		/// <returns></returns>
+		/// <returns>Reference to this HapticHandle</returns>
 		public HapticHandle Pause()
 		{
-			_pauseDelegate(_handle);
+			Interop.NSVR_PlaybackHandle_Command(_handle, Interop.NSVR_PlaybackCommand.Pause);
 			return this;
 		}
 
 		/// <summary>
-		/// Return information about this handle, such as the internal Handle ID and an indication of the disposed status
+		/// Cause the associated effect to stop. Will reset the effect to the beginning in a paused state. 
+		/// </summary>
+		/// <returns>Reference to this HapticHandle</returns>
+		public HapticHandle Stop()
+		{
+			Interop.NSVR_PlaybackHandle_Command(_handle, Interop.NSVR_PlaybackCommand.Reset);
+			return this;
+		}
+
+
+		/// <summary>
+		/// Clone this HapticHandle, allowing an identical effect to be controlled independently 
 		/// </summary>
 		/// <returns></returns>
-		public override string ToString()
+		public HapticHandle Clone()
 		{
-			if (disposedValue)
-			{
-				return string.Format("[Disposed] Handle ID {0} playing effect {1}", _handle, _effectName);
-			}
-			else
-			{
-				return string.Format("Handle ID {0} playing effect {1}", _handle, _effectName);
-			}
+			HapticHandle newHandle = new HapticHandle(this._creator);
+			return newHandle;
 		}
 
-		#region IDisposable Support
-		private bool disposedValue = false; // To detect redundant calls
-
-		void Dispose(bool disposing)
+		//Release the resources associated with this handle. Use this if you do not intend to use this handle again.
+		//Using the handle after releasing will have no effect. 
+		public void Release()
 		{
-			if (!disposedValue)
-			{
-				if (disposing)
-				{
-					// TODO: dispose managed state (managed objects).
-				}
-				if (!NSVR.NSVR_Plugin._disposed)
-				{
-					Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, _handle, (short)Interop.Command.RELEASE);
-				}
-					
-				
-				// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-				// TODO: set large fields to null.
+			Interop.NSVR_PlaybackHandle_Release(ref _handle);
 
-				disposedValue = true;
-			}
 		}
-
-		// TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-	//	 ~HapticHandle() {
-		//   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-			//  Dispose(false);
-		// }
-
-		/// <summary>
-		/// Allow the engine to reclaim resources associated with this HapticHandle. After calling this, 
-		/// the HapticHandle will no longer be useable. 
-		/// </summary>
-		public void Dispose()
-		{
-			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-			Dispose(true);
-			// TODO: uncomment the following line if the finalizer is overridden above.
-			 GC.SuppressFinalize(this);
-		}
-		#endregion
-	}
-	public abstract class Generatable
-	{
-		abstract internal Offset<Node> Generate(FlatBufferBuilder builder);
 
 	}
-	public abstract class Playable
-	{
-
-		internal Playable() { }
-		internal static CommandWithHandle GenerateCommandDelegate(Interop.Command c)
-		{
-			return new CommandWithHandle(x => Interop.NSVR_HandleCommand(NSVR.NSVR_Plugin.Ptr, x, (short)c));
-		}
-
-		internal CommandWithHandle _Play()
-		{
-			return GenerateCommandDelegate(Interop.Command.PLAY);
-		}
-
-		internal CommandWithHandle _Reset()
-		{
-			return GenerateCommandDelegate(Interop.Command.RESET);
-		}
-
-		internal CommandWithHandle _Pause()
-		{
-			return GenerateCommandDelegate(Interop.Command.PAUSE);
-		}
-
-		
-	}
-
-
-
-	/// <summary>
-	/// Sequences live on the filesystem as static assets. They can be loaded at runtime using this class.
-	/// </summary>
-	public class Sequence : Playable
-	{
-		private string _name;
-		
-		/// <summary>
-		/// <para>Construct a new Sequence with the given fully-qualified name. Ex: new Sequence("ns.click")</para>
-		/// <para>Throws HapticsLoadingException on failure to load the file</para>
-		/// </summary>
-		/// <param name="name">Fully-qualified name</param>
-		public Sequence(string name)
-		{
-			_name = name;
-			
-			bool loaded = Interop.NSVR_Load(NSVR.NSVR_Plugin.Ptr, name, 0);
-			
-			if (!loaded)
-			{
-				throw new HapticsLoadingException(NSVR.GetError());
-					
-			}
-		}
-		
 	
-		private CommandWithHandle _create(uint location)
-		{
-			return new CommandWithHandle(handle => Interop.NSVR_CreateSequence(NSVR.NSVR_Plugin.Ptr, handle, _name, location));
-		}
-
-		/// <summary>
-		/// Create a HapticHandle with a given AreaFlag for this Sequence
-		/// </summary>
-		/// <param name="location">The AreaFlag on which to play this Sequence</param>
-		/// <returns>A new HapticHandle to control this Sequence</returns>
-		public HapticHandle CreateHandle(AreaFlag location)
-		{
-
-			return new HapticHandle(_Play(), _Pause(), _create((uint)location), _Reset(), _name);
-
-		}
-
-
-
-		
-	}
-
-	/// <summary>
-	/// Patterns live on the filesystem as static assets. They can be loaded at runtime using this class.
-	/// </summary>
-	public class Pattern : Playable
-	{
-		private string _name;
-
-		/// <summary>
-		/// Construct a new Pattern with the given fully-qualified name. Ex: new Pattern("ns.demos.beating_heart")
-		/// </summary>
-		/// <param name="name">The fully-qualified name</param>
-		public Pattern(string name)
-		{
-			_name = name;
-		
-			bool loaded = Interop.NSVR_Load(NSVR.NSVR_Plugin.Ptr, name, 1);
-			if (!loaded)
-			{
-				throw new HapticsLoadingException(NSVR.GetError());
-
-			}
-		}
-
-		private CommandWithHandle _create()
-		{
-			return new CommandWithHandle(handle => Interop.NSVR_CreatePattern(NSVR.NSVR_Plugin.Ptr, handle, _name));
-		}
-		/// <summary>
-		/// Create a HapticHandle for this Pattern
-		/// </summary>
-		/// <returns>A new HapticHandle for controlling this Pattern</returns>
-		public HapticHandle CreateHandle()
-		{
-			return new HapticHandle(_Play(), _Pause(), _create(), _Reset(), _name);
-		}
-
-		
-	}
-
-	/// <summary>
-	/// Experiences live on the filesystem as static assets. They can be loaded at runtime using this class.
-	/// </summary>
-	public class Experience : Playable
-	{
-		private string _name;
-		/// <summary>
-		/// <para>Construct a new Experience from the filesystem with a given fully-qualified name. Ex: new Experience("ns.demos.chest_swirl")</para>
-		/// <para>Throws HapticsLoadingException on failure to load file</para>
-		/// </summary>
-		/// <param name="name">The fully-qualified name</param>
-		public Experience(string name)
-		{
-			_name = name;
-
-			bool loaded = Interop.NSVR_Load(NSVR.NSVR_Plugin.Ptr, name, 2);
-			if (!loaded)
-			{
-				throw new HapticsLoadingException(NSVR.GetError());
-
-			}
-		}
-
-		private CommandWithHandle _create()
-		{
-			return new CommandWithHandle(handle => Interop.NSVR_CreateExperience(NSVR.NSVR_Plugin.Ptr, handle, _name));
-		}
-
-		/// <summary>
-		/// Create a HapticHandle to control this Experience
-		/// </summary>
-		/// <returns>A new HapticHandle</returns>
-		public HapticHandle CreateHandle()
-		{
-			return new HapticHandle(_Play(), _Pause(), _create(), _Reset(), _name);
-		}
-
-
-	}
-
-
 	
-
-
-
 }
+
+
+

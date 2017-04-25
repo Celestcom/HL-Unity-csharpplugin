@@ -2,91 +2,82 @@
 using System;
 
 using FlatBuffers;
-namespace NullSpace.SDK
+using NullSpace.Events;
+using System.Linq;
+using System.Collections.Generic;
+using NullSpace.SDK.FileUtilities;
+using UnityEngine;
+
+namespace NullSpace.SDK.FileUtilities
 {
-	internal static class EncodingUtils
+	/// <summary>
+	/// Used to turn HapticDefinitionFiles into dynamic haptic effects
+	/// Example workflow: 
+	/// 1. create a .hdf using the asset tool binary
+	/// 2. Deserialize the .hdf into a HapticDefinitionFile
+	/// 3. Pass the HapticDefinitionFile to the CodeHapticFactory, along with the key of the root effect
+	/// 4. Get a dynamic effect out of it
+	/// 
+	/// In practice, this is all done automatically by the plugin. 
+	/// </summary>
+	public class CodeHapticFactory
 	{
-		internal static byte[] Encode(IGeneratable effects, UInt32 handle)
+		
+		/// <summary>
+		/// Create a HapticSequence from a HapticDefinitionFile
+		/// </summary>
+		/// <param name="key">Name of the root effect</param>
+		/// <param name="hdf">A HapticDefinitionFile containing the root effect</param>
+		/// <returns></returns>
+		public static HapticSequence CreateSequence(string key, HapticDefinitionFile hdf)
 		{
-			var builder = new FlatBuffers.FlatBufferBuilder(128);
-			var packet = effects.Generate(builder);
-			
-
-
-			var name = builder.CreateString("Code generated Haptic Node");
-			HapticPacket.StartHapticPacket(builder);
-			HapticPacket.AddHandle(builder, handle);
-			HapticPacket.AddPacketType(builder, FileType.Node);
-			HapticPacket.AddName(builder, name);
-			HapticPacket.AddPacket(builder, packet.Value);
-			var rootTable = HapticPacket.EndHapticPacket(builder);
-			builder.Finish(rootTable.Value);
-			return builder.SizedByteArray();
-
-		}
-		internal delegate Offset<Node> BuffEncoder(FlatBufferBuilder builder);
-
-		internal static byte[] EncodeDel(BuffEncoder encoder, UInt32 handle)
-		{
-			var builder = new FlatBuffers.FlatBufferBuilder(128);
-			var packet = encoder(builder);
-
-
-
-			var name = builder.CreateString("Code generated Haptic Node");
-			HapticPacket.StartHapticPacket(builder);
-			HapticPacket.AddHandle(builder, handle);
-			HapticPacket.AddPacketType(builder, FileType.Node);
-			HapticPacket.AddName(builder, name);
-			HapticPacket.AddPacket(builder, packet.Value);
-			var rootTable = HapticPacket.EndHapticPacket(builder);
-			builder.Finish(rootTable.Value);
-			return builder.SizedByteArray();
+		
+			HapticSequence s = new HapticSequence();
+			var sequence_def_array = hdf.sequenceDefinitions[key];
+			foreach (var effect in sequence_def_array)
+			{
+				Effect e = FileEffectToCodeEffect.TryParse(effect.effect, Effect.Click);
+				s.AddEffect(effect.time, effect.strength, new HapticEffect(e, effect.duration));
+			}
+			return s;
 		}
 
-
-
-		public interface IHapticGenerator<Input, Output>
+		/// <summary>
+		/// Create a HapticPattern from a HapticDefinitionFile
+		/// </summary>
+		/// <param name="key">Name of the root effect</param>
+		/// <param name="hdf">A HapticDefinitionFile containing the root effect</param>
+		/// <returns></returns>
+		public static HapticPattern CreatePattern(string key, HapticDefinitionFile hdf)
 		{
-			Output Generate(Input input);
+			HapticPattern p = new HapticPattern();
+			var pattern_def_array = hdf.patternDefinitions[key];
+			foreach (var seq in pattern_def_array)
+			{
+				AreaFlag area = new AreaParser(seq.area).GetArea();
+				HapticSequence thisSeq = CreateSequence(seq.sequence, hdf);
+				p.AddSequence(seq.time, area, thisSeq);
+			}
+			return p;
 		}
-		/*
-		public class RandomGenerator : IHapticGenerator<CodeSequence, CodePattern>
+
+		/// <summary>
+		/// Create a HapticExperience from a HapticDefinitionFile
+		/// </summary>
+		/// <param name="key"></param>
+		/// <param name="hdf"></param>
+		/// <returns></returns>
+		public static HapticExperience CreateExperience(string key, HapticDefinitionFile hdf)
 		{
-			private System.Random _random;
-			private IList<AreaFlag> _areas;
-			private AreaFlag _currentArea;
-			public RandomGenerator()
-			{
-				var stuff = Enum.GetValues(typeof(AreaFlag));
-				AreaFlag[] a = (AreaFlag[])stuff;
-				_areas = a.Where(flag => flag.ToString().Contains("_Left") || flag.ToString().Contains("_Right")).ToList();
-
-				_random = new System.Random();
-				Next();
-			}
-
-			public RandomGenerator Next()
+			HapticExperience e = new HapticExperience();
+			var experience_def_array = hdf.experienceDefinitions[key];
+			foreach (var pat in experience_def_array)
 			{
 
-				int which = _random.Next(0, _areas.Count);
-				_currentArea = _areas[which];
-				return this;
+				HapticPattern thisPat = CreatePattern(pat.pattern, hdf);
+				e.AddPattern(pat.time, thisPat);
 			}
-			public CodePattern Generate(CodeSequence s)
-			{
-				CodePattern p = new CodePattern();
-				p.AddChild(0f, _currentArea, s);
-				return p;
-			}
-			public CodePattern GenerateNext(CodeSequence s)
-			{
-				return Next().Generate(s);
-			}
-
+			return e;
 		}
-		*/
-		//their code
 	}
-
 }
