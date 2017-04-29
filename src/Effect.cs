@@ -46,7 +46,8 @@ namespace NullSpace.SDK
 						{"short_double_sharp_tick", Effect.Double_Click},
 						{"transition_click", Effect.Click},
 						{"transition_hum", Effect.Hum},
-						{"triple_click", Effect.Triple_Click }
+						{"triple_click", Effect.Triple_Click },
+						{"double_click" , Effect.Double_Click}
 					};
 		}
 

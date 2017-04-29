@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityPluginWrapperDLLs", "UnityPluginWrapperDLLs.csproj", "{9D1A58F5-8914-8147-7281-17585E1AE7B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityPluginWrapperExe", "UnityPluginWrapperExe.csproj", "{F086486C-5CF3-0367-25E7-9BC4911226CF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win64 = Debug|Win64
+		Debug|x86 = Debug|x86
+		Release|Win64 = Release|Win64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9D1A58F5-8914-8147-7281-17585E1AE7B3}.Debug|Win64.ActiveCfg = Debug Win64|x64
+		{9D1A58F5-8914-8147-7281-17585E1AE7B3}.Debug|Win64.Build.0 = Debug Win64|x64
+		{9D1A58F5-8914-8147-7281-17585E1AE7B3}.Debug|x86.ActiveCfg = Debug|x86
+		{9D1A58F5-8914-8147-7281-17585E1AE7B3}.Debug|x86.Build.0 = Debug|x86
+		{9D1A58F5-8914-8147-7281-17585E1AE7B3}.Release|Win64.ActiveCfg = Release Win64|x64
+		{9D1A58F5-8914-8147-7281-17585E1AE7B3}.Release|Win64.Build.0 = Release Win64|x64
+		{9D1A58F5-8914-8147-7281-17585E1AE7B3}.Release|x86.ActiveCfg = Release|x86
+		{9D1A58F5-8914-8147-7281-17585E1AE7B3}.Release|x86.Build.0 = Release|x86
+		{F086486C-5CF3-0367-25E7-9BC4911226CF}.Debug|Win64.ActiveCfg = Debug Win64|x64
+		{F086486C-5CF3-0367-25E7-9BC4911226CF}.Debug|Win64.Build.0 = Debug Win64|x64
+		{F086486C-5CF3-0367-25E7-9BC4911226CF}.Debug|x86.ActiveCfg = Debug|x86
+		{F086486C-5CF3-0367-25E7-9BC4911226CF}.Debug|x86.Build.0 = Debug|x86
+		{F086486C-5CF3-0367-25E7-9BC4911226CF}.Release|Win64.ActiveCfg = Release Win64|x64
+		{F086486C-5CF3-0367-25E7-9BC4911226CF}.Release|Win64.Build.0 = Release Win64|x64
+		{F086486C-5CF3-0367-25E7-9BC4911226CF}.Release|x86.ActiveCfg = Release|x86
+		{F086486C-5CF3-0367-25E7-9BC4911226CF}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

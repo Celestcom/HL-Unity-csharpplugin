@@ -1,7 +1,5 @@
-﻿using NullSpace.HapticFiles;
-using System;
+﻿using System;
 
-using FlatBuffers;
 using NullSpace.Events;
 using System.Linq;
 using System.Collections.Generic;

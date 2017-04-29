@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9D1A58F5-8914-8147-7281-17585E1AE7B3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NSLoaderWrapper</RootNamespace>
+    <AssemblyName>NSLoaderWrapper</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\Win32\</OutputPath>
+    <BaseIntermediateOutputPath>obj\Win32\Debug\UnityPluginWrapperDLLs\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Win64|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\Win64\</OutputPath>
+    <BaseIntermediateOutputPath>obj\Win64\Debug\UnityPluginWrapperDLLs\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\Win32\</OutputPath>
+    <BaseIntermediateOutputPath>obj\Win32\Release\UnityPluginWrapperDLLs\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants></DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release Win64|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\Win64\</OutputPath>
+    <BaseIntermediateOutputPath>obj\Win64\Release\UnityPluginWrapperDLLs\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants></DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="UnityEditor" />
+    <Reference Include="UnityEngine" />
+    <Reference Include="System.ServiceProcess" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\src\AreaParser.cs">
+      <Link>src\AreaParser.cs</Link>
+    </Compile>
+    <Compile Include="..\src\AssetTool.cs">
+      <Link>src\AssetTool.cs</Link>
+    </Compile>
+    <Compile Include="..\src\ByteBuffer.cs">
+      <Link>src\ByteBuffer.cs</Link>
+    </Compile>
+    <Compile Include="..\src\CodeHaptics.cs">
+      <Link>src\CodeHaptics.cs</Link>
+    </Compile>
+    <Compile Include="..\src\CommonArgs.cs">
+      <Link>src\CommonArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\src\Effect.cs">
+      <Link>src\Effect.cs</Link>
+    </Compile>
+    <Compile Include="..\src\EncodingUtils.cs">
+      <Link>src\EncodingUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\src\EventList.cs">
+      <Link>src\EventList.cs</Link>
+    </Compile>
+    <Compile Include="..\src\HapticsDefinitionFile.cs">
+      <Link>src\HapticsDefinitionFile.cs</Link>
+    </Compile>
+    <Compile Include="..\src\Interop.cs">
+      <Link>src\Interop.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonAsset.cs">
+      <Link>src\JsonAsset.cs</Link>
+    </Compile>
+    <Compile Include="..\src\LoadingUtils.cs">
+      <Link>src\LoadingUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\src\MiniJson.cs">
+      <Link>src\MiniJson.cs</Link>
+    </Compile>
+    <Compile Include="..\src\NSLoader.cs">
+      <Link>src\NSLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\src\ParameterizedExperience.cs">
+      <Link>src\ParameterizedExperience.cs</Link>
+    </Compile>
+    <Compile Include="..\src\ParameterizedPattern.cs">
+      <Link>src\ParameterizedPattern.cs</Link>
+    </Compile>
+    <Compile Include="..\src\ParameterizedSequence.cs">
+      <Link>src\ParameterizedSequence.cs</Link>
+    </Compile>
+    <Compile Include="..\src\Platform.cs">
+      <Link>src\Platform.cs</Link>
+    </Compile>
+    <Compile Include="..\src\Program.cs">
+      <Link>src\Program.cs</Link>
+    </Compile>
+    <Compile Include="..\src\SerializableDictionary.cs">
+      <Link>src\SerializableDictionary.cs</Link>
+    </Compile>
+    <Compile Include="..\src\SerializableHaptic.cs">
+      <Link>src\SerializableHaptic.cs</Link>
+    </Compile>
+    <Compile Include="..\src\SuitEventType.cs">
+      <Link>src\SuitEventType.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -28,7 +28,7 @@ namespace NullSpace.SDK
 					var a = (AreaFlag)Enum.Parse(typeof(AreaFlag), cleanedUpArea);
 					_area |= a;
 				}
-				catch (ArgumentException e)
+				catch (ArgumentException)
 				{
 					//do not add this unrecognized area flag
 				}
