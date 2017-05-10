@@ -45,6 +45,11 @@ namespace NullSpace.SDK.FileUtilities
 			}
 
 			/// <summary>
+			/// Short description of this package
+			/// </summary>
+			public string description;
+
+			/// <summary>
 			/// Given a dictionary representing the json object of a package, deserialize into a PackageInfo
 			/// </summary>
 			/// <param name="dict">json object</param>
@@ -54,6 +59,7 @@ namespace NullSpace.SDK.FileUtilities
 				studio = dict["studio"] as string;
 				@namespace = dict["namespace"] as string;
 				path = dict["path"] as string;
+				description = dict["description"] as string;
 			}
 		}
 
@@ -112,7 +118,7 @@ namespace NullSpace.SDK.FileUtilities
 
 				if (path == "unknown")
 				{
-					UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory. Is the Service installed?");
+					UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory. Is the Service installed?\n");
 				} else
 				{
 					_process.StartInfo.FileName = path;
@@ -120,17 +126,17 @@ namespace NullSpace.SDK.FileUtilities
 				}
 			} catch (ArgumentException)
 			{
-				UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory. Is the Service installed?");
+				UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory. Is the Service installed?\n");
 
 			}
 			catch (IOException)
 			{
-				UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory. Try reinstalling the service.");
+				UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory. Try reinstalling the service.\n");
 
 			}
 			catch (SecurityException)
 			{
-				UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory, because I don't have permission to read the registry. Try running as administrator?");
+				UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory, because I don't have permission to read the registry. Try running as administrator?\n");
 
 			}
 
@@ -170,7 +176,7 @@ namespace NullSpace.SDK.FileUtilities
 			//We need better error reporting for the json communication
 			if (result.Contains("Malformed config"))
 			{
-				UnityEngine.Debug.LogError("[NSVR] Asset tool stumbled over a malformed config file in the haptic asset directory;");
+				UnityEngine.Debug.LogError("[NSVR] Asset tool failed: " + result + "\n");
 				return new List<PackageInfo>();
 			}
 			var a = MiniJSON.Json.Deserialize(result) as IList<object>;
