@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using FlatBuffers;
 using NullSpace.Events;
 using NullSpace.SDK.Internal;
 using System.Diagnostics;

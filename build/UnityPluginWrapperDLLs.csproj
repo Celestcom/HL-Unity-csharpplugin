@@ -73,9 +73,6 @@
     <Compile Include="..\src\AssetTool.cs">
       <Link>src\AssetTool.cs</Link>
     </Compile>
-    <Compile Include="..\src\ByteBuffer.cs">
-      <Link>src\ByteBuffer.cs</Link>
-    </Compile>
     <Compile Include="..\src\CodeHaptics.cs">
       <Link>src\CodeHaptics.cs</Link>
     </Compile>

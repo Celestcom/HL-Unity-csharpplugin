@@ -4,8 +4,38 @@ using System.Runtime.InteropServices;
 using NullSpace.SDK.Internal;
 using System.ServiceProcess;
 using System.Runtime.Remoting.Messaging;
+using System.Collections.Generic;
+
 namespace NullSpace.SDK
 {
+
+	public struct VersionInfo
+	{
+		public uint Major;
+		public uint Minor;
+
+		/// <summary>
+		/// Returns Major.Minor
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString()
+		{
+			return string.Format("{0}.{1}", Major, Minor);
+		}
+	}
+
+	public struct EffectSampleInfo
+	{
+		public UInt16 Strength;
+		public UInt32 Family;
+		public AreaFlag Area;
+		public EffectSampleInfo(UInt16 strength, UInt32 family, AreaFlag area)
+		{
+			Strength = strength;
+			Family = family;
+			Area = area;
+		}
+	}
 
 	public class HapticsLoadingException : System.Exception
 	{
@@ -47,7 +77,7 @@ namespace NullSpace.SDK
 					}
 					else
 					{
-						throw new MemberAccessException("[NSVR] You must have a NS Manager prefab in your scene!");
+						throw new MemberAccessException("[NSVR] You must have a NS Manager prefab in your scene!\n");
 
 					}
 
@@ -59,7 +89,7 @@ namespace NullSpace.SDK
 				_disposed = false;
 				if (_created)
 				{
-					Debug.LogWarning("[NSVR] NSVR_Plugin should only be created by the NullSpace SDK");
+					Debug.LogWarning("[NSVR] NSVR_Plugin should only be created by the NullSpace SDK\n");
 					return;
 				}
 
@@ -67,7 +97,7 @@ namespace NullSpace.SDK
 				{
 					if (Interop.NSVR_FAILURE(Interop.NSVR_System_Create(system_ptr)))
 					{
-						Debug.LogError("[NSVR] NSVR_Plugin could not be instantiated");
+						Debug.LogError("[NSVR] NSVR_Plugin could not be instantiated\n");
 
 					}
 					else
@@ -79,6 +109,28 @@ namespace NullSpace.SDK
 
 			}
 
+			/** INTERNAL - DO NOT RELY ON THESE **/
+
+			public Dictionary<AreaFlag, EffectSampleInfo> SampleCurrentlyPlayingEffects()
+			{
+				Dictionary<AreaFlag, EffectSampleInfo> result = new Dictionary<AreaFlag, EffectSampleInfo>();
+				UInt16[] strengths = new UInt16[16];
+				UInt32[] areas = new UInt32[16];
+				UInt32[] families = new UInt32[16];
+				uint totalCount = 0;
+				Interop.NSVR_Immediate_Sample(Ptr, strengths, areas, families, 16, ref totalCount);
+
+				for (int i = 0; i < totalCount; i++)
+				{
+					result[(AreaFlag)areas[i]] = new EffectSampleInfo(strengths[i], families[i], (AreaFlag)areas[i]);
+				}
+
+				return result;
+			}
+
+			
+
+			/** END INTERNAL **/
 			/// <summary>
 			/// Pause all currently active effects
 			/// </summary>
@@ -104,6 +156,18 @@ namespace NullSpace.SDK
 				Interop.NSVR_System_Haptics_Destroy(Ptr);
 			}
 
+			/// <summary>
+			/// Return the plugin version
+			/// </summary>
+			/// <returns></returns>
+			public static VersionInfo GetPluginVersion()
+			{
+				uint version = Interop.NSVR_Version_Get();
+				VersionInfo v = new VersionInfo();
+				v.Minor = version & 0xFFFF;
+				v.Major = (version & 0xFFFF0000) >> 16;
+				return v;
+			}
 
 			/// <summary>
 			/// Poll the status of suit connection 

@@ -157,10 +157,13 @@ namespace NullSpace.SDK
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
 			public static extern void NSVR_PlaybackHandle_Release(ref IntPtr handlePtr);
 
+			/* Sampling */
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern unsafe int NSVR_Immediate_Sample(NSVR_System* systemPtr, [In, Out] UInt16[] intensities,  [In, Out] UInt32[] areas, [In, Out] UInt32[] families, int length, ref uint resultCount);
 
 		}
 
-		
+
 	}
 	public enum ServiceConnectionStatus
 	{
