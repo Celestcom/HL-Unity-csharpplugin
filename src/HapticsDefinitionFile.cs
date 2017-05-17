@@ -50,13 +50,17 @@ namespace NullSpace.SDK.FileUtilities
 		}
 		public void Deserialize(string json)
 		{
+			
 			var dict = MiniJSON.Json.Deserialize(json) as IDictionary<string, object>;
 			if (dict == null)
 			{
 				throw new HapticsAssetException("Couldn't parse the haptic asset; it doesn't look like json");
-			} else {
+			}
+			else
+			{
 				this.Deserialize(dict);
 			}
+			
 		}
 		public void Deserialize(IDictionary<string, object> dict)
 		{

@@ -80,6 +80,10 @@ namespace NullSpace.SDK
 			return clone;
 		}
 		
+		/// <summary>
+		/// Returns a string representation of this HapticEffect, including effect name and duration 
+		/// </summary>
+		/// <returns></returns>
 		public override string ToString()
 		{
 			return string.Format("{0} for {1} seconds", this.Effect.ToString(), _duration);
@@ -137,7 +141,7 @@ namespace NullSpace.SDK
 		/// Add a HapticEffect with a given time offset
 		/// </summary>
 		/// <param name="time">Time offset (fractional seconds)</param>
-		/// <param name="e">The HapticEffect to add</param>
+		/// <param name="effect">The HapticEffect to add</param>
 		public HapticSequence AddEffect(double time, HapticEffect effect)
 		{
 			Effects.Add(new CommonArgs<HapticEffect>((float)time, 1f, effect.Clone()));
@@ -200,7 +204,7 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
 		public void Play(AreaFlag area)
 		{
-			CreateHandle(area).Play().Release();
+			CreateHandle(area).Play().Dispose();
 		}
 
 		/// <summary>
@@ -215,7 +219,10 @@ namespace NullSpace.SDK
 			return CreateHandle(area, strength).Play();
 		}
 
-
+		/// <summary>
+		/// Returns a string representation of this HapticSequence for debugging purposes, including all child effects
+		/// </summary>
+		/// <returns></returns>
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder();
@@ -345,7 +352,7 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public void Play()
 		{
-			CreateHandle().Play().Release();
+			CreateHandle().Play().Dispose();
 		}
 
 		/// <summary>
@@ -355,7 +362,7 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public void Play(double strength)
 		{
-			CreateHandle(strength).Play().Release();
+			CreateHandle(strength).Play().Dispose();
 		}
 
 		/// <summary>
@@ -369,6 +376,10 @@ namespace NullSpace.SDK
 			return clone;
 		}
 
+		/// <summary>
+		/// Returns a string representation of this HapticPattern for debugging purposes, including all child sequences
+		/// </summary>
+		/// <returns></returns>
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder();
@@ -456,7 +467,7 @@ namespace NullSpace.SDK
 		}
 
 
-		////// <summary>
+		/// <summary>
 		/// Create a HapticHandle from this HapticExperience, which can be used to manipulate the effect. 
 		/// </summary>
 		/// <returns>A new HapticHandle</returns>
@@ -495,7 +506,7 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public void Play()
 		{
-			CreateHandle().Play().Release();
+			CreateHandle().Play().Dispose();
 		}
 
 		/// <summary>
@@ -505,7 +516,7 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public void Play(double strength)
 		{
-			CreateHandle(strength).Play().Release();
+			CreateHandle(strength).Play().Dispose();
 		}
 
 		/// <summary>
@@ -519,6 +530,10 @@ namespace NullSpace.SDK
 			return clone;
 		}
 
+		/// <summary>
+		/// Returns a representation of this HapticExperience for debugging purposes, including the representation of child patterns
+		/// </summary>
+		/// <returns></returns>
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder();

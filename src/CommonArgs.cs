@@ -6,7 +6,7 @@ using System.Text;
 namespace NullSpace.SDK
 {
 	
-	public sealed class CommonArgs<THapticType>
+	internal sealed class CommonArgs<THapticType>
 	{
 		private THapticType _item;
 		float _time;

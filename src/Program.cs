@@ -5,6 +5,7 @@ using NullSpace.SDK.Internal;
 using System.ServiceProcess;
 using System.Threading;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace NSLoaderWrapper
 {
@@ -53,40 +54,64 @@ namespace NSLoaderWrapper
 		
 
 			IntPtr handlePtr = IntPtr.Zero;
-			Interop.NSVR_PlaybackHandle_Create(ref handlePtr);
-		//	while (true)
-		//	{
-
-				
-
-				IntPtr timelinePtr = IntPtr.Zero;
-				Interop.NSVR_Timeline_Create(ref timelinePtr, systemPtr);
-
-				IntPtr eventPtr = IntPtr.Zero;
-				Interop.NSVR_Event_Create(ref eventPtr, Interop.NSVR_EventType.Basic_Haptic_Event);
-
-				Interop.NSVR_Event_SetInteger(eventPtr, "area", (int) AreaFlag.Chest_Left);
-				Interop.NSVR_Event_SetInteger(eventPtr, "effect",666);
-				Interop.NSVR_Event_SetFloat(eventPtr, "duration", 4.0f);
-				Interop.NSVR_Event_SetFloat(eventPtr, "strength", 0.5f);
-				
-				Interop.NSVR_Timeline_AddEvent(timelinePtr, eventPtr);
-				Interop.NSVR_Event_Release(ref eventPtr);
-
-				Interop.NSVR_Timeline_Transmit(timelinePtr, handlePtr);
-				Interop.NSVR_Timeline_Release(ref timelinePtr);
+			//	Interop.NSVR_PlaybackHandle_Create(ref handlePtr);
+			////	while (true)
+			////	{
 
 
-		
 
-				Interop.NSVR_PlaybackHandle_Command(handlePtr, Interop.NSVR_PlaybackCommand.Play);
+			//		IntPtr timelinePtr = IntPtr.Zero;
+			//		Interop.NSVR_Timeline_Create(ref timelinePtr, systemPtr);
 
-				System.Threading.Thread.Sleep(500);
+			//		IntPtr eventPtr = IntPtr.Zero;
+			//		Interop.NSVR_Event_Create(ref eventPtr, Interop.NSVR_EventType.Basic_Haptic_Event);
+
+			//		Interop.NSVR_Event_SetInteger(eventPtr, "area", (int) AreaFlag.Chest_Left);
+			//		Interop.NSVR_Event_SetInteger(eventPtr, "effect",(int)Effect.Click);
+			//		Interop.NSVR_Event_SetFloat(eventPtr, "duration", 0.4f);
+			//		Interop.NSVR_Event_SetFloat(eventPtr, "strength", 0.5f);
+
+			//		Interop.NSVR_Timeline_AddEvent(timelinePtr, eventPtr);
+			//		Interop.NSVR_Event_Release(ref eventPtr);
+
+			//		Interop.NSVR_Timeline_Transmit(timelinePtr, handlePtr);
+			//		Interop.NSVR_Timeline_Release(ref timelinePtr);
+
+
+
+
+			//		Interop.NSVR_PlaybackHandle_Command(handlePtr, Interop.NSVR_PlaybackCommand.Play);
+
+			//		System.Threading.Thread.Sleep(500);
 
 
 			//	}
+			bool dir =true;
+			ushort strength = 1;
+			while (true)
+			{
+				Console.WriteLine(strength);
+				ushort[] strengths = new ushort[16];
+				for (int i = 0; i < 16; i++) { strengths[i] = strength; }
 
-			Console.ReadLine();
+				var areaslist = new List<AreaFlag>{ AreaFlag.Chest_Left, AreaFlag.Chest_Right, AreaFlag.Upper_Ab_Left, AreaFlag.Upper_Ab_Both };
+				uint[] areas = new uint[4];
+
+				for (int i = 0; i < 4; i++) { areas[i] = ((uint)areaslist[i]); }
+				Interop.NSVR_Immediate_Set(systemPtr, strengths, areas, 4);
+				if (dir)
+				{
+					strength++;
+				} else
+				{
+					strength--;
+				}
+				if (strength > 254 || strength < 1)
+				{
+					dir = !dir;
+				}
+				Thread.Sleep(100);
+			}
 			return 0;
 		}
 

@@ -9,6 +9,9 @@ using System.Collections.Generic;
 namespace NullSpace.SDK
 {
 
+	/// <summary>
+	/// Represents version information, containing a major and minor version
+	/// </summary>
 	public struct VersionInfo
 	{
 		public uint Major;
@@ -24,6 +27,9 @@ namespace NullSpace.SDK
 		}
 	}
 
+	/// <summary>
+	/// Internal testing tool; do not depend upon this. May change at any time.
+	/// </summary>
 	public struct EffectSampleInfo
 	{
 		public UInt16 Strength;
@@ -109,8 +115,11 @@ namespace NullSpace.SDK
 
 			}
 
-			/** INTERNAL - DO NOT RELY ON THESE **/
-
+			
+			/// <summary>
+			/// Internal testing tool; do not depend upon this. May change at any time.
+			/// </summary>
+			/// <returns></returns>
 			public Dictionary<AreaFlag, EffectSampleInfo> SampleCurrentlyPlayingEffects()
 			{
 				Dictionary<AreaFlag, EffectSampleInfo> result = new Dictionary<AreaFlag, EffectSampleInfo>();
@@ -187,16 +196,7 @@ namespace NullSpace.SDK
 				return DeviceConnectionStatus.Disconnected;
 			}
 
-			//public ServiceConnectionStatus TestServiceConnection()
-			//{
-			//	Interop.NSVR_ServiceInfo serviceInfo = new Interop.NSVR_ServiceInfo();
-			//	if (Interop.NSVR_SUCCESS(Interop.NSVR_System_GetServiceInfo(Ptr, ref serviceInfo)))
-			//	{
-			//		return ServiceConnectionStatus.Connected;
-			//	}
-
-			//	return ServiceConnectionStatus.Disconnected;
-			//}
+		
 
 			public ServiceConnectionStatus TestServiceConnection()
 			{
@@ -299,7 +299,9 @@ namespace NullSpace.SDK
 				Dispose(false);
 			}
 
-			// This code added to correctly implement the disposable pattern.
+			/// <summary>
+			/// Disposes the plugin. After calling dispose, the plugin cannot be used again.
+			/// </summary>
 			public void Dispose()
 			{
 				// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
@@ -328,7 +330,7 @@ namespace NullSpace.SDK
 	/// <summary>
 	/// Use a HapticHandle to Play, Pause, or Stop an effect. A HapticHandle represents a particular instance of an effect.
 	/// </summary>
-	public sealed class HapticHandle 
+	public sealed class HapticHandle : IDisposable
 	{
 		private IntPtr _handle;
 		private CommandWithHandle _creator; 
@@ -351,6 +353,16 @@ namespace NullSpace.SDK
 		{
 			Interop.NSVR_PlaybackHandle_Command(_handle, Interop.NSVR_PlaybackCommand.Play);
 			return this;
+		}
+
+		/// <summary>
+		/// Cause the associated effect to immediately play from the beginning.
+		/// Identical to Stop().Play()
+		/// </summary>
+		/// <returns></returns>
+		public HapticHandle Replay()
+		{
+			return this.Stop().Play();
 		}
 
 		/// <summary>
@@ -384,13 +396,46 @@ namespace NullSpace.SDK
 			return newHandle;
 		}
 
-		//Release the resources associated with this handle. Use this if you do not intend to use this handle again.
-		//Using the handle after releasing will have no effect. 
-		public void Release()
-		{
-			Interop.NSVR_PlaybackHandle_Release(ref _handle);
+	
 
+		#region IDisposable Support
+		private bool disposedValue = false; // To detect redundant calls
+
+		void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					// TODO: dispose managed state (managed objects).
+				}
+
+				if (!NSVR.NSVR_Plugin._disposed)
+				{
+					Interop.NSVR_PlaybackHandle_Release(ref _handle);
+				}
+
+				disposedValue = true;
+			}
 		}
+
+		// TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+		~HapticHandle() {
+		   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+		   Dispose(false);
+		}
+
+		/// <summary>
+		/// Dispose the handle, releasing its resources from the plugin. After disposing a handle, it cannot be used again.
+		/// </summary>
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(true);
+			// TODO: uncomment the following line if the finalizer is overridden above.
+			 GC.SuppressFinalize(this);
+		}
+		#endregion
 
 	}
 	

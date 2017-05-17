@@ -39,6 +39,9 @@ namespace NullSpace.SDK.FileUtilities
 			/// </summary>
 			public string path;
 
+			/// <summary>
+			/// Constructs an empty PackageInfo object
+			/// </summary>
 			public PackageInfo()
 			{
 
