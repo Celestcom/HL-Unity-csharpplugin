@@ -247,12 +247,28 @@ namespace NullSpace.SDK.FileUtilities
 							new ArgList()
 							.Add("root-path", _rootPath)
 							.Add("generate-asset", path)
-							.Add("json")
+							
 						);
 
 			return result;
 		}
 		
+		/// <summary>
+		/// Converts a haptic package into an HDF package, mirroring the standard haptic directory layout
+		/// </summary>
+		/// <param name="package">The package to convert</param>
+		/// <returns>An error string, if any</returns>
+		public string ConvertPackageToHDFs(PackageInfo package, string outDir)
+		{
+			var result = executeToolAndWaitForResult(
+				new ArgList() 
+				.Add("root-path", _rootPath)
+				.Add("convert-package", package.@namespace)
+				.Add("hdf-out", outDir)	
+			);
+
+			return result;
+		}
 
 		private string createArgumentString(ArgList arguments)
 		{
