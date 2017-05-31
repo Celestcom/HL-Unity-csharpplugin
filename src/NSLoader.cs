@@ -4,8 +4,44 @@ using System.Runtime.InteropServices;
 using NullSpace.SDK.Internal;
 using System.ServiceProcess;
 using System.Runtime.Remoting.Messaging;
+using System.Collections.Generic;
+
 namespace NullSpace.SDK
 {
+
+	/// <summary>
+	/// Represents version information, containing a major and minor version
+	/// </summary>
+	public struct VersionInfo
+	{
+		public uint Major;
+		public uint Minor;
+
+		/// <summary>
+		/// Returns Major.Minor
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString()
+		{
+			return string.Format("{0}.{1}", Major, Minor);
+		}
+	}
+
+	/// <summary>
+	/// Internal testing tool; do not depend upon this. May change at any time.
+	/// </summary>
+	public struct EffectSampleInfo
+	{
+		public UInt16 Strength;
+		public UInt32 Family;
+		public AreaFlag Area;
+		public EffectSampleInfo(UInt16 strength, UInt32 family, AreaFlag area)
+		{
+			Strength = strength;
+			Family = family;
+			Area = area;
+		}
+	}
 
 	public class HapticsLoadingException : System.Exception
 	{
@@ -47,7 +83,7 @@ namespace NullSpace.SDK
 					}
 					else
 					{
-						throw new MemberAccessException("[NSVR] You must have a NS Manager prefab in your scene!");
+						throw new MemberAccessException("[NSVR] You must have a NS Manager prefab in your scene!\n");
 
 					}
 
@@ -59,7 +95,7 @@ namespace NullSpace.SDK
 				_disposed = false;
 				if (_created)
 				{
-					Debug.LogWarning("[NSVR] NSVR_Plugin should only be created by the NullSpace SDK");
+					Debug.LogWarning("[NSVR] NSVR_Plugin should only be created by the NullSpace SDK\n");
 					return;
 				}
 
@@ -67,7 +103,7 @@ namespace NullSpace.SDK
 				{
 					if (Interop.NSVR_FAILURE(Interop.NSVR_System_Create(system_ptr)))
 					{
-						Debug.LogError("[NSVR] NSVR_Plugin could not be instantiated");
+						Debug.LogError("[NSVR] NSVR_Plugin could not be instantiated\n");
 
 					}
 					else
@@ -79,6 +115,31 @@ namespace NullSpace.SDK
 
 			}
 
+			
+			/// <summary>
+			/// Internal testing tool; do not depend upon this. May change at any time.
+			/// </summary>
+			/// <returns></returns>
+			public Dictionary<AreaFlag, EffectSampleInfo> SampleCurrentlyPlayingEffects()
+			{
+				Dictionary<AreaFlag, EffectSampleInfo> result = new Dictionary<AreaFlag, EffectSampleInfo>();
+				UInt16[] strengths = new UInt16[16];
+				UInt32[] areas = new UInt32[16];
+				UInt32[] families = new UInt32[16];
+				uint totalCount = 0;
+				Interop.NSVR_Immediate_Sample(Ptr, strengths, areas, families, 16, ref totalCount);
+
+				for (int i = 0; i < totalCount; i++)
+				{
+					result[(AreaFlag)areas[i]] = new EffectSampleInfo(strengths[i], families[i], (AreaFlag)areas[i]);
+				}
+
+				return result;
+			}
+
+			
+
+			/** END INTERNAL **/
 			/// <summary>
 			/// Pause all currently active effects
 			/// </summary>
@@ -104,6 +165,18 @@ namespace NullSpace.SDK
 				Interop.NSVR_System_Haptics_Destroy(Ptr);
 			}
 
+			/// <summary>
+			/// Return the plugin version
+			/// </summary>
+			/// <returns></returns>
+			public static VersionInfo GetPluginVersion()
+			{
+				uint version = Interop.NSVR_Version_Get();
+				VersionInfo v = new VersionInfo();
+				v.Minor = version & 0xFFFF;
+				v.Major = (version & 0xFFFF0000) >> 16;
+				return v;
+			}
 
 			/// <summary>
 			/// Poll the status of suit connection 
@@ -123,16 +196,7 @@ namespace NullSpace.SDK
 				return DeviceConnectionStatus.Disconnected;
 			}
 
-			//public ServiceConnectionStatus TestServiceConnection()
-			//{
-			//	Interop.NSVR_ServiceInfo serviceInfo = new Interop.NSVR_ServiceInfo();
-			//	if (Interop.NSVR_SUCCESS(Interop.NSVR_System_GetServiceInfo(Ptr, ref serviceInfo)))
-			//	{
-			//		return ServiceConnectionStatus.Connected;
-			//	}
-
-			//	return ServiceConnectionStatus.Disconnected;
-			//}
+		
 
 			public ServiceConnectionStatus TestServiceConnection()
 			{
@@ -235,7 +299,9 @@ namespace NullSpace.SDK
 				Dispose(false);
 			}
 
-			// This code added to correctly implement the disposable pattern.
+			/// <summary>
+			/// Disposes the plugin. After calling dispose, the plugin cannot be used again.
+			/// </summary>
 			public void Dispose()
 			{
 				// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
@@ -264,7 +330,7 @@ namespace NullSpace.SDK
 	/// <summary>
 	/// Use a HapticHandle to Play, Pause, or Stop an effect. A HapticHandle represents a particular instance of an effect.
 	/// </summary>
-	public sealed class HapticHandle 
+	public sealed class HapticHandle : IDisposable
 	{
 		private IntPtr _handle;
 		private CommandWithHandle _creator; 
@@ -287,6 +353,16 @@ namespace NullSpace.SDK
 		{
 			Interop.NSVR_PlaybackHandle_Command(_handle, Interop.NSVR_PlaybackCommand.Play);
 			return this;
+		}
+
+		/// <summary>
+		/// Cause the associated effect to immediately play from the beginning.
+		/// Identical to Stop().Play()
+		/// </summary>
+		/// <returns></returns>
+		public HapticHandle Replay()
+		{
+			return this.Stop().Play();
 		}
 
 		/// <summary>
@@ -320,13 +396,46 @@ namespace NullSpace.SDK
 			return newHandle;
 		}
 
-		//Release the resources associated with this handle. Use this if you do not intend to use this handle again.
-		//Using the handle after releasing will have no effect. 
-		public void Release()
-		{
-			Interop.NSVR_PlaybackHandle_Release(ref _handle);
+	
 
+		#region IDisposable Support
+		private bool disposedValue = false; // To detect redundant calls
+
+		void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					// TODO: dispose managed state (managed objects).
+				}
+
+				if (!NSVR.NSVR_Plugin._disposed)
+				{
+					Interop.NSVR_PlaybackHandle_Release(ref _handle);
+				}
+
+				disposedValue = true;
+			}
 		}
+
+		// TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+		~HapticHandle() {
+		   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+		   Dispose(false);
+		}
+
+		/// <summary>
+		/// Dispose the handle, releasing its resources from the plugin. After disposing a handle, it cannot be used again.
+		/// </summary>
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(true);
+			// TODO: uncomment the following line if the finalizer is overridden above.
+			 GC.SuppressFinalize(this);
+		}
+		#endregion
 
 	}
 	

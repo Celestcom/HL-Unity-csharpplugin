@@ -19,16 +19,31 @@ namespace NullSpace.SDK
 
 			if (file == null)
 			{
-				Debug.LogWarning("Unable to load haptic resource at path " + assetPath);
+				Debug.LogError(string.Format("Unable to load haptic resource at path [{0}]:\n\t file is null", assetPath));
 				return;
 			}
 
 			HapticDefinitionFile hdf = new HapticDefinitionFile();
-			hdf.Deserialize(file.GetJson());
+
+			var json = file.GetJson();
+			if (json.Length == 0)
+			{
+				Debug.LogError(string.Format("Unable to load haptic resource at path [{0}]:\n\t file length is 0", assetPath));
+				return;
+			}
+
+			try
+			{
+				hdf.Deserialize(json);
+			} catch (HapticsAssetException e)
+			{
+				Debug.LogError(string.Format("Unable to load haptic resource at path [{0}]:\n\t {1}", assetPath, e.Message));
+				return;
+			}
 
 			if (hdf.rootEffect.type != _type)
 			{
-				Debug.LogWarning(string.Format("File type mismatch: file is a {0}, but this is a {1}", hdf.rootEffect.type, _type));
+				Debug.LogError(string.Format("File type mismatch at path [{0}]:\n\t file is a {1}, but this is a {2}", assetPath, hdf.rootEffect.type, _type));
 				return;
 			}
 
