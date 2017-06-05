@@ -71,10 +71,17 @@ namespace NullSpace.SDK
 			public struct NSVR_DeviceInfo
 			{
 				[MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
-				char[] ProductName;
-				short FirmwareMajor;
-				short FirmwareMinor;
+				public char[] ProductName;
+				public short FirmwareMajor;
+				public short FirmwareMinor;
 				//tracking capabilities?
+			};
+
+			[StructLayout(LayoutKind.Sequential, Pack = 1)]
+			public struct NSVR_HandleInfo
+			{
+				public float Duration;
+				public float Elapsed;
 			};
 
 
@@ -156,6 +163,9 @@ namespace NullSpace.SDK
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
 			public static extern void NSVR_PlaybackHandle_Release(ref IntPtr handlePtr);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			public static extern int NSVR_PlaybackHandle_GetInfo(IntPtr handlePtr, ref NSVR_HandleInfo info);
 
 			/* Sampling */
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
