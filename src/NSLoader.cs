@@ -462,7 +462,14 @@ namespace NullSpace.SDK
 			return this;
 		}
 
-		
+		/// <summary>
+		/// Returns true if the effect has completed playback
+		/// </summary>
+		/// <returns></returns>
+		public bool IsFinishedPlaying()
+		{
+			return GetElapsedTime() >= _duration;
+		}
 
 		/// <summary>
 		/// Clone this HapticHandle, allowing an identical effect to be controlled independently 
