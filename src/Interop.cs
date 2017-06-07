@@ -143,7 +143,7 @@ namespace NullSpace.SDK
 
 			/* Timelines */
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
-			public static extern unsafe int NSVR_Timeline_Create(ref IntPtr eventListPtr, NSVR_System* systemPtr);
+			public static extern unsafe int NSVR_Timeline_Create(ref IntPtr eventListPtr);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
 			public static extern void NSVR_Timeline_Release(ref IntPtr listPtr);
@@ -152,7 +152,7 @@ namespace NullSpace.SDK
 			public static extern int NSVR_Timeline_AddEvent(IntPtr list, IntPtr eventPtr);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
-			public static extern int NSVR_Timeline_Transmit(IntPtr timeline, IntPtr handlePr);
+			public static extern unsafe int NSVR_Timeline_Transmit(IntPtr timeline, NSVR_System* systemPtr, IntPtr handlePr);
 
 			/* Playback */
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
@@ -199,6 +199,7 @@ namespace NullSpace.SDK
 		Left_Forearm = 4
 	};
 
+	[Flags]
 	public enum AreaFlag
 	{
 		None,
@@ -272,30 +273,7 @@ namespace NullSpace.SDK
 			return lhs & ~other;
 		}
 
-		/// <summary>
-		/// Return a debug string containing all areas in this AreaFlag
-		/// </summary>
-		/// <param name="lhs"></param>
-		/// <returns></returns>
-		public static string ToStringIncludedAreas(this AreaFlag lhs)
-		{
-			if (lhs == AreaFlag.None)
-			{
-				return "None";
-			}
-
-			List<string> result = new List<string>();
-			foreach (AreaFlag a in Enum.GetValues(typeof(AreaFlag)))
-			{
-				var areaString = a.ToString();
-				if (a != AreaFlag.None && lhs.ContainsArea(a) && !areaString.Contains("Both") && !areaString.Contains("All"))
-				{
-					result.Add(a.ToString());
-				}
-			}
-			return string.Join("|", result.ToArray());
-
-		}
+	
 	}
 
 	

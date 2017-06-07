@@ -41,52 +41,44 @@ namespace NSLoaderWrapper
 		{
 
 
+			NSVR.NSVR_Plugin plugin = new NSVR.NSVR_Plugin();
 
-			fixed (NSVR_System** system_ptr = &systemPtr)
-			{
-				if (Interop.NSVR_FAILURE(Interop.NSVR_System_Create(system_ptr)))
-				{
-					Console.WriteLine("Failed to create nsvr system");
-				}
-			}
-
-			//Thread newThread = new Thread(Program.Monitor);
-			//newThread.Start();
-
-
-			IntPtr handlePtr = IntPtr.Zero;
-			int val = Interop.NSVR_PlaybackHandle_Create(ref handlePtr);
-			////	while (true)
-			////	{
-
-
-
-			IntPtr timelinePtr = IntPtr.Zero;
-			Interop.NSVR_Timeline_Create(ref timelinePtr, systemPtr);
-
-			IntPtr eventPtr = IntPtr.Zero;
-			Interop.NSVR_Event_Create(ref eventPtr, Interop.NSVR_EventType.Basic_Haptic_Event);
-
-			Interop.NSVR_Event_SetInteger(eventPtr, "area", (int)AreaFlag.Chest_Left);
-			Interop.NSVR_Event_SetInteger(eventPtr, "effect", (int)Effect.Click);
-			Interop.NSVR_Event_SetFloat(eventPtr, "duration", 0.4f);
-			Interop.NSVR_Event_SetFloat(eventPtr, "strength", 0.5f);
-			Interop.NSVR_Event_SetFloat(eventPtr, "time", 0.0f);
-
-			Interop.NSVR_Timeline_AddEvent(timelinePtr, eventPtr);
-			Interop.NSVR_Event_Release(ref eventPtr);
-
-			Interop.NSVR_Timeline_Transmit(timelinePtr, handlePtr);
-			Interop.NSVR_Timeline_Release(ref timelinePtr);
-
-			Interop.NSVR_PlaybackHandle_Command(handlePtr, Interop.NSVR_PlaybackCommand.Play);
+			EventList e = new EventList();
+			e.AddEvent(new BasicHapticEvent(4, 0, 0, 1, Effect.Bump));
 		
-			while (true)
-			{
-				Interop.NSVR_HandleInfo info = new Interop.NSVR_HandleInfo();
-				Interop.NSVR_PlaybackHandle_GetInfo(handlePtr, ref info);
-				Console.WriteLine(info.Elapsed);
-			}
+			IntPtr handle = IntPtr.Zero;
+
+			Interop.NSVR_PlaybackHandle_Create(ref handle);
+			e.Transmit(handle);
+
+			Interop.NSVR_HandleInfo info = new Interop.NSVR_HandleInfo();
+			Interop.NSVR_PlaybackHandle_GetInfo(handle, ref info);
+			Console.WriteLine("Effect duration:" + info.Duration);
+			Console.ReadLine();
+			//if (handle != IntPtr.Zero)
+			//{
+			//	Console.WriteLine("Something wrong");
+			//}
+		//	HapticSequence s = new HapticSequence();
+		//	s.AddEffect(0, new HapticEffect(Effect.Bump));
+
+			Console.ReadLine();
+
+		//	var handle = s.CreateHandle(AreaFlag.All_Areas);
+
+			//handle.Play();
+		//	int x = 3;
+
+			Console.ReadLine();
+
+
+			
+			//while (true)
+			//{
+			//	Interop.NSVR_HandleInfo info = new Interop.NSVR_HandleInfo();
+			//	Interop.NSVR_PlaybackHandle_GetInfo(handlePtr, ref info);
+			//	Console.WriteLine(info.Elapsed);
+			//}
 
 
 
@@ -126,5 +118,9 @@ namespace NSLoaderWrapper
 			//}
 			return 0;
 		}
+
+
+
+
 	}
 }

@@ -122,7 +122,7 @@ namespace NullSpace.SDK
 
 			unsafe
 			{
-				Interop.NSVR_Timeline_Create(ref timelinePtr, NSVR_Plugin.Ptr);
+				Interop.NSVR_Timeline_Create(ref timelinePtr);
 			}
 
 			for (int i = 0; i < _events.Count; i++) {
@@ -130,7 +130,11 @@ namespace NullSpace.SDK
 
 				_events[i].Generate(timelinePtr);
 			}
-			Interop.NSVR_Timeline_Transmit(timelinePtr, playbackHandle);
+
+			unsafe
+			{
+				Interop.NSVR_Timeline_Transmit(timelinePtr, NSVR_Plugin.Ptr, playbackHandle);
+			}
 			Interop.NSVR_Timeline_Release(ref timelinePtr);
 			Debug.Assert(timelinePtr == IntPtr.Zero);
 			

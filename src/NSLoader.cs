@@ -146,7 +146,7 @@ namespace NullSpace.SDK
 			/// Control the volume of an area directly. 
 			/// </summary>
 			/// <param name="singleArea">An AreaFlag representing a single area</param>
-			/// <param name="strength">Strength to play, from 0-255</param>
+			/// <param name="strength">Strength to play, from 0.0 - 1.0</param>
 			public void ControlDirectly(AreaFlag singleArea, double strength)
 			{
 	
@@ -375,7 +375,7 @@ namespace NullSpace.SDK
 	/// </summary>
 	public sealed class HapticHandle : IDisposable
 	{
-		private IntPtr _handle;
+		private IntPtr _handle = IntPtr.Zero;
 		private CommandWithHandle _creator;
 		private float _duration;
 
@@ -417,6 +417,7 @@ namespace NullSpace.SDK
 		internal void init(CommandWithHandle creator)
 		{
 			_creator = creator;
+		
 			Interop.NSVR_PlaybackHandle_Create(ref _handle);
 
 
