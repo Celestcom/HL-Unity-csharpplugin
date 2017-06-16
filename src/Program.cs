@@ -20,7 +20,7 @@ namespace NSLoaderWrapper
 			UInt16[] strengths = new UInt16[16];
 			UInt32[] areas = new UInt32[16];
 			UInt32[] families = new UInt32[16];
-
+		
 			while (running)
 			{
 
@@ -44,11 +44,13 @@ namespace NSLoaderWrapper
 			NSVR.NSVR_Plugin plugin = new NSVR.NSVR_Plugin();
 
 			EventList e = new EventList();
-			e.AddEvent(new BasicHapticEvent(4, 0, 0, 1, Effect.Bump));
+			e.AddEvent(new BasicHapticEvent(0, 1, 0, (uint)AreaFlag.Back_Both, Effect.Bump));
 		
 			IntPtr handle = IntPtr.Zero;
 
 			Interop.NSVR_PlaybackHandle_Create(ref handle);
+			Console.ReadLine();
+
 			e.Transmit(handle);
 
 			Interop.NSVR_HandleInfo info = new Interop.NSVR_HandleInfo();

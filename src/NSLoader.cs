@@ -395,7 +395,7 @@ namespace NullSpace.SDK
 		internal HapticHandle(CommandWithHandle creator)
 		{
 			init(creator);
-
+			Debug.Assert(_handle != IntPtr.Zero);
 			Interop.NSVR_HandleInfo info = new Interop.NSVR_HandleInfo();
 			if (Interop.NSVR_SUCCESS(Interop.NSVR_PlaybackHandle_GetInfo(_handle, ref info)))
 			{
@@ -411,13 +411,15 @@ namespace NullSpace.SDK
 		internal HapticHandle(CommandWithHandle creator, float duration)
 		{
 			init(creator);
+			Debug.Assert(_handle != IntPtr.Zero);
+
 			_duration = duration;
 		}
 
 		internal void init(CommandWithHandle creator)
 		{
 			_creator = creator;
-		
+
 			Interop.NSVR_PlaybackHandle_Create(ref _handle);
 
 

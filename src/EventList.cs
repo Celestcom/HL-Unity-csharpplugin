@@ -61,7 +61,8 @@ namespace NullSpace.SDK
 			Debug.Assert(eventPtr != IntPtr.Zero);
 
 			Interop.NSVR_Event_SetFloat(eventPtr, "duration", _duration);
-			Interop.NSVR_Event_SetInteger(eventPtr, "area",(int) _area);
+			//could be unsigned problem?!? Nah. Context: something is generating events without area information
+			Interop.NSVR_Event_SetInteger(eventPtr, "area",checked((int) _area));
 			Interop.NSVR_Event_SetFloat(eventPtr, "strength", _strength);
 
 			Interop.NSVR_Event_SetFloat(eventPtr, "time", _time);
