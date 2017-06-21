@@ -169,10 +169,11 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
 		public HapticHandle CreateHandle(AreaFlag area)
 		{
+			EventList e = new ParameterizedSequence(this, area).Generate(1f, 0f);
+
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
 			{
 				Debug.Assert(handle != IntPtr.Zero);
-				EventList e = new ParameterizedSequence(this, area).Generate(1f, 0f);
 				e.Transmit(handle);
 			};
 
@@ -187,9 +188,10 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
 		public HapticHandle CreateHandle(AreaFlag area, double strength)
 		{
+			EventList e = new ParameterizedSequence(this, area).Generate((float)strength, 0f);
+
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
 			{
-				EventList e = new ParameterizedSequence(this, area).Generate((float)strength, 0f);
 				e.Transmit(handle);
 			};
 
@@ -318,9 +320,10 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle()
 		{
+			EventList e = new ParameterizedPattern(this).Generate(1f, 0f);
+
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
 			{
-				EventList e = new ParameterizedPattern(this).Generate(1f, 0f);
 				e.Transmit(handle);
 			};
 
@@ -334,9 +337,10 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle(double strength)
 		{
+			EventList e = new ParameterizedPattern(this).Generate((float)strength, 0f);
+
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
 			{
-				EventList e = new ParameterizedPattern(this).Generate((float) strength, 0f);
 				e.Transmit(handle);
 
 			};
@@ -473,9 +477,10 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle()
 		{
+			EventList e = new ParameterizedExperience(this).Generate(1f, 0f);
+
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
 			{
-				EventList e = new ParameterizedExperience(this).Generate(1f, 0f);
 				e.Transmit(handle);
 			};
 
@@ -489,9 +494,10 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle(double strength)
 		{
+			EventList e = new ParameterizedExperience(this).Generate((float)strength, 0f);
+
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
 			{
-				EventList e = new ParameterizedExperience(this).Generate((float)strength, 0f);
 				e.Transmit(handle);
 			};
 

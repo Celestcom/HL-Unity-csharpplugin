@@ -61,7 +61,8 @@ namespace NullSpace.SDK
 			Debug.Assert(eventPtr != IntPtr.Zero);
 
 			Interop.NSVR_Event_SetFloat(eventPtr, "duration", _duration);
-			Interop.NSVR_Event_SetInteger(eventPtr, "area",(int) _area);
+			//could be unsigned problem?!? Nah. Context: something is generating events without area information
+			Interop.NSVR_Event_SetInteger(eventPtr, "area",checked((int) _area));
 			Interop.NSVR_Event_SetFloat(eventPtr, "strength", _strength);
 
 			Interop.NSVR_Event_SetFloat(eventPtr, "time", _time);
@@ -122,7 +123,7 @@ namespace NullSpace.SDK
 
 			unsafe
 			{
-				Interop.NSVR_Timeline_Create(ref timelinePtr, NSVR_Plugin.Ptr);
+				Interop.NSVR_Timeline_Create(ref timelinePtr);
 			}
 
 			for (int i = 0; i < _events.Count; i++) {
@@ -130,7 +131,11 @@ namespace NullSpace.SDK
 
 				_events[i].Generate(timelinePtr);
 			}
-			Interop.NSVR_Timeline_Transmit(timelinePtr, playbackHandle);
+
+			unsafe
+			{
+				Interop.NSVR_Timeline_Transmit(timelinePtr, NSVR_Plugin.Ptr, playbackHandle);
+			}
 			Interop.NSVR_Timeline_Release(ref timelinePtr);
 			Debug.Assert(timelinePtr == IntPtr.Zero);
 			

@@ -18,7 +18,7 @@ namespace NullSpace.SDK.FileUtilities
 
  	public class DefDictionary<TAtomType> : Dictionary<string, IList<TAtomType>> { }
 
-	public class HapticDefinitionFile :  ParsingUtils.IJsonDeserializable
+	public class HapticDefinitionFile : IJsonDeserializable
 	{
 		public RootEffect rootEffect;
 

@@ -137,7 +137,50 @@ namespace NullSpace.SDK
 				return result;
 			}
 
-			
+			internal static double Clamp(double value, double min, double max)
+			{
+				return (value < min) ? min : (value > max) ? max : value;
+			}
+
+			/// <summary>
+			/// Control the volume of an area directly. 
+			/// </summary>
+			/// <param name="singleArea">An AreaFlag representing a single area</param>
+			/// <param name="strength">Strength to play, from 0.0 - 1.0</param>
+			public void ControlDirectly(AreaFlag singleArea, double strength)
+			{
+	
+					
+				ushort[] intensities = new ushort[1];
+				UInt32[] areas = new UInt32[1];
+				areas[0] = (uint)singleArea;
+				intensities[0] = (ushort)(255 * Clamp(strength, 0.0, 1.0));
+				Interop.NSVR_Immediate_Set(Ptr, intensities, areas, 1);
+			}
+
+			/// <summary>
+			/// Control the volume of multiple areas directly. 
+			/// </summary>
+			/// <param name="singleAreas">List of AreaFlags, each representing a single area</param>
+			/// <param name="strengths">Strength to play, from 0-255</param>
+			public void ControlDirectly(AreaFlag[] singleAreas, ushort[] strengths)
+			{
+				if (singleAreas.Length != strengths.Length)
+				{
+					Debug.LogWarning("You may not pass an area array and strength array of different lengths");
+					return;
+				}
+
+				UInt32[] areas = new UInt32[singleAreas.Length];
+				for (int i = 0; i < singleAreas.Length; i++)
+				{
+					areas[i] = (UInt32)(singleAreas[i]);
+				}
+
+				Interop.NSVR_Immediate_Set(Ptr, strengths, areas, areas.Length);
+
+			}
+
 
 			/** END INTERNAL **/
 			/// <summary>
@@ -332,19 +375,56 @@ namespace NullSpace.SDK
 	/// </summary>
 	public sealed class HapticHandle : IDisposable
 	{
-		private IntPtr _handle;
-		private CommandWithHandle _creator; 
+		private IntPtr _handle = IntPtr.Zero;
+		private CommandWithHandle _creator;
+		private float _duration;
 
 		internal delegate void CommandWithHandle(IntPtr handle);
 
-		internal HapticHandle(CommandWithHandle creator)
+		public float EffectDuration
 		{
-			//The reason we are storing the creator is so that people can clone the handle
-			_creator = creator;
-			Interop.NSVR_PlaybackHandle_Create(ref _handle);
-			_creator(_handle);
+			get { return _duration; }
 		}
 
+		/// <summary>
+		/// If we want to construct the handle for the very first time, we have no duration info present.
+		/// So we end up calculating it in the constructor, then caching it. Subsequent Clones() will copy the duration
+		///
+		/// </summary>
+		/// <param name="creator"></param>
+		internal HapticHandle(CommandWithHandle creator)
+		{
+			init(creator);
+			Debug.Assert(_handle != IntPtr.Zero);
+			Interop.NSVR_HandleInfo info = new Interop.NSVR_HandleInfo();
+			if (Interop.NSVR_SUCCESS(Interop.NSVR_PlaybackHandle_GetInfo(_handle, ref info)))
+			{
+				_duration = info.Duration;
+			} 
+		}
+
+		/// <summary>
+		/// Clones will call this constructor, grabbing the duration
+		/// </summary>
+		/// <param name="creator"></param>
+		/// <param name="duration"></param>
+		internal HapticHandle(CommandWithHandle creator, float duration)
+		{
+			init(creator);
+			Debug.Assert(_handle != IntPtr.Zero);
+
+			_duration = duration;
+		}
+
+		internal void init(CommandWithHandle creator)
+		{
+			_creator = creator;
+
+			Interop.NSVR_PlaybackHandle_Create(ref _handle);
+
+
+			_creator(_handle);
+		}
 		/// <summary>
 		/// Cause the associated effect to play. If paused, play will resume where it left off. If stopped, play will resume from the beginning. 
 		/// </summary>
@@ -385,6 +465,14 @@ namespace NullSpace.SDK
 			return this;
 		}
 
+		/// <summary>
+		/// Returns true if the effect has completed playback
+		/// </summary>
+		/// <returns></returns>
+		public bool IsFinishedPlaying()
+		{
+			return GetElapsedTime() >= _duration;
+		}
 
 		/// <summary>
 		/// Clone this HapticHandle, allowing an identical effect to be controlled independently 
@@ -392,8 +480,25 @@ namespace NullSpace.SDK
 		/// <returns></returns>
 		public HapticHandle Clone()
 		{
-			HapticHandle newHandle = new HapticHandle(this._creator);
+			HapticHandle newHandle = new HapticHandle(this._creator, _duration);
 			return newHandle;
+		}
+
+		/// <summary>
+		/// Returns how far this effect has advanced in fractional seconds. 
+		/// Returns a value less than 0 on failure.
+		/// </summary>
+		/// <returns></returns>
+		public float GetElapsedTime()
+		{
+			Interop.NSVR_HandleInfo info = new Interop.NSVR_HandleInfo();
+			if (Interop.NSVR_SUCCESS(Interop.NSVR_PlaybackHandle_GetInfo(_handle, ref info)))
+			{
+				return info.Elapsed;
+			} else
+			{
+				return -1.0f;
+			}
 		}
 
 	
