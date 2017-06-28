@@ -85,93 +85,93 @@ namespace NullSpace.SDK
 			};
 
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_Create(NSVR_System** systemPtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe void NSVR_System_Release(NSVR_System** value);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern uint NSVR_Version_Get();
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_Version_IsCompatibleDLL();
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_GetServiceInfo(NSVR_System* systemPtr, ref NSVR_ServiceInfo infoPtr);
 
 			/* Haptics Engine */
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static unsafe extern int NSVR_System_Haptics_Pause(NSVR_System* systemPtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_Haptics_Resume(NSVR_System* systemPtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_Haptics_Destroy(NSVR_System* systemPtr);
 
 			/* Devices */
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_GetDeviceInfo(NSVR_System* systemPtr, ref NSVR_DeviceInfo infoPtr);
 
 			/* Tracking */
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_Tracking_Poll(NSVR_System* systemPtr, ref NSVR_TrackingUpdate updatePtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_Tracking_Enable(NSVR_System* ptr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_Tracking_Disable(NSVR_System* ptr);
 
 
 			/* Timeline API */
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_Event_Create(ref IntPtr eventPtr, NSVR_EventType type);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern void NSVR_Event_Release(ref IntPtr eventPtr);
 
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_Event_SetFloat(IntPtr eventPtr, string key, float value);
 
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_Event_SetInteger(IntPtr eventPtr, string key, int value);
 
 
 			/* Timelines */
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_Timeline_Create(ref IntPtr eventListPtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern void NSVR_Timeline_Release(ref IntPtr listPtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_Timeline_AddEvent(IntPtr list, IntPtr eventPtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_Timeline_Transmit(IntPtr timeline, NSVR_System* systemPtr, IntPtr handlePr);
 
 			/* Playback */
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_PlaybackHandle_Create(ref IntPtr handlePtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_PlaybackHandle_Command(IntPtr handlePtr, NSVR_PlaybackCommand command);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern void NSVR_PlaybackHandle_Release(ref IntPtr handlePtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_PlaybackHandle_GetInfo(IntPtr handlePtr, ref NSVR_HandleInfo info);
 
 			/* Sampling */
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_Immediate_Sample(NSVR_System* systemPtr, [In, Out] UInt16[] intensities,  [In, Out] UInt32[] areas, [In, Out] UInt32[] families, int length, ref uint resultCount);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_Immediate_Set(NSVR_System* systemPtr, [In, Out] UInt16[] intensities, [In, Out] UInt32[] areas, int length);
 
 		}
