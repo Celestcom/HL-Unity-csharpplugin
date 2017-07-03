@@ -77,11 +77,18 @@ namespace NullSpace.SDK
 				//tracking capabilities?
 			};
 
+			public enum NSVR_EffectInfo_State
+			{
+				Playing = 0,
+				Paused,
+				Idle
+			}
 			[StructLayout(LayoutKind.Sequential, Pack = 1)]
-			public struct NSVR_HandleInfo
+			public struct NSVR_EffectInfo
 			{
 				public float Duration;
 				public float Elapsed;
+				NSVR_EffectInfo_State PlaybackState;
 			};
 
 
@@ -165,7 +172,7 @@ namespace NullSpace.SDK
 			public static extern void NSVR_PlaybackHandle_Release(ref IntPtr handlePtr);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
-			public static extern int NSVR_PlaybackHandle_GetInfo(IntPtr handlePtr, ref NSVR_HandleInfo info);
+			public static extern int NSVR_PlaybackHandle_GetInfo(IntPtr handlePtr, ref NSVR_EffectInfo info);
 
 			/* Sampling */
 			[DllImport("NSLoader", CallingConvention = CallingConvention.StdCall)]
