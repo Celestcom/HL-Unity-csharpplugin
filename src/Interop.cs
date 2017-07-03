@@ -88,7 +88,7 @@ namespace NullSpace.SDK
 			{
 				public float Duration;
 				public float Elapsed;
-				NSVR_EffectInfo_State PlaybackState;
+				public NSVR_EffectInfo_State PlaybackState;
 			};
 
 

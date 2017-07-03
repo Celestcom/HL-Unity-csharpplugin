@@ -396,7 +396,7 @@ namespace NullSpace.SDK
 		{
 			init(creator);
 			Debug.Assert(_handle != IntPtr.Zero);
-			Interop.NSVR_HandleInfo info = new Interop.NSVR_HandleInfo();
+			Interop.NSVR_EffectInfo info = new Interop.NSVR_EffectInfo();
 			if (Interop.NSVR_SUCCESS(Interop.NSVR_PlaybackHandle_GetInfo(_handle, ref info)))
 			{
 				_duration = info.Duration;
@@ -471,7 +471,15 @@ namespace NullSpace.SDK
 		/// <returns></returns>
 		public bool IsFinishedPlaying()
 		{
-			return GetElapsedTime() >= _duration;
+			Interop.NSVR_EffectInfo info = new Interop.NSVR_EffectInfo();
+			if (Interop.NSVR_SUCCESS(Interop.NSVR_PlaybackHandle_GetInfo(_handle, ref info)))
+			{
+				return info.PlaybackState == Interop.NSVR_EffectInfo_State.Idle;
+			} else
+			{
+				Debug.LogWarning("[NSVR] Unable to fetch handle info!");
+				return false;
+			}
 		}
 
 		/// <summary>
@@ -491,7 +499,7 @@ namespace NullSpace.SDK
 		/// <returns></returns>
 		public float GetElapsedTime()
 		{
-			Interop.NSVR_HandleInfo info = new Interop.NSVR_HandleInfo();
+			Interop.NSVR_EffectInfo info = new Interop.NSVR_EffectInfo();
 			if (Interop.NSVR_SUCCESS(Interop.NSVR_PlaybackHandle_GetInfo(_handle, ref info)))
 			{
 				return info.Elapsed;

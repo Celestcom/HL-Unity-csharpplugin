@@ -53,7 +53,7 @@ namespace NSLoaderWrapper
 
 			e.Transmit(handle);
 
-			Interop.NSVR_HandleInfo info = new Interop.NSVR_HandleInfo();
+			Interop.NSVR_EffectInfo info = new Interop.NSVR_EffectInfo();
 			Interop.NSVR_PlaybackHandle_GetInfo(handle, ref info);
 			Console.WriteLine("Effect duration:" + info.Duration);
 			Console.ReadLine();
