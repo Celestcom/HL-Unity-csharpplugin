@@ -34,6 +34,15 @@ namespace NullSpace.SDK
 			}
 
 			[StructLayout(LayoutKind.Sequential, Pack = 1)]
+			public struct NSVR_Color
+			{
+				public float r;
+				public float g;
+				public float b;
+				public float a;
+			}
+
+			[StructLayout(LayoutKind.Sequential, Pack = 1)]
 			public struct NSVR_TrackingUpdate
 			{
 				public NSVR_Quaternion chest;
@@ -174,7 +183,35 @@ namespace NullSpace.SDK
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_Immediate_Set(NSVR_System* systemPtr, [In, Out] UInt16[] intensities, [In, Out] UInt32[] areas, int length);
 
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			public static extern  int NSVR_BodyView_Create(ref IntPtr body);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			public static extern  int NSVR_BodyView_Release(ref IntPtr body);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			public static extern unsafe int NSVR_BodyView_Poll(IntPtr body, NSVR_System* system);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			public static extern int NSVR_BodyView_GetNodeCount(IntPtr body, ref UInt32 outNodeCount);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			public static extern  int NSVR_BodyView_GetNodeType(IntPtr body, UInt32 nodeIndex, ref UInt32 outType);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			public static extern int NSVR_BodyView_GetNodeRegion(IntPtr body, UInt32 nodeIndex, ref UInt64 outRegion);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			//only valid if nodeType == intensity
+			public static extern int NSVR_BodyView_GetIntensity(IntPtr body, UInt32 nodeIndex, ref float outIntensity);
+
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			//only valid if nodeType == color
+			public static extern int NSVR_BodyView_GetColor(IntPtr body, UInt32 nodeIndex, ref NSVR_Color outColor);
+
 		}
+
 
 
 	}

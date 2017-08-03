@@ -60,7 +60,6 @@ namespace NullSpace.SDK
 	/// </summary>
 	public static class NSVR
 	{
-		
 		internal static unsafe NSVR_System* _ptr;
 		internal static bool _created = false;
 
@@ -71,6 +70,7 @@ namespace NullSpace.SDK
 		public unsafe sealed class NSVR_Plugin : IDisposable
 		{
 			internal static bool _disposed = false;
+			private IntPtr _bodyView = IntPtr.Zero;
 
 			internal static unsafe NSVR_System* Ptr
 			{
@@ -101,14 +101,16 @@ namespace NullSpace.SDK
 
 				fixed (NSVR_System** system_ptr = &_ptr)
 				{
-					if (Interop.NSVR_FAILURE(Interop.NSVR_System_Create(system_ptr)))
+					if (Interop.NSVR_SUCCESS(Interop.NSVR_System_Create(system_ptr)))
 					{
-						Debug.LogError("[NSVR] NSVR_Plugin could not be instantiated\n");
+						_created = true;
 
+						int result = Interop.NSVR_BodyView_Create(ref _bodyView);
 					}
 					else
 					{
-						_created = true;
+						Debug.LogError("[NSVR] NSVR_Plugin could not be instantiated\n");
+
 					}
 				}
 				
@@ -135,6 +137,35 @@ namespace NullSpace.SDK
 				}
 
 				return result;
+			}
+			
+			public void PollBodyView()
+			{
+				Interop.NSVR_BodyView_Poll(_bodyView, Ptr);
+
+				uint numNodes = 0;
+				Interop.NSVR_BodyView_GetNodeCount(_bodyView, ref numNodes);
+
+				System.Console.WriteLine("There are " + numNodes + " nodes");
+				for (uint i = 0; i < numNodes; i++)
+				{
+					uint nodeType = 0;
+					Interop.NSVR_BodyView_GetNodeType(_bodyView, i, ref nodeType);
+					System.Console.WriteLine("	Node " + i + "'s type is" + nodeType);
+
+					ulong region = 0;
+					Interop.NSVR_BodyView_GetNodeRegion(_bodyView, i, ref region);
+					System.Console.WriteLine("	Node " + i + "'s region is " + region);
+
+					if (nodeType == 1)
+					{
+						float intensity = 0;
+						Interop.NSVR_BodyView_GetIntensity(_bodyView, i, ref intensity);
+						System.Console.WriteLine("	Node " + i + "'s intensity is " + intensity);
+
+					}
+
+				}
 			}
 
 			internal static double Clamp(double value, double min, double max)
@@ -325,8 +356,11 @@ namespace NullSpace.SDK
 
 					_created = false;
 
+					Interop.NSVR_BodyView_Release(ref _bodyView);
+
 					fixed (NSVR_System** ptr = &_ptr)
 					{
+						
 						Interop.NSVR_System_Release(ptr);
 					}
 
