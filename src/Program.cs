@@ -17,11 +17,13 @@ namespace NSLoaderWrapper
 		public static int Main()
 		{
 
-
+            Console.WriteLine("Hit");
+            Console.ReadLine();
 			NSVR.NSVR_Plugin plugin = new NSVR.NSVR_Plugin();
 
-			for (int i = 0; i < 100; i++)
+			for (;;)
 			{
+				Console.WriteLine("Hit");
 				plugin.PollBodyView();
 				System.Threading.Thread.Sleep(100);
 			}

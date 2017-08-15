@@ -269,6 +269,45 @@ namespace NullSpace.SDK
 		Right_All = 0x00FF0000,
 		All_Areas = Left_All | Right_All,
 	};
+
+	public enum Region
+	{
+		nsvr_region_unknown = 0,
+
+		nsvr_region_chest = 1000,
+		nsvr_region_chest_left,
+		nsvr_region_chest_right,
+
+		nsvr_region_abs = 2000,
+		nsvr_region_abs_left,
+		nsvr_region_abs_upper_left,
+		nsvr_region_abs_middle_left,
+		nsvr_region_abs_lower_left,
+		nsvr_region_abs_right,
+		nsvr_region_abs_upper_right,
+		nsvr_region_abs_middle_right,
+		nsvr_region_abs_lower_right,
+
+		nsvr_region_arm_left = 3000,
+		nsvr_region_forearm_left,
+		nsvr_region_upperarm_left,
+
+		nsvr_region_arm_right = 4000,
+		nsvr_region_forearm_right,
+		nsvr_region_upperarm_right,
+
+		nsvr_region_shoulder_left = 5000,
+		nsvr_region_shoulder_right = 6000,
+
+		nsvr_region_back = 7000,
+		nsvr_region_back_left,
+		nsvr_region_back_right,
+
+		nsvr_region_hand_left = 8000,
+		nsvr_region_hand_right = 9000,
+		nsvr_region_leg_left = 10000,
+		nsvr_region_leg_right = 11000
+	}
 	public static class AreaFlagExtensions
 	{
 		/// <summary>

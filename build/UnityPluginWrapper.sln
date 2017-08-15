@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
+# Visual Studio 14
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityPluginWrapperDLLs", "UnityPluginWrapperDLLs.csproj", "{9D1A58F5-8914-8147-7281-17585E1AE7B3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityPluginWrapperExe", "UnityPluginWrapperExe.csproj", "{F086486C-5CF3-0367-25E7-9BC4911226CF}"

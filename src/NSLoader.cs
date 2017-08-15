@@ -34,8 +34,8 @@ namespace NullSpace.SDK
 	{
 		public UInt16 Strength;
 		public UInt32 Family;
-		public AreaFlag Area;
-		public EffectSampleInfo(UInt16 strength, UInt32 family, AreaFlag area)
+		public Region Area;
+		public EffectSampleInfo(UInt16 strength, UInt32 family, Region area)
 		{
 			Strength = strength;
 			Family = family;
@@ -118,29 +118,12 @@ namespace NullSpace.SDK
 			}
 
 			
-			/// <summary>
-			/// Internal testing tool; do not depend upon this. May change at any time.
-			/// </summary>
-			/// <returns></returns>
-			public Dictionary<AreaFlag, EffectSampleInfo> SampleCurrentlyPlayingEffects()
-			{
-				Dictionary<AreaFlag, EffectSampleInfo> result = new Dictionary<AreaFlag, EffectSampleInfo>();
-				UInt16[] strengths = new UInt16[16];
-				UInt32[] areas = new UInt32[16];
-				UInt32[] families = new UInt32[16];
-				uint totalCount = 0;
-				Interop.NSVR_Immediate_Sample(Ptr, strengths, areas, families, 16, ref totalCount);
-
-				for (int i = 0; i < totalCount; i++)
-				{
-					result[(AreaFlag)areas[i]] = new EffectSampleInfo(strengths[i], families[i], (AreaFlag)areas[i]);
-				}
-
-				return result;
-			}
+	
 			
-			public void PollBodyView()
+			public Dictionary<Region, EffectSampleInfo> PollBodyView()
 			{
+				Dictionary<Region, EffectSampleInfo> result = new Dictionary<Region, EffectSampleInfo>();
+
 				Interop.NSVR_BodyView_Poll(_bodyView, Ptr);
 
 				uint numNodes = 0;
@@ -151,21 +134,24 @@ namespace NullSpace.SDK
 				{
 					uint nodeType = 0;
 					Interop.NSVR_BodyView_GetNodeType(_bodyView, i, ref nodeType);
-					System.Console.WriteLine("	Node " + i + "'s type is" + nodeType);
+					//System.Console.WriteLine("	Node " + i + "'s type is" + nodeType);
 
 					ulong region = 0;
 					Interop.NSVR_BodyView_GetNodeRegion(_bodyView, i, ref region);
-					System.Console.WriteLine("	Node " + i + "'s region is " + region);
+					//System.Console.WriteLine("	Node " + i + "'s region is " + region);
 
-					if (nodeType == 1)
-					{
-						float intensity = 0;
-						Interop.NSVR_BodyView_GetIntensity(_bodyView, i, ref intensity);
-						System.Console.WriteLine("	Node " + i + "'s intensity is " + intensity);
 
-					}
+					float intensity = 0;
+					Interop.NSVR_BodyView_GetIntensity(_bodyView, i, ref intensity);
+				//	System.Console.WriteLine("	Node " + i + "'s intensity is " + intensity);
+					result[(Region)region] = new EffectSampleInfo((ushort)(intensity*255), 0, (Region)region);
+
+
+
 
 				}
+
+				return result;
 			}
 
 			internal static double Clamp(double value, double min, double max)
