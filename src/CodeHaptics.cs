@@ -9,11 +9,11 @@ namespace NullSpace.SDK
 	/// <summary>
 	/// HapticEffects are the base building blocks of more complex effects. They can be strung together, repeated over a duration, and given strengths and time offsets.
 	/// </summary>
-	public sealed class HapticEffect 
+	public sealed class HapticEffect
 	{
 		private Effect _effect;
 		private float _duration;
-	
+
 		/// <summary>
 		/// Retrieve the associated Effect
 		/// </summary>
@@ -46,7 +46,7 @@ namespace NullSpace.SDK
 			}
 		}
 
-	
+
 		/// <summary>
 		/// Construct a HapticEffect with a given Effect, and default duration of 0.0
 		/// </summary>
@@ -68,7 +68,7 @@ namespace NullSpace.SDK
 			Duration = duration;
 		}
 
-		
+
 		/// <summary>
 		/// Create an independent copy of this HapticEffect
 		/// </summary>
@@ -79,7 +79,7 @@ namespace NullSpace.SDK
 			clone.Duration = this._duration;
 			return clone;
 		}
-		
+
 		/// <summary>
 		/// Returns a string representation of this HapticEffect, including effect name and duration 
 		/// </summary>
@@ -113,6 +113,15 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
+		/// Construct a HapticSequence with a sequence to lazy load when a handle is created.
+		/// </summary>
+		public HapticSequence(string sequenceToLazyLoad) : base("sequence")
+		{
+			LoadedAssetName = sequenceToLazyLoad;
+			_children = new List<CommonArgs<HapticEffect>>();
+		}
+
+		/// <summary>
 		/// Internal use: turns an HDF into a sequence
 		/// </summary>
 		/// <param name="hdf"></param>
@@ -125,7 +134,7 @@ namespace NullSpace.SDK
 				this.AddEffect(effect.time, effect.strength, new HapticEffect(e, effect.duration));
 			}
 		}
-	
+
 		/// <summary>
 		/// Create an independent copy of this HapticSequence
 		/// </summary>
@@ -136,7 +145,7 @@ namespace NullSpace.SDK
 			clone.Effects = new List<CommonArgs<HapticEffect>>(_children);
 			return clone;
 		}
-		
+
 		/// <summary>
 		/// Add a HapticEffect with a given time offset
 		/// </summary>
@@ -160,8 +169,7 @@ namespace NullSpace.SDK
 			Effects.Add(new CommonArgs<HapticEffect>((float)time, (float)strength, effect.Clone()));
 			return this;
 		}
-		
-	
+
 		/// <summary>
 		/// Create a HapticHandle from this HapticSequence, specifying an AreaFlag to play on.
 		/// </summary>
@@ -169,6 +177,8 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
 		public HapticHandle CreateHandle(AreaFlag area)
 		{
+			HandleLazyAssetLoading();
+
 			EventList e = new ParameterizedSequence(this, area).Generate(1f, 0f);
 
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
@@ -188,6 +198,8 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
 		public HapticHandle CreateHandle(AreaFlag area, double strength)
 		{
+			HandleLazyAssetLoading();
+
 			EventList e = new ParameterizedSequence(this, area).Generate((float)strength, 0f);
 
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
@@ -245,7 +257,7 @@ namespace NullSpace.SDK
 	/// </summary>
 	public sealed class HapticPattern : SerializableHaptic
 	{
-	
+
 		private IList<CommonArgs<ParameterizedSequence>> _children;
 
 		internal IList<CommonArgs<ParameterizedSequence>> Sequences
@@ -269,7 +281,16 @@ namespace NullSpace.SDK
 		{
 			_children = new List<CommonArgs<ParameterizedSequence>>();
 		}
-		
+
+		/// <summary>
+		/// Construct a HapticPattern with a pattern to lazy load when a handle is created.
+		/// </summary>
+		public HapticPattern(string patternToLazyLoad) : base("pattern")
+		{
+			LoadedAssetName = patternToLazyLoad;
+			_children = new List<CommonArgs<ParameterizedSequence>>();
+		}
+
 		/// <summary>
 		/// Add a HapticSequence to this HapticPattern with a given time offset and AreaFlag, and default strength of 1.0
 		/// </summary>
@@ -296,7 +317,6 @@ namespace NullSpace.SDK
 			_children.Add(new CommonArgs<ParameterizedSequence>((float)time, (float)strength, clone));
 			return this;
 		}
-
 
 		/// <summary>
 		/// Internal use: turns an HDF into a pattern
@@ -424,6 +444,15 @@ namespace NullSpace.SDK
 		/// </summary>
 		public HapticExperience() : base("experience")
 		{
+			_children = new List<CommonArgs<ParameterizedPattern>>();
+		}
+
+		/// <summary>
+		/// Construct a HapticExperience with an experience to lazy load when a handle is created.
+		/// </summary>
+		public HapticExperience(string experienceToLazyLoad) : base("experience")
+		{
+			LoadedAssetName = experienceToLazyLoad;
 			_children = new List<CommonArgs<ParameterizedPattern>>();
 		}
 

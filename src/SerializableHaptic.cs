@@ -6,6 +6,8 @@ namespace NullSpace.SDK
 {
 	public class SerializableHaptic
 	{
+		protected bool Loaded = false;
+		protected string LoadedAssetName = "";
 		private string _type;
 
 		internal SerializableHaptic(string type)
@@ -35,7 +37,8 @@ namespace NullSpace.SDK
 			try
 			{
 				hdf.Deserialize(json);
-			} catch (HapticsAssetException e)
+			}
+			catch (HapticsAssetException e)
 			{
 				Debug.LogError(string.Format("Unable to load haptic resource at path [{0}]:\n\t {1}", assetPath, e.Message));
 				return;
@@ -47,11 +50,20 @@ namespace NullSpace.SDK
 				return;
 			}
 
+			Loaded = true;
 			doLoadFromHDF(hdf.rootEffect.name, hdf);
 		}
 
+		public void HandleLazyAssetLoading()
+		{
+			if (!Loaded && LoadedAssetName.Length > 0)
+			{
+				LoadFromAsset(LoadedAssetName);
+			}
+		}
+
 		internal virtual void doLoadFromHDF(string key, HapticDefinitionFile file) { }
-
-
+		internal virtual void doSaveToHDF(string path, string hdfName) { }
+		internal virtual bool Equals(SerializableHaptic haptic) { return false; }
 	}
 }
