@@ -14,6 +14,8 @@ namespace NullSpace.SDK
 	{
 		internal static class Interop
 		{
+			internal const int SUBREGION_BLOCK_SIZE = 1000000;
+
 			public static bool NSVR_SUCCESS(int result)
 			{
 				return result >= 0;
@@ -200,7 +202,7 @@ namespace NullSpace.SDK
 			public static extern  int NSVR_BodyView_GetNodeType(IntPtr body, UInt32 nodeIndex, ref UInt32 outType);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_BodyView_GetNodeRegion(IntPtr body, UInt32 nodeIndex, ref UInt64 outRegion);
+			public static extern int NSVR_BodyView_GetNodeRegion(IntPtr body, UInt32 nodeIndex, ref UInt32 outRegion);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			//only valid if nodeType == intensity
@@ -240,6 +242,7 @@ namespace NullSpace.SDK
 	public enum AreaFlag
 	{
 		None,
+		Lower_Arm_Left = 1 << 0,
 		Forearm_Left = 1 << 0,
 		Upper_Arm_Left = 1 << 1,
 		Shoulder_Left = 1 << 2,
@@ -250,6 +253,7 @@ namespace NullSpace.SDK
 		Lower_Ab_Left = 1 << 7,
 
 		Forearm_Right = 1 << 16,
+		Lower_Arm_Right = 1 << 16,
 		Upper_Arm_Right = 1 << 17,
 		Shoulder_Right = 1 << 18,
 		Back_Right = 1 << 19,
@@ -270,44 +274,42 @@ namespace NullSpace.SDK
 		All_Areas = Left_All | Right_All,
 	};
 
-	public enum Region
+	
+
+	public enum Region : int
 	{
-		nsvr_region_unknown = 0,
+		unknown = 0,
+		body = 1 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		torso = 2 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		torso_front = 3 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		chest_left = 4 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		chest_right = 5 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		upper_ab_left = 6 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		middle_ab_left = 7 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		lower_ab_left = 8 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		upper_ab_right = 9 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		middle_ab_right = 10 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		lower_ab_right = 11 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		torso_back = 12 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		torso_left = 13 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		torso_right = 14 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		upper_back_left = 15 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		upper_back_right = 16 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		upper_arm_left = 17 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		lower_arm_left = 18 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		upper_arm_right = 19 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		lower_arm_right = 20 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		shoulder_left = 21 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		shoulder_right = 22 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		upper_leg_left = 23 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		lower_leg_left = 24 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		upper_leg_right = 25 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		lower_leg_right = 26 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		head = 27 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		palm_left = 28 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		palm_right = 29 * Internal.Interop.SUBREGION_BLOCK_SIZE
+	};
 
-		nsvr_region_chest = 1000,
-		nsvr_region_chest_left,
-		nsvr_region_chest_right,
-
-		nsvr_region_abs = 2000,
-		nsvr_region_abs_left,
-		nsvr_region_abs_upper_left,
-		nsvr_region_abs_middle_left,
-		nsvr_region_abs_lower_left,
-		nsvr_region_abs_right,
-		nsvr_region_abs_upper_right,
-		nsvr_region_abs_middle_right,
-		nsvr_region_abs_lower_right,
-
-		nsvr_region_arm_left = 3000,
-		nsvr_region_forearm_left,
-		nsvr_region_upperarm_left,
-
-		nsvr_region_arm_right = 4000,
-		nsvr_region_forearm_right,
-		nsvr_region_upperarm_right,
-
-		nsvr_region_shoulder_left = 5000,
-		nsvr_region_shoulder_right = 6000,
-
-		nsvr_region_back = 7000,
-		nsvr_region_back_left,
-		nsvr_region_back_right,
-
-		nsvr_region_hand_left = 8000,
-		nsvr_region_hand_right = 9000,
-		nsvr_region_leg_left = 10000,
-		nsvr_region_leg_right = 11000
-	}
 	public static class AreaFlagExtensions
 	{
 		/// <summary>

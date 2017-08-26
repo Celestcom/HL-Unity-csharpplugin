@@ -13,18 +13,20 @@ namespace NSLoaderWrapper
 	public unsafe class Program
 	{
 
-		
+
 		public static int Main()
 		{
 
-            Console.WriteLine("Hit");
-            Console.ReadLine();
+			Console.WriteLine("Hit");
+			Console.ReadLine();
 			NSVR.NSVR_Plugin plugin = new NSVR.NSVR_Plugin();
+
 
 			for (;;)
 			{
-				Console.WriteLine("Hit");
-				plugin.PollBodyView();
+				//Console.WriteLine("Hit");
+				var dict = plugin.PollBodyView();
+				
 				System.Threading.Thread.Sleep(100);
 			}
 

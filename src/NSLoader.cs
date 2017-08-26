@@ -136,7 +136,19 @@ namespace NullSpace.SDK
 					Interop.NSVR_BodyView_GetNodeType(_bodyView, i, ref nodeType);
 					//System.Console.WriteLine("	Node " + i + "'s type is" + nodeType);
 
-					ulong region = 0;
+					uint region = 0;
+
+					Region outRegion = Region.unknown;
+
+					if (region <= int.MaxValue)
+					{
+						outRegion = (Region)region;
+					}
+					else
+					{
+						Debug.LogError(string.Format("Warning: You must be a time traveler from the future. The region returned by the API [{0}] is too large to fit in your int32. It will most likely overflow and be meaningless.\nWe are returning Region.unknown instead.", region));
+					}
+
 					Interop.NSVR_BodyView_GetNodeRegion(_bodyView, i, ref region);
 					//System.Console.WriteLine("	Node " + i + "'s region is " + region);
 
@@ -144,7 +156,7 @@ namespace NullSpace.SDK
 					float intensity = 0;
 					Interop.NSVR_BodyView_GetIntensity(_bodyView, i, ref intensity);
 				//	System.Console.WriteLine("	Node " + i + "'s intensity is " + intensity);
-					result[(Region)region] = new EffectSampleInfo((ushort)(intensity*255), 0, (Region)region);
+					result[(Region)region] = new EffectSampleInfo((ushort)(intensity*255), 0, outRegion);
 
 
 
