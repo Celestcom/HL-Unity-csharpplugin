@@ -39,7 +39,7 @@ namespace NullSpace.SDK
 		private float _time;
 		private float _strength;
 		private float _duration;
-		private UInt32 _area;
+		private UInt32[] _area;
 		private Effect _effect;
 
 	
@@ -62,11 +62,12 @@ namespace NullSpace.SDK
 
 			Interop.NSVR_Event_SetFloat(eventPtr, "duration", _duration);
 			//could be unsigned problem?!? Nah. Context: something is generating events without area information
-			Interop.NSVR_Event_SetInteger(eventPtr, "area",checked((int) _area));
+
+			Interop.NSVR_Event_SetUInt32s(eventPtr, "area", _area, 1);
 			Interop.NSVR_Event_SetFloat(eventPtr, "strength", _strength);
 
 			Interop.NSVR_Event_SetFloat(eventPtr, "time", _time);
-			Interop.NSVR_Event_SetInteger(eventPtr, "effect", (int)_effect);
+			Interop.NSVR_Event_SetInt(eventPtr, "effect", (int)_effect);
 
 			Interop.NSVR_Timeline_AddEvent(timelinePtr, eventPtr);
 
@@ -81,7 +82,7 @@ namespace NullSpace.SDK
 
 		}
 
-		public BasicHapticEvent(float time, float strength, float duration, UInt32 area, Effect effect)
+		public BasicHapticEvent(float time, float strength, float duration, UInt32[] area, Effect effect)
 			:base(SuitEventType.BasicHapticEvent)
 		{
 			
@@ -114,11 +115,13 @@ namespace NullSpace.SDK
 				_events.Add(e);
 			}
 		}
+
+		public override string ToString()
+		{
+			return string.Format("Event list made up of " + _events.Count + " events");
+		}
 		public void Transmit(IntPtr playbackHandle)
 		{
-			//_events.Sort();
-
-
 			IntPtr timelinePtr = IntPtr.Zero;
 
 			unsafe
@@ -126,9 +129,8 @@ namespace NullSpace.SDK
 				Interop.NSVR_Timeline_Create(ref timelinePtr);
 			}
 
-			for (int i = 0; i < _events.Count; i++) {
-				Debug.Assert(timelinePtr != IntPtr.Zero);
-
+			for (int i = 0; i < _events.Count; i++)
+			{
 				_events[i].Generate(timelinePtr);
 			}
 
@@ -136,13 +138,8 @@ namespace NullSpace.SDK
 			{
 				Interop.NSVR_Timeline_Transmit(timelinePtr, NSVR_Plugin.Ptr, playbackHandle);
 			}
-			Interop.NSVR_Timeline_Release(ref timelinePtr);
-			Debug.Assert(timelinePtr == IntPtr.Zero);
-			
-		
-			
-	
 
+			Interop.NSVR_Timeline_Release(ref timelinePtr);
 		}
 
 

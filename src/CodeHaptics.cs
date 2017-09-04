@@ -173,11 +173,11 @@ namespace NullSpace.SDK
 
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
 			{
-				Debug.Assert(handle != IntPtr.Zero);
 				e.Transmit(handle);
 			};
 
-			return new HapticHandle(creator);
+			HapticHandle h = new HapticHandle(creator);
+			return h;
 		}
 
 		/// <summary>
@@ -189,7 +189,6 @@ namespace NullSpace.SDK
 		public HapticHandle CreateHandle(AreaFlag area, double strength)
 		{
 			EventList e = new ParameterizedSequence(this, area).Generate((float)strength, 0f);
-
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
 			{
 				e.Transmit(handle);

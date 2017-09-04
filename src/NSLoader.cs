@@ -426,13 +426,18 @@ namespace NullSpace.SDK
 		/// <param name="creator"></param>
 		internal HapticHandle(CommandWithHandle creator)
 		{
+			
 			init(creator);
-			Debug.Assert(_handle != IntPtr.Zero);
-			Interop.NSVR_HandleInfo info = new Interop.NSVR_HandleInfo();
-			if (Interop.NSVR_SUCCESS(Interop.NSVR_PlaybackHandle_GetInfo(_handle, ref info)))
+			Interop.NSVR_EffectInfo info = new Interop.NSVR_EffectInfo();
+			int result = Interop.NSVR_PlaybackHandle_GetInfo(_handle, ref info);
+			if (Interop.NSVR_SUCCESS(result))
 			{
 				_duration = info.Duration;
-			} 
+			} else
+			{
+				UnityEngine.Debug.LogError(string.Format("Failed to fetch information about haptic handle {0}! This handle is no longer usable and has likely been disposed.", _handle));
+			}
+			
 		}
 
 		/// <summary>
@@ -450,11 +455,13 @@ namespace NullSpace.SDK
 
 		internal void init(CommandWithHandle creator)
 		{
+			Debug.Assert(creator != null);
+			
 			_creator = creator;
 
 			Interop.NSVR_PlaybackHandle_Create(ref _handle);
 
-
+			//Debug.Log("Inside init. Is creator null?!" + (creator == null));
 			_creator(_handle);
 		}
 		/// <summary>
@@ -523,7 +530,7 @@ namespace NullSpace.SDK
 		/// <returns></returns>
 		public float GetElapsedTime()
 		{
-			Interop.NSVR_HandleInfo info = new Interop.NSVR_HandleInfo();
+			Interop.NSVR_EffectInfo info = new Interop.NSVR_EffectInfo();
 			if (Interop.NSVR_SUCCESS(Interop.NSVR_PlaybackHandle_GetInfo(_handle, ref info)))
 			{
 				return info.Elapsed;

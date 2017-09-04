@@ -23,11 +23,13 @@ namespace NullSpace.SDK
 				float finalStrength = strength * effect.Strength;
 				float finalTime = timeOffset + effect.Time;
 
+				var newApiRegions = AreaFlagToRegion.GetRegions(_area);
+
 				events.AddEvent(new BasicHapticEvent(
 					finalTime,
 					finalStrength,
 					(float)effect.Item.Duration,
-					(uint)_area,
+					newApiRegions,
 					effect.Item.Effect	
 				));
 			}

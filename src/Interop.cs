@@ -78,7 +78,7 @@ namespace NullSpace.SDK
 				Reset
 			}
 
-			[StructLayout(LayoutKind.Sequential, Pack = 1)]
+			[StructLayout(LayoutKind.Sequential)]
 			public struct NSVR_DeviceInfo
 			{
 				[MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
@@ -88,11 +88,20 @@ namespace NullSpace.SDK
 				//tracking capabilities?
 			};
 
-			[StructLayout(LayoutKind.Sequential, Pack = 1)]
-			public struct NSVR_HandleInfo
+			public enum NSVR_EffectInfo_State
+			{
+				NSVR_EffectInfo_State_Playing,
+				NSVR_EffectInfo_State_Paused,
+				NSVR_EffectInfo_State_Idle
+			}
+
+			
+			[StructLayout(LayoutKind.Sequential)]
+			public struct NSVR_EffectInfo
 			{
 				public float Duration;
 				public float Elapsed;
+				NSVR_EffectInfo_State PlaybackState;
 			};
 
 
@@ -149,9 +158,11 @@ namespace NullSpace.SDK
 			public static extern int NSVR_Event_SetFloat(IntPtr eventPtr, string key, float value);
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Event_SetInteger(IntPtr eventPtr, string key, int value);
+			public static extern int NSVR_Event_SetInt(IntPtr eventPtr, string key, int value);
 
 
+			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+			public static extern int NSVR_Event_SetUInt32s(IntPtr eventPtr, string key, [In, Out] UInt32[] values, uint length);
 			/* Timelines */
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_Timeline_Create(ref IntPtr eventListPtr);
@@ -176,7 +187,7 @@ namespace NullSpace.SDK
 			public static extern void NSVR_PlaybackHandle_Release(ref IntPtr handlePtr);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_PlaybackHandle_GetInfo(IntPtr handlePtr, ref NSVR_HandleInfo info);
+			public static extern int NSVR_PlaybackHandle_GetInfo(IntPtr handlePtr, ref NSVR_EffectInfo info);
 
 			/* Sampling */
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]

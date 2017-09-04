@@ -18,17 +18,19 @@ namespace NSLoaderWrapper
 		{
 
 			Console.WriteLine("Hit");
-			Console.ReadLine();
 			NSVR.NSVR_Plugin plugin = new NSVR.NSVR_Plugin();
 
+			Console.ReadLine();
 
-			for (;;)
-			{
-				//Console.WriteLine("Hit");
-				var dict = plugin.PollBodyView();
-				
-				System.Threading.Thread.Sleep(100);
-			}
+
+
+			HapticSequence s = new HapticSequence();
+			s.AddEffect(0.0, new HapticEffect(Effect.Click));
+			s.AddEffect(1.0, new HapticEffect(Effect.Click));
+
+			var handle = s.CreateHandle(AreaFlag.Chest_Left);
+			handle.Play();
+			Console.WriteLine("Playing");
 
 			Console.ReadLine();
 

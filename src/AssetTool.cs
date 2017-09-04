@@ -5,6 +5,7 @@ using System.Text;
 using System.Diagnostics;
 using System.IO;
 using System.Security;
+using System.ComponentModel;
 
 namespace NullSpace.SDK.FileUtilities
 {
@@ -222,16 +223,26 @@ namespace NullSpace.SDK.FileUtilities
 		/// <returns></returns>
 		public HapticDefinitionFile GetHapticDefinitionFile(string path)
 		{
-
 			var result = executeToolAndWaitForResult(
 				new ArgList()
 				.Add("root-path", _rootPath)
 				.Add("generate-asset", path)
 				.Add("json")
 			);
+
 			HapticDefinitionFile hdf = new HapticDefinitionFile();
-			hdf.Deserialize(MiniJSON.Json.Deserialize(result) as IDictionary<string, object>);
-			return hdf;
+			
+			try
+			{
+				object x = MiniJSON.Json.Deserialize(result);
+				hdf.Deserialize(x as IDictionary<string, object>);
+				return hdf;
+			} catch (Exception e)
+			{
+				UnityEngine.Debug.LogException(e);
+				throw new HapticsLoadingException("[NSVR] Couldn't deserialize the json response for the request file path [" + path + "]");
+			}
+		
 		
 		}
 

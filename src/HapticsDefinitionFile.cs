@@ -89,7 +89,7 @@ namespace NullSpace.SDK.FileUtilities
 				}
 				catch (KeyNotFoundException e)
 				{
-					Debug.LogError("In pats: " + e.Message + "\n");
+					Debug.LogError("In seqs: " + e.Message + "\n");
 				}
 				try { 
 				experienceDefinitions = parseDefinitionsDict<JsonPatternAtom>(
@@ -98,7 +98,7 @@ namespace NullSpace.SDK.FileUtilities
 				}
 				catch (KeyNotFoundException e)
 				{
-					Debug.LogError("In pats: " + e.Message + "\n");
+					Debug.LogError("In exps: " + e.Message + "\n");
 				}
 			} catch (Exception e)
 			{
