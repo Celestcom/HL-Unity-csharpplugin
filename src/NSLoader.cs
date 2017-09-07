@@ -55,6 +55,18 @@ namespace NullSpace.SDK
 		{ }
 	}
 
+	public class Device
+	{
+		public string Name { get; }
+		public bool Connected { get; }
+
+		internal Device(string name, bool connected)
+		{
+			Name = name;
+			Connected = connected;
+		}
+	}
+
 	/// <summary>
 	/// Wrapper around the main access point of the plugin, NSVR_Plugin
 	/// </summary>
@@ -129,12 +141,10 @@ namespace NullSpace.SDK
 				uint numNodes = 0;
 				Interop.NSVR_BodyView_GetNodeCount(_bodyView, ref numNodes);
 
-				System.Console.WriteLine("There are " + numNodes + " nodes");
 				for (uint i = 0; i < numNodes; i++)
 				{
 					uint nodeType = 0;
 					Interop.NSVR_BodyView_GetNodeType(_bodyView, i, ref nodeType);
-					//System.Console.WriteLine("	Node " + i + "'s type is" + nodeType);
 
 					uint region = 0;
 
@@ -150,12 +160,10 @@ namespace NullSpace.SDK
 					}
 
 					Interop.NSVR_BodyView_GetNodeRegion(_bodyView, i, ref region);
-					//System.Console.WriteLine("	Node " + i + "'s region is " + region);
 
 
 					float intensity = 0;
 					Interop.NSVR_BodyView_GetIntensity(_bodyView, i, ref intensity);
-				//	System.Console.WriteLine("	Node " + i + "'s intensity is " + intensity);
 					result[(Region)region] = new EffectSampleInfo((ushort)(intensity*255), 0, outRegion);
 
 
@@ -250,27 +258,23 @@ namespace NullSpace.SDK
 				return v;
 			}
 
-			/// <summary>
-			/// Poll the status of suit connection 
-			/// </summary>
-			/// <returns>Connected if the service is running and a suit is plugged in, else Disconnected</returns>
-			public DeviceConnectionStatus TestDeviceConnection()
-			{
+	
 
+			public List<Device> GetKnownDevices()
+			{
 				Interop.NSVR_DeviceInfo deviceInfo = new Interop.NSVR_DeviceInfo();
-				
-				if (Interop.NSVR_SUCCESS(Interop.NSVR_System_GetDeviceInfo(Ptr, ref deviceInfo)))
+				List<Device> devices = new List<Device>();
+
+				while (Interop.NSVR_System_GetNextDevice(Ptr, ref deviceInfo) == 1)
 				{
-					return DeviceConnectionStatus.Connected;
+					devices.Add(new Device(new string(deviceInfo.ProductName), deviceInfo.Status == Interop.NSVR_DeviceStatus.Connected));
 				}
 
-
-				return DeviceConnectionStatus.Disconnected;
+				return devices;
 			}
 
-		
 
-			public ServiceConnectionStatus TestServiceConnection()
+			public ServiceConnectionStatus IsConnectedToService()
 			{
 				Interop.NSVR_ServiceInfo serviceInfo = new Interop.NSVR_ServiceInfo();
 				int value = Interop.NSVR_System_GetServiceInfo(Ptr, ref serviceInfo);

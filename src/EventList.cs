@@ -63,7 +63,7 @@ namespace NullSpace.SDK
 			Interop.NSVR_Event_SetFloat(eventPtr, "duration", _duration);
 			//could be unsigned problem?!? Nah. Context: something is generating events without area information
 
-			Interop.NSVR_Event_SetUInt32s(eventPtr, "area", _area, 1);
+			Interop.NSVR_Event_SetUInt32s(eventPtr, "area", _area, (uint)_area.Length);
 			Interop.NSVR_Event_SetFloat(eventPtr, "strength", _strength);
 
 			Interop.NSVR_Event_SetFloat(eventPtr, "time", _time);

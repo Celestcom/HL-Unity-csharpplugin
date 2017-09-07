@@ -78,14 +78,20 @@ namespace NullSpace.SDK
 				Reset
 			}
 
-			[StructLayout(LayoutKind.Sequential)]
+			public enum NSVR_DeviceStatus
+			{
+				Unknown = 0,
+				Connected = 1,
+				Disconnected = 2
+			}
+
+			[StructLayout(LayoutKind.Sequential, Pack = 1)]
 			public struct NSVR_DeviceInfo
 			{
+				IntPtr _internal;
 				[MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
 				public char[] ProductName;
-				public short FirmwareMajor;
-				public short FirmwareMinor;
-				//tracking capabilities?
+				public NSVR_DeviceStatus Status;
 			};
 
 			public enum NSVR_EffectInfo_State
@@ -132,8 +138,10 @@ namespace NullSpace.SDK
 			public static extern unsafe int NSVR_System_Haptics_Destroy(NSVR_System* systemPtr);
 
 			/* Devices */
+
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_GetDeviceInfo(NSVR_System* systemPtr, ref NSVR_DeviceInfo infoPtr);
+			public static extern unsafe int NSVR_System_GetNextDevice(NSVR_System* systemPtr, ref NSVR_DeviceInfo device);
+
 
 			/* Tracking */
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]

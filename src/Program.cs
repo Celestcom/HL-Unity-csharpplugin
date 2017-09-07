@@ -23,16 +23,11 @@ namespace NSLoaderWrapper
 			Console.ReadLine();
 
 
-
-			HapticSequence s = new HapticSequence();
-			s.AddEffect(0.0, new HapticEffect(Effect.Click));
-			s.AddEffect(1.0, new HapticEffect(Effect.Click));
-
-			var handle = s.CreateHandle(AreaFlag.Chest_Left);
-			handle.Play();
-			Console.WriteLine("Playing");
-
-			Console.ReadLine();
+			while (true)
+			{
+				var devices = plugin.GetKnownDevices();
+				Console.ReadLine();
+			}
 
 
 		
