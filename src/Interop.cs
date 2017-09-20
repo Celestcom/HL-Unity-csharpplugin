@@ -85,15 +85,32 @@ namespace NullSpace.SDK
 				Disconnected = 2
 			}
 
+			public enum NSVR_DeviceConcept
+			{
+				Unknown = 0,
+				Suit,
+				Controller,
+				Headwear,
+				Gun,
+				Sword
+			} 
+
 			[StructLayout(LayoutKind.Sequential, Pack = 1)]
 			public struct NSVR_DeviceInfo
 			{
-				IntPtr _internal;
+				public UInt32 Id;
 				[MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
-				public char[] ProductName;
+				public char[] Name;
+				public NSVR_DeviceConcept Concept;
 				public NSVR_DeviceStatus Status;
 			};
 
+
+			public struct NSVR_DeviceInfo_Iter
+			{
+				public IntPtr _internal;
+				public NSVR_DeviceInfo DeviceInfo;
+			}
 			public enum NSVR_EffectInfo_State
 			{
 				NSVR_EffectInfo_State_Playing,
@@ -129,7 +146,7 @@ namespace NullSpace.SDK
 			/* Haptics Engine */
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static unsafe extern int NSVR_System_Haptics_Pause(NSVR_System* systemPtr);
+			public static unsafe extern int NSVR_System_Haptics_Suspend(NSVR_System* systemPtr);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_Haptics_Resume(NSVR_System* systemPtr);
@@ -140,8 +157,10 @@ namespace NullSpace.SDK
 			/* Devices */
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_GetNextDevice(NSVR_System* systemPtr, ref NSVR_DeviceInfo device);
+			public static extern int NSVR_DeviceInfo_Iter_Init(ref NSVR_DeviceInfo_Iter iter);
 
+			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			public static extern unsafe bool NSVR_DeviceInfo_Iter_Next(ref NSVR_DeviceInfo_Iter iter, NSVR_System* system);
 
 			/* Tracking */
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]

@@ -59,7 +59,6 @@ namespace NullSpace.SDK
 	{
 		public string Name { get; }
 		public bool Connected { get; }
-
 		internal Device(string name, bool connected)
 		{
 			Name = name;
@@ -225,7 +224,7 @@ namespace NullSpace.SDK
 			/// </summary>
 			public void PauseAll()
 			{
-				Interop.NSVR_System_Haptics_Pause(Ptr);
+				Interop.NSVR_System_Haptics_Suspend(Ptr);
 			}
 
 
@@ -258,16 +257,18 @@ namespace NullSpace.SDK
 				return v;
 			}
 
-	
+
 
 			public List<Device> GetKnownDevices()
 			{
-				Interop.NSVR_DeviceInfo deviceInfo = new Interop.NSVR_DeviceInfo();
 				List<Device> devices = new List<Device>();
 
-				while (Interop.NSVR_System_GetNextDevice(Ptr, ref deviceInfo) == 1)
+				Interop.NSVR_DeviceInfo_Iter iter = new Interop.NSVR_DeviceInfo_Iter();
+				Interop.NSVR_DeviceInfo_Iter_Init(ref iter);
+
+				while (Interop.NSVR_DeviceInfo_Iter_Next(ref iter, Ptr))
 				{
-					devices.Add(new Device(new string(deviceInfo.ProductName), deviceInfo.Status == Interop.NSVR_DeviceStatus.Connected));
+					devices.Add(new Device(new string(iter.DeviceInfo.Name), iter.DeviceInfo.Status == Interop.NSVR_DeviceStatus.Connected));
 				}
 
 				return devices;
