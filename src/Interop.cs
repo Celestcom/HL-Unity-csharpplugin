@@ -64,11 +64,25 @@ namespace NullSpace.SDK
 				uint ServiceMinor;
 			};
 
+			public enum NSVR_EventKey
+			{
+				Invalid = 0,
+				/* Required keys*/
+				Time_Float,
 
+				SimpleHaptic_Duration_Float = 1000,
+				SimpleHaptic_Strength_Float,
+				SimpleHaptic_Effect_Int,
+				SimpleHaptic_Region_UInt32s,
+
+				Max = 2147483647
+
+			}
+			
 			public enum NSVR_EventType
 			{
-				Basic_Haptic_Event = 1,
-				NSVR_EventType_MAX = 65535
+				SimpleHaptic = 1,
+				Max = 65535
 			};
 
 			public enum NSVR_PlaybackCommand
@@ -182,14 +196,14 @@ namespace NullSpace.SDK
 			public static extern void NSVR_Event_Release(ref IntPtr eventPtr);
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Event_SetFloat(IntPtr eventPtr, string key, float value);
+			public static extern int NSVR_Event_SetFloat(IntPtr eventPtr, NSVR_EventKey  key, float value);
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Event_SetInt(IntPtr eventPtr, string key, int value);
+			public static extern int NSVR_Event_SetInt(IntPtr eventPtr, NSVR_EventKey key, int value);
 
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Event_SetUInt32s(IntPtr eventPtr, string key, [In, Out] UInt32[] values, uint length);
+			public static extern int NSVR_Event_SetUInt32s(IntPtr eventPtr, NSVR_EventKey key, [In, Out] UInt32[] values, uint length);
 			/* Timelines */
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_Timeline_Create(ref IntPtr eventListPtr);

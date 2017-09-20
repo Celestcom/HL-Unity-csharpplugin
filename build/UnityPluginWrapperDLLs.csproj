@@ -43,7 +43,8 @@
     <OutputPath>bin\Release\Win32\</OutputPath>
     <BaseIntermediateOutputPath>obj\Win32\Release\UnityPluginWrapperDLLs\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -55,10 +56,13 @@
     <OutputPath>bin\Release\Win64\</OutputPath>
     <BaseIntermediateOutputPath>obj\Win64\Release\UnityPluginWrapperDLLs\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
