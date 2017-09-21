@@ -57,17 +57,17 @@ namespace NullSpace.SDK
 			Debug.Assert(timelinePtr != IntPtr.Zero);
 
 			IntPtr eventPtr = IntPtr.Zero;
-			Interop.NSVR_Event_Create(ref eventPtr, Interop.NSVR_EventType.SimpleHaptic);
+			Interop.NSVR_Event_Create(ref eventPtr, Interop.NSVR_EventType.Basic_Haptic_Event);
 			Debug.Assert(eventPtr != IntPtr.Zero);
 
-			Interop.NSVR_Event_SetFloat(eventPtr, Interop.NSVR_EventKey.SimpleHaptic_Duration_Float, _duration);
+			Interop.NSVR_Event_SetFloat(eventPtr, "duration", _duration);
 			//could be unsigned problem?!? Nah. Context: something is generating events without area information
 
-			Interop.NSVR_Event_SetUInt32s(eventPtr, Interop.NSVR_EventKey.SimpleHaptic_Region_UInt32s, _area, (uint)_area.Length);
-			Interop.NSVR_Event_SetFloat(eventPtr, Interop.NSVR_EventKey.SimpleHaptic_Strength_Float, _strength);
+			Interop.NSVR_Event_SetUInt32s(eventPtr, "area", _area, (uint)_area.Length);
+			Interop.NSVR_Event_SetFloat(eventPtr, "strength", _strength);
 
-			Interop.NSVR_Event_SetFloat(eventPtr, Interop.NSVR_EventKey.Time_Float, _time);
-			Interop.NSVR_Event_SetInt(eventPtr, Interop.NSVR_EventKey.SimpleHaptic_Effect_Int, (int)_effect);
+			Interop.NSVR_Event_SetFloat(eventPtr, "time", _time);
+			Interop.NSVR_Event_SetInt(eventPtr, "effect", (int)_effect);
 
 			Interop.NSVR_Timeline_AddEvent(timelinePtr, eventPtr);
 

@@ -7,8 +7,8 @@
     <ProjectGuid>{9D1A58F5-8914-8147-7281-17585E1AE7B3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HardlightUnity</RootNamespace>
-    <AssemblyName>HardlightUnity</AssemblyName>
+    <RootNamespace>NSLoaderWrapper</RootNamespace>
+    <AssemblyName>NSLoaderWrapper</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
