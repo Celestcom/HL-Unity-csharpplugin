@@ -64,11 +64,25 @@ namespace NullSpace.SDK
 				uint ServiceMinor;
 			};
 
+			public enum NSVR_EventKey
+			{
+				Invalid = 0,
+				/* Required keys*/
+				Time_Float,
 
+				SimpleHaptic_Duration_Float = 1000,
+				SimpleHaptic_Strength_Float,
+				SimpleHaptic_Effect_Int,
+				SimpleHaptic_Region_UInt32s,
+
+				Max = 2147483647
+
+			}
+			
 			public enum NSVR_EventType
 			{
-				Basic_Haptic_Event = 1,
-				NSVR_EventType_MAX = 65535
+				SimpleHaptic = 1,
+				Max = 65535
 			};
 
 			public enum NSVR_PlaybackCommand
@@ -128,125 +142,125 @@ namespace NullSpace.SDK
 			};
 
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_Create(NSVR_System** systemPtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe void NSVR_System_Release(NSVR_System** value);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern uint NSVR_Version_Get();
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_Version_IsCompatibleDLL();
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_GetServiceInfo(NSVR_System* systemPtr, ref NSVR_ServiceInfo infoPtr);
 
 			/* Haptics Engine */
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static unsafe extern int NSVR_System_Haptics_Suspend(NSVR_System* systemPtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_Haptics_Resume(NSVR_System* systemPtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_Haptics_Destroy(NSVR_System* systemPtr);
 
 			/* Devices */
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_DeviceInfo_Iter_Init(ref NSVR_DeviceInfo_Iter iter);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe bool NSVR_DeviceInfo_Iter_Next(ref NSVR_DeviceInfo_Iter iter, NSVR_System* system);
 
 			/* Tracking */
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_Tracking_Poll(NSVR_System* systemPtr, ref NSVR_TrackingUpdate updatePtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_Tracking_Enable(NSVR_System* ptr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_System_Tracking_Disable(NSVR_System* ptr);
 
 
 			/* Timeline API */
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_Event_Create(ref IntPtr eventPtr, NSVR_EventType type);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern void NSVR_Event_Release(ref IntPtr eventPtr);
 
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Event_SetFloat(IntPtr eventPtr, string key, float value);
+			[DllImport("Hardlight", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+			public static extern int NSVR_Event_SetFloat(IntPtr eventPtr, NSVR_EventKey  key, float value);
 
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Event_SetInt(IntPtr eventPtr, string key, int value);
+			[DllImport("Hardlight", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+			public static extern int NSVR_Event_SetInt(IntPtr eventPtr, NSVR_EventKey key, int value);
 
 
-			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Event_SetUInt32s(IntPtr eventPtr, string key, [In, Out] UInt32[] values, uint length);
+			[DllImport("Hardlight", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+			public static extern int NSVR_Event_SetUInt32s(IntPtr eventPtr, NSVR_EventKey key, [In, Out] UInt32[] values, uint length);
 			/* Timelines */
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_Timeline_Create(ref IntPtr eventListPtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern void NSVR_Timeline_Release(ref IntPtr listPtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_Timeline_AddEvent(IntPtr list, IntPtr eventPtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_Timeline_Transmit(IntPtr timeline, NSVR_System* systemPtr, IntPtr handlePr);
 
 			/* Playback */
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_PlaybackHandle_Create(ref IntPtr handlePtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_PlaybackHandle_Command(IntPtr handlePtr, NSVR_PlaybackCommand command);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern void NSVR_PlaybackHandle_Release(ref IntPtr handlePtr);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_PlaybackHandle_GetInfo(IntPtr handlePtr, ref NSVR_EffectInfo info);
 
 			/* Sampling */
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_Immediate_Sample(NSVR_System* systemPtr, [In, Out] UInt16[] intensities,  [In, Out] UInt32[] areas, [In, Out] UInt32[] families, int length, ref uint resultCount);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_Immediate_Set(NSVR_System* systemPtr, [In, Out] UInt16[] intensities, [In, Out] UInt32[] areas, int length);
 
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern  int NSVR_BodyView_Create(ref IntPtr body);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern  int NSVR_BodyView_Release(ref IntPtr body);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int NSVR_BodyView_Poll(IntPtr body, NSVR_System* system);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_BodyView_GetNodeCount(IntPtr body, ref UInt32 outNodeCount);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern  int NSVR_BodyView_GetNodeType(IntPtr body, UInt32 nodeIndex, ref UInt32 outType);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int NSVR_BodyView_GetNodeRegion(IntPtr body, UInt32 nodeIndex, ref UInt32 outRegion);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			//only valid if nodeType == intensity
 			public static extern int NSVR_BodyView_GetIntensity(IntPtr body, UInt32 nodeIndex, ref float outIntensity);
 
-			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			//only valid if nodeType == color
 			public static extern int NSVR_BodyView_GetColor(IntPtr body, UInt32 nodeIndex, ref NSVR_Color outColor);
 
