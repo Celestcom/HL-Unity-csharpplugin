@@ -74,6 +74,7 @@ namespace NullSpace.SDK
 				SimpleHaptic_Strength_Float,
 				SimpleHaptic_Effect_Int,
 				SimpleHaptic_Region_UInt32s,
+				SimpleHaptic_Nodes_UInt32s,
 
 				Max = 2147483647
 
