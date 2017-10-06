@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Text;
-using NullSpace.SDK.FileUtilities;
+using Hardlight.SDK.FileUtilities;
 using System;
 using System.Diagnostics;
 
-namespace NullSpace.SDK
+namespace Hardlight.SDK
 {
 	/// <summary>
 	/// HapticEffects are the base building blocks of more complex effects. They can be strung together, repeated over a duration, and given strengths and time offsets.

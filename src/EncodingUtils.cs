@@ -1,12 +1,12 @@
 ﻿using System;
 
-using NullSpace.Events;
+using Hardlight.Events;
 using System.Linq;
 using System.Collections.Generic;
-using NullSpace.SDK.FileUtilities;
+using Hardlight.SDK.FileUtilities;
 using UnityEngine;
 
-namespace NullSpace.SDK.FileUtilities
+namespace Hardlight.SDK.FileUtilities
 {
 	/// <summary>
 	/// Used to turn HapticDefinitionFiles into dynamic haptic effects

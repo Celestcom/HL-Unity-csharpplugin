@@ -3,31 +3,31 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace NullSpace.SDK
+namespace Hardlight.SDK
 {
 
-	unsafe struct NSVR_System { }
-	unsafe struct NSVR_Event { }
-	unsafe struct NSVR_Timeline { }
-	unsafe struct NSVR_PlaybackHandle { }
+	unsafe struct HLVR_System { }
+	unsafe struct HLVR_Event { }
+	unsafe struct HLVR_Timeline { }
+	unsafe struct HLVR_PlaybackHandle { }
 	namespace Internal
 	{
 		internal static class Interop
 		{
 			internal const int SUBREGION_BLOCK_SIZE = 1000000;
 
-			public static bool NSVR_SUCCESS(int result)
+			public static bool HLVR_SUCCESS(int result)
 			{
 				return result >= 0;
 			}
 
-			public static bool NSVR_FAILURE(int result)
+			public static bool HLVR_FAILURE(int result)
 			{
-				return !NSVR_SUCCESS(result);
+				return !HLVR_SUCCESS(result);
 			}
 
 			[StructLayout(LayoutKind.Sequential, Pack = 1)]
-			public struct NSVR_Quaternion
+			public struct HLVR_Quaternion
 			{
 				public float w;
 				public float x;
@@ -36,7 +36,7 @@ namespace NullSpace.SDK
 			}
 
 			[StructLayout(LayoutKind.Sequential, Pack = 1)]
-			public struct NSVR_Color
+			public struct HLVR_Color
 			{
 				public float r;
 				public float g;
@@ -45,47 +45,47 @@ namespace NullSpace.SDK
 			}
 
 			[StructLayout(LayoutKind.Sequential, Pack = 1)]
-			public struct NSVR_TrackingUpdate
+			public struct HLVR_TrackingUpdate
 			{
-				public NSVR_Quaternion chest;
-				public NSVR_Quaternion left_upper_arm;
-				public NSVR_Quaternion left_forearm;
-				public NSVR_Quaternion right_upper_arm;
-				public NSVR_Quaternion right_forearm;
+				public HLVR_Quaternion chest;
+				public HLVR_Quaternion left_upper_arm;
+				public HLVR_Quaternion left_forearm;
+				public HLVR_Quaternion right_upper_arm;
+				public HLVR_Quaternion right_forearm;
 			}
 
 		
 
 
 			[StructLayout(LayoutKind.Sequential, Pack = 1)]
-			public struct NSVR_ServiceInfo
+			public struct HLVR_ServiceInfo
 			{
 				uint ServiceMajor;
 				uint ServiceMinor;
 			};
 
 
-			public enum NSVR_EventType
+			public enum HLVR_EventType
 			{
 				Basic_Haptic_Event = 1,
-				NSVR_EventType_MAX = 65535
+				HLVR_EventType_MAX = 65535
 			};
 
-			public enum NSVR_PlaybackCommand
+			public enum HLVR_PlaybackCommand
 			{
 				Play = 0,
 				Pause,
 				Reset
 			}
 
-			public enum NSVR_DeviceStatus
+			public enum HLVR_DeviceStatus
 			{
 				Unknown = 0,
 				Connected = 1,
 				Disconnected = 2
 			}
 
-			public enum NSVR_DeviceConcept
+			public enum HLVR_DeviceConcept
 			{
 				Unknown = 0,
 				Suit,
@@ -96,159 +96,159 @@ namespace NullSpace.SDK
 			} 
 
 			[StructLayout(LayoutKind.Sequential, Pack = 1)]
-			public struct NSVR_DeviceInfo
+			public struct HLVR_DeviceInfo
 			{
 				public UInt32 Id;
 				[MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
 				public char[] Name;
-				public NSVR_DeviceConcept Concept;
-				public NSVR_DeviceStatus Status;
+				public HLVR_DeviceConcept Concept;
+				public HLVR_DeviceStatus Status;
 			};
 
 
-			public struct NSVR_DeviceInfo_Iter
+			public struct HLVR_DeviceInfo_Iter
 			{
 				public IntPtr _internal;
-				public NSVR_DeviceInfo DeviceInfo;
+				public HLVR_DeviceInfo DeviceInfo;
 			}
-			public enum NSVR_EffectInfo_State
+			public enum HLVR_EffectInfo_State
 			{
-				NSVR_EffectInfo_State_Playing,
-				NSVR_EffectInfo_State_Paused,
-				NSVR_EffectInfo_State_Idle
+				HLVR_EffectInfo_State_Playing,
+				HLVR_EffectInfo_State_Paused,
+				HLVR_EffectInfo_State_Idle
 			}
 
 			
 			[StructLayout(LayoutKind.Sequential)]
-			public struct NSVR_EffectInfo
+			public struct HLVR_EffectInfo
 			{
 				public float Duration;
 				public float Elapsed;
-				NSVR_EffectInfo_State PlaybackState;
+				HLVR_EffectInfo_State PlaybackState;
 			};
 
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_Create(NSVR_System** systemPtr);
+			public static extern unsafe int HLVR_System_Create(HLVR_System** systemPtr);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe void NSVR_System_Release(NSVR_System** value);
+			public static extern unsafe void HLVR_System_Release(HLVR_System** value);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern uint NSVR_Version_Get();
+			public static extern uint HLVR_Version_Get();
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Version_IsCompatibleDLL();
+			public static extern int HLVR_Version_IsCompatibleDLL();
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_GetServiceInfo(NSVR_System* systemPtr, ref NSVR_ServiceInfo infoPtr);
+			public static extern unsafe int HLVR_System_GetServiceInfo(HLVR_System* systemPtr, ref HLVR_ServiceInfo infoPtr);
 
 			/* Haptics Engine */
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static unsafe extern int NSVR_System_Haptics_Suspend(NSVR_System* systemPtr);
+			public static unsafe extern int HLVR_System_Haptics_Suspend(HLVR_System* systemPtr);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_Haptics_Resume(NSVR_System* systemPtr);
+			public static extern unsafe int HLVR_System_Haptics_Resume(HLVR_System* systemPtr);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_Haptics_Destroy(NSVR_System* systemPtr);
+			public static extern unsafe int HLVR_System_Haptics_Destroy(HLVR_System* systemPtr);
 
 			/* Devices */
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_DeviceInfo_Iter_Init(ref NSVR_DeviceInfo_Iter iter);
+			public static extern int HLVR_DeviceInfo_Iter_Init(ref HLVR_DeviceInfo_Iter iter);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe bool NSVR_DeviceInfo_Iter_Next(ref NSVR_DeviceInfo_Iter iter, NSVR_System* system);
+			public static extern unsafe bool HLVR_DeviceInfo_Iter_Next(ref HLVR_DeviceInfo_Iter iter, HLVR_System* system);
 
 			/* Tracking */
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_Tracking_Poll(NSVR_System* systemPtr, ref NSVR_TrackingUpdate updatePtr);
+			public static extern unsafe int HLVR_System_Tracking_Poll(HLVR_System* systemPtr, ref HLVR_TrackingUpdate updatePtr);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_Tracking_Enable(NSVR_System* ptr);
+			public static extern unsafe int HLVR_System_Tracking_Enable(HLVR_System* ptr);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_Tracking_Disable(NSVR_System* ptr);
+			public static extern unsafe int HLVR_System_Tracking_Disable(HLVR_System* ptr);
 
 
 			/* Timeline API */
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Event_Create(ref IntPtr eventPtr, NSVR_EventType type);
+			public static extern int HLVR_Event_Create(ref IntPtr eventPtr, HLVR_EventType type);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern void NSVR_Event_Release(ref IntPtr eventPtr);
+			public static extern void HLVR_Event_Release(ref IntPtr eventPtr);
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Event_SetFloat(IntPtr eventPtr, string key, float value);
+			public static extern int HLVR_Event_SetFloat(IntPtr eventPtr, string key, float value);
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Event_SetInt(IntPtr eventPtr, string key, int value);
+			public static extern int HLVR_Event_SetInt(IntPtr eventPtr, string key, int value);
 
 
 			[DllImport("NSLoader", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Event_SetUInt32s(IntPtr eventPtr, string key, [In, Out] UInt32[] values, uint length);
+			public static extern int HLVR_Event_SetUInt32s(IntPtr eventPtr, string key, [In, Out] UInt32[] values, uint length);
 			/* Timelines */
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_Timeline_Create(ref IntPtr eventListPtr);
+			public static extern unsafe int HLVR_Timeline_Create(ref IntPtr eventListPtr);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern void NSVR_Timeline_Release(ref IntPtr listPtr);
+			public static extern void HLVR_Timeline_Release(ref IntPtr listPtr);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Timeline_AddEvent(IntPtr list, IntPtr eventPtr);
+			public static extern int HLVR_Timeline_AddEvent(IntPtr list, IntPtr eventPtr);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_Timeline_Transmit(IntPtr timeline, NSVR_System* systemPtr, IntPtr handlePr);
+			public static extern unsafe int HLVR_Timeline_Transmit(IntPtr timeline, HLVR_System* systemPtr, IntPtr handlePr);
 
 			/* Playback */
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_PlaybackHandle_Create(ref IntPtr handlePtr);
+			public static extern int HLVR_PlaybackHandle_Create(ref IntPtr handlePtr);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_PlaybackHandle_Command(IntPtr handlePtr, NSVR_PlaybackCommand command);
+			public static extern int HLVR_PlaybackHandle_Command(IntPtr handlePtr, HLVR_PlaybackCommand command);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern void NSVR_PlaybackHandle_Release(ref IntPtr handlePtr);
+			public static extern void HLVR_PlaybackHandle_Release(ref IntPtr handlePtr);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_PlaybackHandle_GetInfo(IntPtr handlePtr, ref NSVR_EffectInfo info);
+			public static extern int HLVR_PlaybackHandle_GetInfo(IntPtr handlePtr, ref HLVR_EffectInfo info);
 
 			/* Sampling */
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_Immediate_Sample(NSVR_System* systemPtr, [In, Out] UInt16[] intensities,  [In, Out] UInt32[] areas, [In, Out] UInt32[] families, int length, ref uint resultCount);
+			public static extern unsafe int HLVR_Immediate_Sample(HLVR_System* systemPtr, [In, Out] UInt16[] intensities,  [In, Out] UInt32[] areas, [In, Out] UInt32[] families, int length, ref uint resultCount);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_Immediate_Set(NSVR_System* systemPtr, [In, Out] UInt16[] intensities, [In, Out] UInt32[] areas, int length);
+			public static extern unsafe int HLVR_Immediate_Set(HLVR_System* systemPtr, [In, Out] UInt16[] intensities, [In, Out] UInt32[] areas, int length);
 
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern  int NSVR_BodyView_Create(ref IntPtr body);
+			public static extern  int HLVR_BodyView_Create(ref IntPtr body);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern  int NSVR_BodyView_Release(ref IntPtr body);
+			public static extern  int HLVR_BodyView_Release(ref IntPtr body);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_BodyView_Poll(IntPtr body, NSVR_System* system);
+			public static extern unsafe int HLVR_BodyView_Poll(IntPtr body, HLVR_System* system);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_BodyView_GetNodeCount(IntPtr body, ref UInt32 outNodeCount);
+			public static extern int HLVR_BodyView_GetNodeCount(IntPtr body, ref UInt32 outNodeCount);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern  int NSVR_BodyView_GetNodeType(IntPtr body, UInt32 nodeIndex, ref UInt32 outType);
+			public static extern  int HLVR_BodyView_GetNodeType(IntPtr body, UInt32 nodeIndex, ref UInt32 outType);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_BodyView_GetNodeRegion(IntPtr body, UInt32 nodeIndex, ref UInt32 outRegion);
+			public static extern int HLVR_BodyView_GetNodeRegion(IntPtr body, UInt32 nodeIndex, ref UInt32 outRegion);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			//only valid if nodeType == intensity
-			public static extern int NSVR_BodyView_GetIntensity(IntPtr body, UInt32 nodeIndex, ref float outIntensity);
+			public static extern int HLVR_BodyView_GetIntensity(IntPtr body, UInt32 nodeIndex, ref float outIntensity);
 
 			[DllImport("NSLoader", CallingConvention = CallingConvention.Cdecl)]
 			//only valid if nodeType == color
-			public static extern int NSVR_BodyView_GetColor(IntPtr body, UInt32 nodeIndex, ref NSVR_Color outColor);
+			public static extern int HLVR_BodyView_GetColor(IntPtr body, UInt32 nodeIndex, ref HLVR_Color outColor);
 
 		}
 

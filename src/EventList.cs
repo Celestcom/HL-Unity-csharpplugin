@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using NullSpace.Events;
-using NullSpace.SDK.Internal;
+using Hardlight.Events;
+using Hardlight.SDK.Internal;
 using System.Diagnostics;
-using static NullSpace.SDK.NSVR;
+using static Hardlight.SDK.HLVR;
 
-namespace NullSpace.SDK
+namespace Hardlight.SDK
 {
 	internal interface ITimeIndexed
 	{
@@ -57,21 +57,21 @@ namespace NullSpace.SDK
 			Debug.Assert(timelinePtr != IntPtr.Zero);
 
 			IntPtr eventPtr = IntPtr.Zero;
-			Interop.NSVR_Event_Create(ref eventPtr, Interop.NSVR_EventType.Basic_Haptic_Event);
+			Interop.HLVR_Event_Create(ref eventPtr, Interop.HLVR_EventType.Basic_Haptic_Event);
 			Debug.Assert(eventPtr != IntPtr.Zero);
 
-			Interop.NSVR_Event_SetFloat(eventPtr, "duration", _duration);
+			Interop.HLVR_Event_SetFloat(eventPtr, "duration", _duration);
 			//could be unsigned problem?!? Nah. Context: something is generating events without area information
 
-			Interop.NSVR_Event_SetUInt32s(eventPtr, "area", _area, (uint)_area.Length);
-			Interop.NSVR_Event_SetFloat(eventPtr, "strength", _strength);
+			Interop.HLVR_Event_SetUInt32s(eventPtr, "area", _area, (uint)_area.Length);
+			Interop.HLVR_Event_SetFloat(eventPtr, "strength", _strength);
 
-			Interop.NSVR_Event_SetFloat(eventPtr, "time", _time);
-			Interop.NSVR_Event_SetInt(eventPtr, "effect", (int)_effect);
+			Interop.HLVR_Event_SetFloat(eventPtr, "time", _time);
+			Interop.HLVR_Event_SetInt(eventPtr, "effect", (int)_effect);
 
-			Interop.NSVR_Timeline_AddEvent(timelinePtr, eventPtr);
+			Interop.HLVR_Timeline_AddEvent(timelinePtr, eventPtr);
 
-			Interop.NSVR_Event_Release(ref eventPtr);
+			Interop.HLVR_Event_Release(ref eventPtr);
 			Debug.Assert(eventPtr == IntPtr.Zero);
 		}
 
@@ -126,7 +126,7 @@ namespace NullSpace.SDK
 
 			unsafe
 			{
-				Interop.NSVR_Timeline_Create(ref timelinePtr);
+				Interop.HLVR_Timeline_Create(ref timelinePtr);
 			}
 
 			for (int i = 0; i < _events.Count; i++)
@@ -136,10 +136,10 @@ namespace NullSpace.SDK
 
 			unsafe
 			{
-				Interop.NSVR_Timeline_Transmit(timelinePtr, NSVR_Plugin.Ptr, playbackHandle);
+				Interop.HLVR_Timeline_Transmit(timelinePtr, HLVR_Plugin.Ptr, playbackHandle);
 			}
 
-			Interop.NSVR_Timeline_Release(ref timelinePtr);
+			Interop.HLVR_Timeline_Release(ref timelinePtr);
 		}
 
 

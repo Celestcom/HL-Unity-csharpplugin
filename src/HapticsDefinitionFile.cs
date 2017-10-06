@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using static NullSpace.SDK.FileUtilities.ParsingUtils;
+using static Hardlight.SDK.FileUtilities.ParsingUtils;
 
-namespace NullSpace.SDK.FileUtilities
+namespace Hardlight.SDK.FileUtilities
 {
 	public class HapticsAssetException : Exception
 	{
@@ -19,7 +19,7 @@ namespace NullSpace.SDK.FileUtilities
 
 	public class DefDictionary<TAtomType> : Dictionary<string, IList<TAtomType>> { }
 
-	public class HapticDefinitionFile : IJsonDeserializable
+	public class HapticDefinitionFile : IJsonDeserializable, IJsonSerializable
 	{
 		[SerializeField]
 		public RootEffect root_effect;
@@ -84,7 +84,12 @@ namespace NullSpace.SDK.FileUtilities
 				}
 				catch (KeyNotFoundException e)
 				{
-					Debug.LogError("In pats: " + e.Message + "\n");
+
+#if UNITY_EDITOR
+				UnityEngine.Debug.LogException("In pats: " + e.Message + "\n");
+#else
+					Console.WriteLine("[Error] Exception from pattern parsing: " + e.Message + "\n");
+#endif
 				}
 
 				try
@@ -95,7 +100,11 @@ namespace NullSpace.SDK.FileUtilities
 				}
 				catch (KeyNotFoundException e)
 				{
-					Debug.LogError("In seqs: " + e.Message + "\n");
+#if UNITY_EDITOR
+				UnityEngine.Debug.LogException("[Error] Exception from pattern parsing: " + e.Message + "\n");
+#else
+					Console.WriteLine("[Error] Exception from pattern parsing: " + e.Message + "\n");
+#endif
 				}
 				try
 				{
@@ -105,17 +114,26 @@ namespace NullSpace.SDK.FileUtilities
 				}
 				catch (KeyNotFoundException e)
 				{
-					Debug.LogError("In exps: " + e.Message + "\n");
+#if UNITY_EDITOR
+				UnityEngine.Debug.LogException("[Error] Exception from experience parsing: " + e.Message + "\n");
+#else
+					Console.WriteLine("[Error] Exception from experience parsing: " + e.Message + "\n");
+#endif
 				}
 			}
 			catch (Exception e)
 			{
 				var exep = new HapticsAssetException("Couldn't parse the haptic asset", e);
 
+
+#if UNITY_EDITOR
 				Debug.LogException(exep);
+#else
+				Console.WriteLine(exep.Message);
+#endif
 			}
 		}
-		public string Serialize()
+		public IDictionary<string, object> SerializeToDictionary()
 		{
 			IDictionary<string, object> dict = new Dictionary<string, object>();
 			try
@@ -123,7 +141,7 @@ namespace NullSpace.SDK.FileUtilities
 				#region Root Effect
 				if (root_effect != null)
 				{
-					var result = root_effect.Serialize();
+					var result = root_effect.SerializeToDictionary();
 					if (result != null && result.Count > 0)
 					{
 						dict.Add("root_effect", result);
@@ -201,11 +219,13 @@ namespace NullSpace.SDK.FileUtilities
 #else
 				Console.WriteLine("Failed to encode\n\t" + e.Message);
 #endif
-			} 
+			}
 			#endregion
-
-			string json = MiniJSON.Json.Serialize(dict);
-
+			return dict;
+		}
+		public string Serialize()
+		{
+			string json = MiniJSON.Json.Serialize(SerializeToDictionary());
 
 			return json;
 		}

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEditor;
-namespace NullSpace.SDK.FileUtilities
+namespace Hardlight.SDK.FileUtilities
 {
 	public static class HapticResources
 	{
@@ -60,7 +60,8 @@ namespace NullSpace.SDK.FileUtilities
 		}
 		public interface IJsonSerializable
 		{
-			IDictionary<string, object> Serialize();
+			IDictionary<string, object> SerializeToDictionary();
+			string Serialize();
 		}
 
 		internal static float parseFloat(object f)
@@ -176,12 +177,16 @@ namespace NullSpace.SDK.FileUtilities
 				this.name = (string)dict["name"];
 				this.type = (string)dict["type"];
 			}
-			public IDictionary<string, object> Serialize()
+			public IDictionary<string, object> SerializeToDictionary()
 			{
 				Dictionary<string, object> dict = new Dictionary<string, object>();
 				dict.Add("name", name);
 				dict.Add("type", type);
 				return dict;
+			}
+			public string Serialize()
+			{
+				return MiniJSON.Json.Serialize(SerializeToDictionary());
 			}
 		}
 
@@ -213,7 +218,7 @@ namespace NullSpace.SDK.FileUtilities
 				this.strength = tryParseFloatFromObject(dict, "strength", 1f);
 				this.time = tryParseFloatFromObject(dict, "time", 0f);
 			}
-			public IDictionary<string, object> Serialize()
+			public IDictionary<string, object> SerializeToDictionary()
 			{
 				Dictionary<string, object> dict = new Dictionary<string, object>();
 				dict.Add("effect", effect);
@@ -221,6 +226,10 @@ namespace NullSpace.SDK.FileUtilities
 				dict.Add("strength", strength);
 				dict.Add("time", time);
 				return dict;
+			}
+			public string Serialize()
+			{
+				return MiniJSON.Json.Serialize(SerializeToDictionary());
 			}
 		}
 
@@ -253,7 +262,7 @@ namespace NullSpace.SDK.FileUtilities
 				this.strength = tryParseFloatFromObject(dict, "strength", 1f);
 				this.time = tryParseFloatFromObject(dict, "time", 0f);
 			}
-			public IDictionary<string, object> Serialize()
+			public IDictionary<string, object> SerializeToDictionary()
 			{
 				Dictionary<string, object> dict = new Dictionary<string, object>();
 				dict.Add("sequence", sequence);
@@ -261,6 +270,10 @@ namespace NullSpace.SDK.FileUtilities
 				dict.Add("strength", strength);
 				dict.Add("time", time);
 				return dict;
+			}
+			public string Serialize()
+			{
+				return MiniJSON.Json.Serialize(SerializeToDictionary());
 			}
 		}
 
@@ -280,13 +293,17 @@ namespace NullSpace.SDK.FileUtilities
 				this.time = tryParseFloatFromObject(dict, "time", 0f);
 
 			}
-			public IDictionary<string, object> Serialize()
+			public IDictionary<string, object> SerializeToDictionary()
 			{
 				Dictionary<string, object> dict = new Dictionary<string, object>();
 				dict.Add("pattern", pattern);
 				dict.Add("strength", strength);
 				dict.Add("time", time);
 				return dict;
+			}
+			public string Serialize()
+			{
+				return MiniJSON.Json.Serialize(SerializeToDictionary());
 			}
 		}
 
