@@ -1,12 +1,12 @@
 ﻿using System;
 using UnityEngine;
 using System.Runtime.InteropServices;
-using NullSpace.SDK.Internal;
+using Hardlight.SDK.Internal;
 using System.ServiceProcess;
 using System.Runtime.Remoting.Messaging;
 using System.Collections.Generic;
 
-namespace NullSpace.SDK
+namespace Hardlight.SDK
 {
 
 	/// <summary>
@@ -67,9 +67,9 @@ namespace NullSpace.SDK
 	}
 
 	/// <summary>
-	/// Wrapper around the main access point of the plugin, NSVR_Plugin
+	/// Wrapper around the main access point of the plugin, HLVR_Plugin
 	/// </summary>
-	public static class NSVR
+	public static class HLVR
 	{
 		internal static unsafe HLVR_Agent* _ptr;
 		internal static bool _created = false;
@@ -78,7 +78,7 @@ namespace NullSpace.SDK
 		/// <summary>
 		/// Main point of access to the plugin, implements IDisposable
 		/// </summary>
-		public unsafe sealed class NSVR_Plugin : IDisposable
+		public unsafe sealed class HLVR_Plugin : IDisposable
 		{
 			internal static bool _disposed = false;
 			private IntPtr _bodyView = IntPtr.Zero;
@@ -101,7 +101,7 @@ namespace NullSpace.SDK
 				}
 			}
 
-			public NSVR_Plugin()
+			public HLVR_Plugin()
 			{
 				_disposed = false;
 				if (_created)
@@ -372,7 +372,7 @@ namespace NullSpace.SDK
 			}
 
 			// TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-			~NSVR_Plugin()
+			~HLVR_Plugin()
 			{
 				//   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 				Dispose(false);
@@ -574,7 +574,7 @@ namespace NullSpace.SDK
 					// TODO: dispose managed state (managed objects).
 				}
 
-				if (!NSVR.NSVR_Plugin._disposed)
+				if (!HLVR.HLVR_Plugin._disposed)
 				{
 					unsafe
 					{

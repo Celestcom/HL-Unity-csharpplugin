@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using NullSpace.Events;
-using NullSpace.SDK.Internal;
+using Hardlight.Events;
+using Hardlight.SDK.Internal;
 using System.Diagnostics;
-using static NullSpace.SDK.NSVR;
+using static Hardlight.SDK.HLVR;
 
-namespace NullSpace.SDK
+namespace Hardlight.SDK
 {
 	internal interface ITimeIndexed
 	{

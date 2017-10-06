@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace NullSpace.SDK
+namespace Hardlight.SDK
 {
 
 	unsafe struct HLVR_Agent { }

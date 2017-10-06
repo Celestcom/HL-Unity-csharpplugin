@@ -7,7 +7,7 @@ using System.IO;
 using System.Security;
 using System.ComponentModel;
 
-namespace NullSpace.SDK.FileUtilities
+namespace Hardlight.SDK.FileUtilities
 {
 	/// <summary>
 	/// A wrapper over the Haptic Asset Tool binary. Retrieves json responses from the tool, 
@@ -114,7 +114,7 @@ namespace NullSpace.SDK.FileUtilities
 			_process.StartInfo.CreateNoWindow = true;
 
 			const string userRoot = "HKEY_CURRENT_USER";
-			const string subkey = "SOFTWARE\\NullSpace VR\\AssetTool";
+			const string subkey = "SOFTWARE\\Hardlight VR\\AssetTool";
 			const string keyName = userRoot + "\\" + subkey;
 			try
 			{
@@ -122,32 +122,45 @@ namespace NullSpace.SDK.FileUtilities
 
 				if (path == "unknown")
 				{
-					UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory. Is the Service installed?\n");
-				} else
+#if UNITY_EDITOR
+					UnityEngine.Debug.LogError("[HLVR] Failed to find the asset tool's install directory. Is the Service installed?\n");
+#else
+					Console.WriteLine("[HLVR] Failed to find the asset tool's install directory. Is the Service installed?\n");
+#endif
+				}
+				else
 				{
 					_process.StartInfo.FileName = path;
 
 				}
-			} catch (ArgumentException)
+			}
+			catch (ArgumentException)
 			{
-				UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory. Is the Service installed?\n");
-
+#if UNITY_EDITOR
+				UnityEngine.Debug.LogError("[HLVR] Failed to find the asset tool's install directory. Is the Service installed?\n");
+#else
+				Console.WriteLine("[HLVR] Failed to find the asset tool's install directory. Is the Service installed?\n");
+#endif
 			}
 			catch (IOException)
 			{
-				UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory. Try reinstalling the service.\n");
-
+#if UNITY_EDITOR
+				UnityEngine.Debug.LogError("[HLVR] Failed to find the asset tool's install directory. Try reinstalling the service.\n");
+#else
+				Console.WriteLine("[HLVR] Failed to find the asset tool's install directory. Try reinstalling the service.\n");
+#endif
 			}
 			catch (SecurityException)
 			{
-				UnityEngine.Debug.LogError("[NSVR] Failed to find the asset tool's install directory, because I don't have permission to read the registry. Try running as administrator?\n");
-
+#if UNITY_EDITOR
+				UnityEngine.Debug.LogError("[HLVR] Failed to find the asset tool's install directory, because I don't have permission to read the registry. Try running as administrator?\n");
+#else
+				Console.WriteLine("[HLVR] Failed to find the asset tool's install directory, because I don't have permission to read the registry. Try running as administrator?\n");
+#endif
 			}
-
-		
 		}
 
-	
+
 
 		/// <summary>
 		/// Set the user's root haptics directory
@@ -180,7 +193,7 @@ namespace NullSpace.SDK.FileUtilities
 			//We need better error reporting for the json communication
 			if (result.Contains("Malformed config"))
 			{
-				UnityEngine.Debug.LogError("[NSVR] Asset tool failed: " + result + "\n");
+				UnityEngine.Debug.LogError("[HLVR] Asset tool failed: " + result + "\n");
 				return new List<PackageInfo>();
 			}
 			var a = MiniJSON.Json.Deserialize(result) as IList<object>;
@@ -192,7 +205,7 @@ namespace NullSpace.SDK.FileUtilities
 				packages.Add(package);
 			}
 			return packages;
-		
+
 
 
 		}
@@ -205,7 +218,7 @@ namespace NullSpace.SDK.FileUtilities
 			_process.StartInfo.Arguments = argString;
 			_process.Start();
 			string output = _process.StandardOutput.ReadToEnd();
-	
+
 			_process.WaitForExit(500);
 
 			if (output.Contains("Error:"))
@@ -231,19 +244,24 @@ namespace NullSpace.SDK.FileUtilities
 			);
 
 			HapticDefinitionFile hdf = new HapticDefinitionFile();
-			
+
 			try
 			{
 				object x = MiniJSON.Json.Deserialize(result);
 				hdf.Deserialize(x as IDictionary<string, object>);
 				return hdf;
-			} catch (Exception e)
-			{
-				UnityEngine.Debug.LogException(e);
-				throw new HapticsLoadingException("[NSVR] Couldn't deserialize the json response for the request file path [" + path + "]");
 			}
-		
-		
+			catch (Exception e)
+			{
+#if UNITY_EDITOR
+				UnityEngine.Debug.LogException(e);
+#else
+				Console.WriteLine(e);
+#endif
+				throw new HapticsLoadingException("[HLVR] Couldn't deserialize the json response for the request file path [" + path + "]");
+			}
+
+
 		}
 
 
@@ -258,12 +276,12 @@ namespace NullSpace.SDK.FileUtilities
 							new ArgList()
 							.Add("root-path", _rootPath)
 							.Add("generate-asset", path)
-							
+
 						);
 
 			return result;
 		}
-		
+
 		/// <summary>
 		/// Converts a haptic package into an HDF package, mirroring the standard haptic directory layout
 		/// </summary>
@@ -272,10 +290,10 @@ namespace NullSpace.SDK.FileUtilities
 		public string ConvertPackageToHDFs(PackageInfo package, string outDir)
 		{
 			var result = executeToolAndWaitForResult(
-				new ArgList() 
+				new ArgList()
 				.Add("root-path", _rootPath)
 				.Add("convert-package", package.@namespace)
-				.Add("hdf-out", outDir)	
+				.Add("hdf-out", outDir)
 			);
 
 			return result;
@@ -289,7 +307,8 @@ namespace NullSpace.SDK.FileUtilities
 				if (arg.Value == "")
 				{
 					sb.Append(string.Format("--{0} ", arg.Key));
-				} else
+				}
+				else
 				{
 					sb.Append(string.Format("--{0}=\"{1}\" ", arg.Key, arg.Value));
 				}
