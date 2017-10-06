@@ -6,28 +6,31 @@ using System.Text;
 namespace NullSpace.SDK
 {
 
-	unsafe struct NSVR_System { }
-	unsafe struct NSVR_Event { }
-	unsafe struct NSVR_Timeline { }
-	unsafe struct NSVR_PlaybackHandle { }
+	unsafe struct HLVR_Agent { }
+	unsafe struct HLVR_Event { }
+	unsafe struct HLVR_Timeline { }
+	unsafe struct HLVR_PlaybackHandle { }
+	unsafe struct HLVR_Effect { }
+
 	namespace Internal
 	{
 		internal static class Interop
 		{
 			internal const int SUBREGION_BLOCK_SIZE = 1000000;
 
-			public static bool NSVR_SUCCESS(int result)
+			public static bool OK(int result)
 			{
 				return result >= 0;
 			}
 
-			public static bool NSVR_FAILURE(int result)
+			public static bool FAIL(int result)
 			{
-				return !NSVR_SUCCESS(result);
+				return !OK(result);
 			}
 
-			[StructLayout(LayoutKind.Sequential, Pack = 1)]
-			public struct NSVR_Quaternion
+
+			[StructLayout(LayoutKind.Sequential)]
+			public struct HLVR_Quaternion
 			{
 				public float w;
 				public float x;
@@ -35,38 +38,27 @@ namespace NullSpace.SDK
 				public float z;
 			}
 
-			[StructLayout(LayoutKind.Sequential, Pack = 1)]
-			public struct NSVR_Color
+			[StructLayout(LayoutKind.Sequential)]
+			public struct HLVR_TrackingUpdate
 			{
-				public float r;
-				public float g;
-				public float b;
-				public float a;
+				public HLVR_Quaternion chest;
+				public HLVR_Quaternion left_upper_arm;
+				public HLVR_Quaternion left_forearm;
+				public HLVR_Quaternion right_upper_arm;
+				public HLVR_Quaternion right_forearm;
 			}
 
-			[StructLayout(LayoutKind.Sequential, Pack = 1)]
-			public struct NSVR_TrackingUpdate
+	
+			[StructLayout(LayoutKind.Sequential)]
+			public struct HLVR_PlatformInfo
 			{
-				public NSVR_Quaternion chest;
-				public NSVR_Quaternion left_upper_arm;
-				public NSVR_Quaternion left_forearm;
-				public NSVR_Quaternion right_upper_arm;
-				public NSVR_Quaternion right_forearm;
-			}
-
-		
-
-
-			[StructLayout(LayoutKind.Sequential, Pack = 1)]
-			public struct NSVR_ServiceInfo
-			{
-				uint ServiceMajor;
-				uint ServiceMinor;
+				public uint MajorVersion;
+				public uint MinorVersion;
 			};
 
-			public enum NSVR_EventKey
+			public enum HLVR_EventKey
 			{
-				Invalid = 0,
+				Unknown = 0,
 				/* Required keys*/
 				Time_Float,
 
@@ -74,33 +66,25 @@ namespace NullSpace.SDK
 				SimpleHaptic_Strength_Float,
 				SimpleHaptic_Effect_Int,
 				SimpleHaptic_Region_UInt32s,
-				SimpleHaptic_Nodes_UInt32s,
-
-				Max = 2147483647
-
+				SimpleHaptic_Nodes_UInt32s
 			}
 			
-			public enum NSVR_EventType
+
+			public enum HLVR_EventType
 			{
+				Unknown = 0,
 				SimpleHaptic = 1,
-				Max = 65535
 			};
 
-			public enum NSVR_PlaybackCommand
-			{
-				Play = 0,
-				Pause,
-				Reset
-			}
 
-			public enum NSVR_DeviceStatus
+			public enum HLVR_DeviceStatus
 			{
 				Unknown = 0,
 				Connected = 1,
 				Disconnected = 2
 			}
 
-			public enum NSVR_DeviceConcept
+			public enum HLVR_DeviceConcept
 			{
 				Unknown = 0,
 				Suit,
@@ -110,161 +94,164 @@ namespace NullSpace.SDK
 				Sword
 			} 
 
-			[StructLayout(LayoutKind.Sequential, Pack = 1)]
-			public struct NSVR_DeviceInfo
+			[StructLayout(LayoutKind.Sequential)]
+			public struct HLVR_DeviceInfo
 			{
 				public UInt32 Id;
 				[MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
 				public char[] Name;
-				public NSVR_DeviceConcept Concept;
-				public NSVR_DeviceStatus Status;
+				public HLVR_DeviceConcept Concept;
+				public HLVR_DeviceStatus Status;
 			};
 
-
-			public struct NSVR_DeviceInfo_Iter
+			[StructLayout(LayoutKind.Sequential)]
+			public struct HLVR_DeviceIterator
 			{
 				public IntPtr _internal;
-				public NSVR_DeviceInfo DeviceInfo;
+				public HLVR_DeviceInfo DeviceInfo;
 			}
-			public enum NSVR_EffectInfo_State
+
+
+			public enum HLVR_EffectInfo_State
 			{
-				NSVR_EffectInfo_State_Playing,
-				NSVR_EffectInfo_State_Paused,
-				NSVR_EffectInfo_State_Idle
+				Unknown = 0,
+				Playing,
+				Paused,
+				Idle
 			}
 
 			
 			[StructLayout(LayoutKind.Sequential)]
-			public struct NSVR_EffectInfo
+			public struct HLVR_EffectInfo
 			{
 				public float Duration;
 				public float Elapsed;
-				NSVR_EffectInfo_State PlaybackState;
+				HLVR_EffectInfo_State PlaybackState;
 			};
 
+			/* Agent functions */
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
+			public static extern unsafe int HLVR_Agent_Create(HLVR_Agent** agent);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_Create(NSVR_System** systemPtr);
+			public static extern unsafe void HLVR_Agent_Destroy(HLVR_Agent** agent);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe void NSVR_System_Release(NSVR_System** value);
+			public static unsafe extern int HLVR_Agent_SuspendEffects(HLVR_Agent* agent);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern uint NSVR_Version_Get();
+			public static extern unsafe int HLVR_Agent_ResumeEffects(HLVR_Agent* agent);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Version_IsCompatibleDLL();
+			public static extern unsafe int HLVR_Agent_CancelEffects(HLVR_Agent* agent);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_GetServiceInfo(NSVR_System* systemPtr, ref NSVR_ServiceInfo infoPtr);
+			public static extern unsafe int HLVR_Agent_GetPlatformInfo(HLVR_Agent* agent, ref HLVR_PlatformInfo infoPtr);
 
-			/* Haptics Engine */
+
+			/* Versioning */
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
+			public static extern uint HLVR_Version_Get();
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static unsafe extern int NSVR_System_Haptics_Suspend(NSVR_System* systemPtr);
+			public static extern int HLVR_Version_IsCompatibleDLL();
+
+			
+			/* Device enumeration */
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_Haptics_Resume(NSVR_System* systemPtr);
+			public static extern int HLVR_DeviceIterator_Init(ref HLVR_DeviceIterator iter);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_Haptics_Destroy(NSVR_System* systemPtr);
+			public static extern unsafe int HLVR_DeviceIterator_Next(ref HLVR_DeviceIterator iter, HLVR_Agent* system);
 
-			/* Devices */
-
-			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_DeviceInfo_Iter_Init(ref NSVR_DeviceInfo_Iter iter);
+			/* Events */
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe bool NSVR_DeviceInfo_Iter_Next(ref NSVR_DeviceInfo_Iter iter, NSVR_System* system);
-
-			/* Tracking */
-			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_Tracking_Poll(NSVR_System* systemPtr, ref NSVR_TrackingUpdate updatePtr);
+			public static extern unsafe int HLVR_Event_Create(HLVR_Event** event_, HLVR_EventType type);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_Tracking_Enable(NSVR_System* ptr);
+			public static extern unsafe void HLVR_Event_Destroy(HLVR_Event** event_);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_System_Tracking_Disable(NSVR_System* ptr);
-
-
-			/* Timeline API */
+			public static extern unsafe int HLVR_Event_SetFloat(HLVR_Event* event_, HLVR_EventKey key, float value);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Event_Create(ref IntPtr eventPtr, NSVR_EventType type);
+			public static extern unsafe int HLVR_Event_SetInt(HLVR_Event* event_, HLVR_EventKey key, int value);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern void NSVR_Event_Release(ref IntPtr eventPtr);
+			public static extern unsafe int HLVR_Event_SetUInt32s(HLVR_Event* event_, HLVR_EventKey key, [In, Out] UInt32[] values, uint length);
 
-			[DllImport("Hardlight", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Event_SetFloat(IntPtr eventPtr, NSVR_EventKey  key, float value);
-
-			[DllImport("Hardlight", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Event_SetInt(IntPtr eventPtr, NSVR_EventKey key, int value);
-
-
-			[DllImport("Hardlight", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Event_SetUInt32s(IntPtr eventPtr, NSVR_EventKey key, [In, Out] UInt32[] values, uint length);
 			/* Timelines */
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_Timeline_Create(ref IntPtr eventListPtr);
+			public static extern unsafe int HLVR_Timeline_Create(HLVR_Timeline** timeline);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern void NSVR_Timeline_Release(ref IntPtr listPtr);
+			public static extern unsafe void HLVR_Timeline_Destroy(HLVR_Timeline** timeline);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_Timeline_AddEvent(IntPtr list, IntPtr eventPtr);
+			public static extern unsafe int HLVR_Timeline_AddEvent(HLVR_Timeline* timeline, HLVR_Event* eventPtr);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_Timeline_Transmit(IntPtr timeline, NSVR_System* systemPtr, IntPtr handlePr);
+			public static extern unsafe int HLVR_Timeline_Transmit(HLVR_Timeline* timeline, HLVR_Agent* agent, HLVR_Effect* effect);
 
 			/* Playback */
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_PlaybackHandle_Create(ref IntPtr handlePtr);
+			public static extern unsafe int HLVR_Effect_Create(HLVR_Effect** effect);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_PlaybackHandle_Command(IntPtr handlePtr, NSVR_PlaybackCommand command);
+			public static extern unsafe void HLVR_Effect_Destroy(HLVR_Effect** effect);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern void NSVR_PlaybackHandle_Release(ref IntPtr handlePtr);
+			public static extern unsafe int HLVR_Effect_Play(HLVR_Effect* effect);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_PlaybackHandle_GetInfo(IntPtr handlePtr, ref NSVR_EffectInfo info);
-
-			/* Sampling */
-			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_Immediate_Sample(NSVR_System* systemPtr, [In, Out] UInt16[] intensities,  [In, Out] UInt32[] areas, [In, Out] UInt32[] families, int length, ref uint resultCount);
+			public static extern unsafe int HLVR_Effect_Pause(HLVR_Effect* effect);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_Immediate_Set(NSVR_System* systemPtr, [In, Out] UInt16[] intensities, [In, Out] UInt32[] areas, int length);
-
-
-			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern  int NSVR_BodyView_Create(ref IntPtr body);
+			public static extern unsafe int HLVR_Effect_Reset(HLVR_Effect* effect);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern  int NSVR_BodyView_Release(ref IntPtr body);
+			public static extern unsafe int HLVR_Effect_GetInfo(HLVR_Effect* effect, ref HLVR_EffectInfo info);
+
+
+			/* Experimental APIs */
+		
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
+			public static extern unsafe int HLVR_Immediate_Set(HLVR_Agent* agent, [In, Out] UInt16[] intensities, [In, Out] UInt32[] areas, int length);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int NSVR_BodyView_Poll(IntPtr body, NSVR_System* system);
+			public static extern  int HLVR_BodyView_Create(ref IntPtr body);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_BodyView_GetNodeCount(IntPtr body, ref UInt32 outNodeCount);
+			public static extern  int HLVR_BodyView_Release(ref IntPtr body);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern  int NSVR_BodyView_GetNodeType(IntPtr body, UInt32 nodeIndex, ref UInt32 outType);
+			public static extern unsafe int HLVR_BodyView_Poll(IntPtr body, HLVR_Agent* system);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int NSVR_BodyView_GetNodeRegion(IntPtr body, UInt32 nodeIndex, ref UInt32 outRegion);
+			public static extern int HLVR_BodyView_GetNodeCount(IntPtr body, ref UInt32 outNodeCount);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			//only valid if nodeType == intensity
-			public static extern int NSVR_BodyView_GetIntensity(IntPtr body, UInt32 nodeIndex, ref float outIntensity);
+			public static extern  int HLVR_BodyView_GetNodeType(IntPtr body, UInt32 nodeIndex, ref UInt32 outType);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			//only valid if nodeType == color
-			public static extern int NSVR_BodyView_GetColor(IntPtr body, UInt32 nodeIndex, ref NSVR_Color outColor);
+			public static extern int HLVR_BodyView_GetNodeRegion(IntPtr body, UInt32 nodeIndex, ref UInt32 outRegion);
 
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
+			public static extern int HLVR_BodyView_GetIntensity(IntPtr body, UInt32 nodeIndex, ref float outIntensity);
+
+		
+
+			/* Tracking */
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
+			public static extern unsafe int HLVR_Agent_PollTracking(HLVR_Agent* agent, ref HLVR_TrackingUpdate updatePtr);
+
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
+			public static extern unsafe int HLVR_Agent_EnableTracking(HLVR_Agent* ptr);
+
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
+			public static extern unsafe int HLVR_Agent_DisableTracking(HLVR_Agent* ptr);
 		}
 
 
@@ -282,14 +269,7 @@ namespace NullSpace.SDK
 		Disconnected = 0,
 		Connected = 1
 	}
-	public enum Imu
-	{
-		Chest = 0,
-		Right_Upper_Arm = 1,
-		Left_Upper_Arm = 2,
-		Right_Forearm = 3,
-		Left_Forearm = 4
-	};
+	
 
 	[Flags]
 	public enum AreaFlag

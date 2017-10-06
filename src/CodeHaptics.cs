@@ -144,19 +144,9 @@ namespace NullSpace.SDK
 		/// </summary>
 		/// <param name="area">The AreaFlag where this HapticSequence should play</param>
 		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
-		public HapticHandle CreateHandle(AreaFlag area)
+		public unsafe HapticHandle CreateHandle(AreaFlag area)
 		{
-			HandleLazyAssetLoading();
-
-			EventList e = new ParameterizedSequence(this, area).Generate(1f, 0f);
-
-			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
-			{
-				e.Transmit(handle);
-			};
-
-			HapticHandle h = new HapticHandle(creator);
-			return h;
+			return CreateHandle(area, 1.0f);
 		}
 
 		/// <summary>
@@ -165,12 +155,12 @@ namespace NullSpace.SDK
 		/// <param name="area">The AreaFlag where this HapticSequence should play</param>
 		/// <param name="strength">The strength of this HapticSequence (0.0-1.0)</param>
 		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
-		public HapticHandle CreateHandle(AreaFlag area, double strength)
+		public unsafe HapticHandle CreateHandle(AreaFlag area, double strength)
 		{
 			HandleLazyAssetLoading();
 
 			EventList e = new ParameterizedSequence(this, area).Generate((float)strength, 0f);
-			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
+			HapticHandle.CommandWithHandle creator = delegate (HLVR_Effect* handle)
 			{
 				e.Transmit(handle);
 			};
@@ -304,18 +294,9 @@ namespace NullSpace.SDK
 		/// Create a HapticHandle from this HapticPattern, which can be used to manipulate the effect. 
 		/// </summary>
 		/// <returns>A new HapticHandle</returns>
-		public HapticHandle CreateHandle()
+		public unsafe HapticHandle CreateHandle()
 		{
-			HandleLazyAssetLoading();
-
-			EventList e = new ParameterizedPattern(this).Generate(1f, 0f);
-
-			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
-			{
-				e.Transmit(handle);
-			};
-
-			return new HapticHandle(creator);
+			return CreateHandle(1.0f);
 		}
 
 		/// <summary>
@@ -323,13 +304,13 @@ namespace NullSpace.SDK
 		/// </summary>
 		/// <param name="strength"></param>
 		/// <returns>A new HapticHandle</returns>
-		public HapticHandle CreateHandle(double strength)
+		public unsafe HapticHandle CreateHandle(double strength)
 		{
 			HandleLazyAssetLoading();
 
 			EventList e = new ParameterizedPattern(this).Generate((float)strength, 0f);
 
-			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
+			HapticHandle.CommandWithHandle creator = delegate (HLVR_Effect* handle)
 			{
 				e.Transmit(handle);
 
@@ -465,18 +446,9 @@ namespace NullSpace.SDK
 		/// Create a HapticHandle from this HapticExperience, which can be used to manipulate the effect. 
 		/// </summary>
 		/// <returns>A new HapticHandle</returns>
-		public HapticHandle CreateHandle()
+		public unsafe HapticHandle CreateHandle()
 		{
-			HandleLazyAssetLoading();
-
-			EventList e = new ParameterizedExperience(this).Generate(1f, 0f);
-
-			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
-			{
-				e.Transmit(handle);
-			};
-
-			return new HapticHandle(creator);
+			return CreateHandle(1.0f);
 		}
 
 		/// <summary>
@@ -484,13 +456,13 @@ namespace NullSpace.SDK
 		/// </summary>
 		/// <param name="strength"></param>
 		/// <returns>A new HapticHandle</returns>
-		public HapticHandle CreateHandle(double strength)
+		public unsafe HapticHandle CreateHandle(double strength)
 		{
 			HandleLazyAssetLoading();
 
 			EventList e = new ParameterizedExperience(this).Generate((float)strength, 0f);
 
-			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
+			HapticHandle.CommandWithHandle creator = delegate (HLVR_Effect* handle)
 			{
 				e.Transmit(handle);
 			};

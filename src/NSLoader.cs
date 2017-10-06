@@ -71,7 +71,7 @@ namespace NullSpace.SDK
 	/// </summary>
 	public static class NSVR
 	{
-		internal static unsafe NSVR_System* _ptr;
+		internal static unsafe HLVR_Agent* _ptr;
 		internal static bool _created = false;
 
 	
@@ -83,7 +83,7 @@ namespace NullSpace.SDK
 			internal static bool _disposed = false;
 			private IntPtr _bodyView = IntPtr.Zero;
 
-			internal static unsafe NSVR_System* Ptr
+			internal static unsafe HLVR_Agent* Ptr
 			{
 				get
 				{
@@ -94,7 +94,7 @@ namespace NullSpace.SDK
 					}
 					else
 					{
-						throw new MemberAccessException("[NSVR] You must have a NS Manager prefab in your scene!\n");
+						throw new MemberAccessException("[HLVR] You must have a NS Manager prefab in your scene!\n");
 
 					}
 
@@ -106,21 +106,21 @@ namespace NullSpace.SDK
 				_disposed = false;
 				if (_created)
 				{
-					Debug.LogWarning("[NSVR] NSVR_Plugin should only be created by the NullSpace SDK\n");
+					Debug.LogWarning("[HLVR] NSVR_Plugin should only be created by the NullSpace SDK\n");
 					return;
 				}
 
-				fixed (NSVR_System** system_ptr = &_ptr)
+				fixed (HLVR_Agent** system_ptr = &_ptr)
 				{
-					if (Interop.NSVR_SUCCESS(Interop.NSVR_System_Create(system_ptr)))
+					if (Interop.OK(Interop.HLVR_Agent_Create(system_ptr)))
 					{
 						_created = true;
 
-						int result = Interop.NSVR_BodyView_Create(ref _bodyView);
+						int result = Interop.HLVR_BodyView_Create(ref _bodyView);
 					}
 					else
 					{
-						Debug.LogError("[NSVR] NSVR_Plugin could not be instantiated\n");
+						Debug.LogError("[HLVR] HLVR_Plugin could not be instantiated\n");
 
 					}
 				}
@@ -135,15 +135,15 @@ namespace NullSpace.SDK
 			{
 				Dictionary<Region, EffectSampleInfo> result = new Dictionary<Region, EffectSampleInfo>();
 
-				Interop.NSVR_BodyView_Poll(_bodyView, Ptr);
+				Interop.HLVR_BodyView_Poll(_bodyView, Ptr);
 
 				uint numNodes = 0;
-				Interop.NSVR_BodyView_GetNodeCount(_bodyView, ref numNodes);
+				Interop.HLVR_BodyView_GetNodeCount(_bodyView, ref numNodes);
 
 				for (uint i = 0; i < numNodes; i++)
 				{
 					uint nodeType = 0;
-					Interop.NSVR_BodyView_GetNodeType(_bodyView, i, ref nodeType);
+					Interop.HLVR_BodyView_GetNodeType(_bodyView, i, ref nodeType);
 
 					uint region = 0;
 
@@ -158,11 +158,11 @@ namespace NullSpace.SDK
 						Debug.LogError(string.Format("Warning: You must be a time traveler from the future. The region returned by the API [{0}] is too large to fit in your int32. It will most likely overflow and be meaningless.\nWe are returning Region.unknown instead.", region));
 					}
 
-					Interop.NSVR_BodyView_GetNodeRegion(_bodyView, i, ref region);
+					Interop.HLVR_BodyView_GetNodeRegion(_bodyView, i, ref region);
 
 
 					float intensity = 0;
-					Interop.NSVR_BodyView_GetIntensity(_bodyView, i, ref intensity);
+					Interop.HLVR_BodyView_GetIntensity(_bodyView, i, ref intensity);
 					result[(Region)region] = new EffectSampleInfo((ushort)(intensity*255), 0, outRegion);
 
 
@@ -191,7 +191,7 @@ namespace NullSpace.SDK
 				UInt32[] areas = new UInt32[1];
 				areas[0] = (uint)singleArea;
 				intensities[0] = (ushort)(255 * Clamp(strength, 0.0, 1.0));
-				Interop.NSVR_Immediate_Set(Ptr, intensities, areas, 1);
+				Interop.HLVR_Immediate_Set(Ptr, intensities, areas, 1);
 			}
 
 			/// <summary>
@@ -213,7 +213,7 @@ namespace NullSpace.SDK
 					areas[i] = (UInt32)(singleAreas[i]);
 				}
 
-				Interop.NSVR_Immediate_Set(Ptr, strengths, areas, areas.Length);
+				Interop.HLVR_Immediate_Set(Ptr, strengths, areas, areas.Length);
 
 			}
 
@@ -224,7 +224,7 @@ namespace NullSpace.SDK
 			/// </summary>
 			public void PauseAll()
 			{
-				Interop.NSVR_System_Haptics_Suspend(Ptr);
+				Interop.HLVR_Agent_SuspendEffects(Ptr);
 			}
 
 
@@ -233,7 +233,7 @@ namespace NullSpace.SDK
 			/// </summary>
 			public void ResumeAll()
 			{
-				Interop.NSVR_System_Haptics_Resume(Ptr);
+				Interop.HLVR_Agent_ResumeEffects(Ptr);
 			}
 
 			/// <summary>
@@ -241,7 +241,7 @@ namespace NullSpace.SDK
 			/// </summary>
 			public void ClearAll()
 			{
-				Interop.NSVR_System_Haptics_Destroy(Ptr);
+				Interop.HLVR_Agent_CancelEffects(Ptr);
 			}
 
 			/// <summary>
@@ -250,7 +250,7 @@ namespace NullSpace.SDK
 			/// <returns></returns>
 			public static VersionInfo GetPluginVersion()
 			{
-				uint version = Interop.NSVR_Version_Get();
+				uint version = Interop.HLVR_Version_Get();
 				VersionInfo v = new VersionInfo();
 				v.Minor = version & 0xFFFF;
 				v.Major = (version & 0xFFFF0000) >> 16;
@@ -263,12 +263,12 @@ namespace NullSpace.SDK
 			{
 				List<Device> devices = new List<Device>();
 
-				Interop.NSVR_DeviceInfo_Iter iter = new Interop.NSVR_DeviceInfo_Iter();
-				Interop.NSVR_DeviceInfo_Iter_Init(ref iter);
+				Interop.HLVR_DeviceIterator iter = new Interop.HLVR_DeviceIterator();
+				Interop.HLVR_DeviceIterator_Init(ref iter);
 
-				while (Interop.NSVR_DeviceInfo_Iter_Next(ref iter, Ptr))
+				while (Interop.OK(Interop.HLVR_DeviceIterator_Next(ref iter, Ptr)))
 				{
-					devices.Add(new Device(new string(iter.DeviceInfo.Name), iter.DeviceInfo.Status == Interop.NSVR_DeviceStatus.Connected));
+					devices.Add(new Device(new string(iter.DeviceInfo.Name), iter.DeviceInfo.Status == Interop.HLVR_DeviceStatus.Connected));
 				}
 
 				return devices;
@@ -277,11 +277,11 @@ namespace NullSpace.SDK
 
 			public ServiceConnectionStatus IsConnectedToService()
 			{
-				Interop.NSVR_ServiceInfo serviceInfo = new Interop.NSVR_ServiceInfo();
-				int value = Interop.NSVR_System_GetServiceInfo(Ptr, ref serviceInfo);
+				Interop.HLVR_PlatformInfo serviceInfo = new Interop.HLVR_PlatformInfo();
+				int value = Interop.HLVR_Agent_GetPlatformInfo(Ptr, ref serviceInfo);
 
 				//	Debug.Log(string.Format("Value is {0}", value));
-				if (Interop.NSVR_SUCCESS(value))
+				if (Interop.OK(value))
 				{
 					return ServiceConnectionStatus.Connected;
 				} else
@@ -295,7 +295,7 @@ namespace NullSpace.SDK
 			/// </summary>
 			public void EnableTracking()
 			{
-				Interop.NSVR_System_Tracking_Enable(Ptr);
+				Interop.HLVR_Agent_EnableTracking(Ptr);
 
 			}
 
@@ -304,7 +304,7 @@ namespace NullSpace.SDK
 			/// </summary>
 			public void DisableTracking()
 			{
-				Interop.NSVR_System_Tracking_Disable(Ptr);
+				Interop.HLVR_Agent_DisableTracking(Ptr);
 			}
 
 			/// <summary>
@@ -315,12 +315,11 @@ namespace NullSpace.SDK
 			{
 				if (enableTracking)
 				{
-					Interop.NSVR_System_Tracking_Enable(Ptr);
+					EnableTracking();
 				}
 				else
 				{
-					Interop.NSVR_System_Tracking_Disable(Ptr);
-
+					DisableTracking();
 				}
 			}
 
@@ -330,8 +329,8 @@ namespace NullSpace.SDK
 			/// <returns>A data structure containing all valid quaternion data</returns>
 			public TrackingUpdate PollTracking()
 			{
-				Interop.NSVR_TrackingUpdate t = new Interop.NSVR_TrackingUpdate();
-				Interop.NSVR_System_Tracking_Poll(Ptr, ref t);
+				Interop.HLVR_TrackingUpdate t = new Interop.HLVR_TrackingUpdate();
+				Interop.HLVR_Agent_PollTracking(Ptr, ref t);
 
 				TrackingUpdate update = new TrackingUpdate();
 				update.Chest = new UnityEngine.Quaternion(t.chest.x, t.chest.y, t.chest.z, t.chest.w);
@@ -359,12 +358,12 @@ namespace NullSpace.SDK
 
 					_created = false;
 
-					Interop.NSVR_BodyView_Release(ref _bodyView);
+					Interop.HLVR_BodyView_Release(ref _bodyView);
 
-					fixed (NSVR_System** ptr = &_ptr)
+					fixed (HLVR_Agent** ptr = &_ptr)
 					{
 						
-						Interop.NSVR_System_Release(ptr);
+						Interop.HLVR_Agent_Destroy(ptr);
 					}
 
 					disposedValue = true;
@@ -412,11 +411,11 @@ namespace NullSpace.SDK
 	/// </summary>
 	public sealed class HapticHandle : IDisposable
 	{
-		private IntPtr _handle = IntPtr.Zero;
+		private unsafe HLVR_Effect* _handle;
 		private CommandWithHandle _creator;
 		private float _duration;
 
-		internal delegate void CommandWithHandle(IntPtr handle);
+		internal unsafe delegate void CommandWithHandle(HLVR_Effect* effect);
 
 		public float EffectDuration
 		{
@@ -431,16 +430,26 @@ namespace NullSpace.SDK
 		/// <param name="creator"></param>
 		internal HapticHandle(CommandWithHandle creator)
 		{
-			
+
 			init(creator);
-			Interop.NSVR_EffectInfo info = new Interop.NSVR_EffectInfo();
-			int result = Interop.NSVR_PlaybackHandle_GetInfo(_handle, ref info);
-			if (Interop.NSVR_SUCCESS(result))
+
+		
+			Interop.HLVR_EffectInfo info = new Interop.HLVR_EffectInfo();
+
+			//Failure by default
+			int result = -1;
+
+			unsafe
+			{
+				result = Interop.HLVR_Effect_GetInfo(_handle, ref info);
+			}
+
+			if (Interop.OK(result))
 			{
 				_duration = info.Duration;
 			} else
 			{
-				UnityEngine.Debug.LogError(string.Format("Failed to fetch information about haptic handle {0}! This handle is no longer usable and has likely been disposed.", _handle));
+				Debug.LogError(string.Format("Failed to fetch information about haptic handle; the handle has been disposed and is no longer usable."));
 			}
 			
 		}
@@ -450,21 +459,27 @@ namespace NullSpace.SDK
 		/// </summary>
 		/// <param name="creator"></param>
 		/// <param name="duration"></param>
-		internal HapticHandle(CommandWithHandle creator, float duration)
+		internal unsafe HapticHandle(CommandWithHandle creator, float duration)
 		{
 			init(creator);
-			Debug.Assert(_handle != IntPtr.Zero);
+			Debug.Assert(_handle != null);
 
 			_duration = duration;
 		}
 
-		internal void init(CommandWithHandle creator)
+		internal unsafe void init(CommandWithHandle creator)
 		{
 			Debug.Assert(creator != null);
 			
 			_creator = creator;
 
-			Interop.NSVR_PlaybackHandle_Create(ref _handle);
+			fixed (HLVR_Effect** effect_ptr = &_handle)
+			{
+				if (Interop.FAIL(Interop.HLVR_Effect_Create(effect_ptr)))
+				{
+					Debug.LogError("[HLVR] Failed to create new Haptic Handle!");
+				}
+			}
 
 			//Debug.Log("Inside init. Is creator null?!" + (creator == null));
 			_creator(_handle);
@@ -473,9 +488,9 @@ namespace NullSpace.SDK
 		/// Cause the associated effect to play. If paused, play will resume where it left off. If stopped, play will resume from the beginning. 
 		/// </summary>
 		/// <returns>Reference to this HapticHandle</returns>
-		public HapticHandle Play()
+		public unsafe HapticHandle Play()
 		{
-			Interop.NSVR_PlaybackHandle_Command(_handle, Interop.NSVR_PlaybackCommand.Play);
+			Interop.HLVR_Effect_Play(_handle);
 			return this;
 		}
 
@@ -493,9 +508,9 @@ namespace NullSpace.SDK
 		/// Cause the associated effect to pause. 
 		/// </summary>
 		/// <returns>Reference to this HapticHandle</returns>
-		public HapticHandle Pause()
+		public unsafe HapticHandle Pause()
 		{
-			Interop.NSVR_PlaybackHandle_Command(_handle, Interop.NSVR_PlaybackCommand.Pause);
+			Interop.HLVR_Effect_Pause(_handle);
 			return this;
 		}
 
@@ -503,9 +518,9 @@ namespace NullSpace.SDK
 		/// Cause the associated effect to stop. Will reset the effect to the beginning in a paused state. 
 		/// </summary>
 		/// <returns>Reference to this HapticHandle</returns>
-		public HapticHandle Stop()
+		public unsafe HapticHandle Stop()
 		{
-			Interop.NSVR_PlaybackHandle_Command(_handle, Interop.NSVR_PlaybackCommand.Reset);
+			Interop.HLVR_Effect_Reset(_handle);
 			return this;
 		}
 
@@ -533,10 +548,10 @@ namespace NullSpace.SDK
 		/// Returns a value less than 0 on failure.
 		/// </summary>
 		/// <returns></returns>
-		public float GetElapsedTime()
+		public unsafe float GetElapsedTime()
 		{
-			Interop.NSVR_EffectInfo info = new Interop.NSVR_EffectInfo();
-			if (Interop.NSVR_SUCCESS(Interop.NSVR_PlaybackHandle_GetInfo(_handle, ref info)))
+			Interop.HLVR_EffectInfo info = new Interop.HLVR_EffectInfo();
+			if (Interop.OK(Interop.HLVR_Effect_GetInfo(_handle, ref info)))
 			{
 				return info.Elapsed;
 			} else
@@ -561,7 +576,14 @@ namespace NullSpace.SDK
 
 				if (!NSVR.NSVR_Plugin._disposed)
 				{
-					Interop.NSVR_PlaybackHandle_Release(ref _handle);
+					unsafe
+					{
+						fixed (HLVR_Effect** ptr = &_handle)
+						{
+							Interop.HLVR_Effect_Destroy(ptr);
+						}
+					}
+
 				}
 
 				disposedValue = true;
