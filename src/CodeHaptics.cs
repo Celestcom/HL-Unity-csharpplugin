@@ -9,11 +9,11 @@ namespace NullSpace.SDK
 	/// <summary>
 	/// HapticEffects are the base building blocks of more complex effects. They can be strung together, repeated over a duration, and given strengths and time offsets.
 	/// </summary>
-	public sealed class HapticEffect 
+	public sealed class HapticEffect
 	{
 		private Effect _effect;
 		private float _duration;
-	
+
 		/// <summary>
 		/// Retrieve the associated Effect
 		/// </summary>
@@ -46,7 +46,6 @@ namespace NullSpace.SDK
 			}
 		}
 
-	
 		/// <summary>
 		/// Construct a HapticEffect with a given Effect, and default duration of 0.0
 		/// </summary>
@@ -68,7 +67,6 @@ namespace NullSpace.SDK
 			Duration = duration;
 		}
 
-		
 		/// <summary>
 		/// Create an independent copy of this HapticEffect
 		/// </summary>
@@ -79,7 +77,7 @@ namespace NullSpace.SDK
 			clone.Duration = this._duration;
 			return clone;
 		}
-		
+
 		/// <summary>
 		/// Returns a string representation of this HapticEffect, including effect name and duration 
 		/// </summary>
@@ -111,32 +109,12 @@ namespace NullSpace.SDK
 		{
 			_children = new List<CommonArgs<HapticEffect>>();
 		}
+		public HapticSequence(string lazyLoadAssetPath) : base("sequence")
+		{
+			LoadedAssetName = lazyLoadAssetPath;
+			_children = new List<CommonArgs<HapticEffect>>();
+		}
 
-		/// <summary>
-		/// Internal use: turns an HDF into a sequence
-		/// </summary>
-		/// <param name="hdf"></param>
-		internal override void doLoadFromHDF(string key, HapticDefinitionFile hdf)
-		{
-			var sequence_def_array = hdf.sequenceDefinitions[key];
-			foreach (var effect in sequence_def_array)
-			{
-				Effect e = FileEffectToCodeEffect.TryParse(effect.effect, Effect.Click);
-				this.AddEffect(effect.time, effect.strength, new HapticEffect(e, effect.duration));
-			}
-		}
-	
-		/// <summary>
-		/// Create an independent copy of this HapticSequence
-		/// </summary>
-		/// <returns></returns>
-		public HapticSequence Clone()
-		{
-			var clone = new HapticSequence();
-			clone.Effects = new List<CommonArgs<HapticEffect>>(_children);
-			return clone;
-		}
-		
 		/// <summary>
 		/// Add a HapticEffect with a given time offset
 		/// </summary>
@@ -160,8 +138,7 @@ namespace NullSpace.SDK
 			Effects.Add(new CommonArgs<HapticEffect>((float)time, (float)strength, effect.Clone()));
 			return this;
 		}
-		
-	
+
 		/// <summary>
 		/// Create a HapticHandle from this HapticSequence, specifying an AreaFlag to play on.
 		/// </summary>
@@ -169,6 +146,8 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
 		public HapticHandle CreateHandle(AreaFlag area)
 		{
+			HandleLazyAssetLoading();
+
 			EventList e = new ParameterizedSequence(this, area).Generate(1f, 0f);
 
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
@@ -188,6 +167,8 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle bound to this effect playing on the given area</returns>
 		public HapticHandle CreateHandle(AreaFlag area, double strength)
 		{
+			HandleLazyAssetLoading();
+
 			EventList e = new ParameterizedSequence(this, area).Generate((float)strength, 0f);
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
 			{
@@ -221,6 +202,30 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
+		/// Internal use: turns an HDF into a sequence
+		/// </summary>
+		/// <param name="hdf"></param>
+		internal override void doLoadFromHDF(string key, HapticDefinitionFile hdf)
+		{
+			var sequence_def_array = hdf.sequence_definitions[key];
+			foreach (var effect in sequence_def_array)
+			{
+				Effect e = FileEffectToCodeEffect.TryParse(effect.effect, Effect.Click);
+				this.AddEffect(effect.time, effect.strength, new HapticEffect(e, effect.duration));
+			}
+		}
+
+		/// <summary>
+		/// Create an independent copy of this HapticSequence
+		/// </summary>
+		/// <returns></returns>
+		public HapticSequence Clone()
+		{
+			var clone = new HapticSequence(LoadedAssetName);
+			clone.Effects = new List<CommonArgs<HapticEffect>>(_children);
+			return clone;
+		}
+		/// <summary>
 		/// Returns a string representation of this HapticSequence for debugging purposes, including all child effects
 		/// </summary>
 		/// <returns></returns>
@@ -236,15 +241,11 @@ namespace NullSpace.SDK
 			return sb.ToString();
 		}
 	}
-	
-
-
 	/// <summary>
 	/// HapticPatterns are used to combine one or more HapticSequences into a single, playable effect. Each HapticSequence added to the HapticPattern will have a time offset and optional strength, as well as a specified area.
 	/// </summary>
 	public sealed class HapticPattern : SerializableHaptic
 	{
-	
 		private IList<CommonArgs<ParameterizedSequence>> _children;
 
 		internal IList<CommonArgs<ParameterizedSequence>> Sequences
@@ -260,7 +261,6 @@ namespace NullSpace.SDK
 			}
 		}
 
-
 		/// <summary>
 		/// Construct an empty HapticPattern
 		/// </summary>
@@ -268,13 +268,17 @@ namespace NullSpace.SDK
 		{
 			_children = new List<CommonArgs<ParameterizedSequence>>();
 		}
-		
-		/// <summary>
-		/// Add a HapticSequence to this HapticPattern with a given time offset and AreaFlag, and default strength of 1.0
-		/// </summary>
-		/// <param name="time">Time offset (fractional seconds)</param>
-		/// <param name="area">AreaFlag on which to play the HapticSequence</param>
-		/// <param name="sequence">The HapticSequence to be added</param>
+
+		public HapticPattern(string lazyLoadAssetPath) : base("pattern")
+		{
+			LoadedAssetName = lazyLoadAssetPath;
+			_children = new List<CommonArgs<ParameterizedSequence>>();
+		}/// <summary>
+		 /// Add a HapticSequence to this HapticPattern with a given time offset and AreaFlag, and default strength of 1.0
+		 /// </summary>
+		 /// <param name="time">Time offset (fractional seconds)</param>
+		 /// <param name="area">AreaFlag on which to play the HapticSequence</param>
+		 /// <param name="sequence">The HapticSequence to be added</param>
 		public HapticPattern AddSequence(double time, AreaFlag area, HapticSequence sequence)
 		{
 			ParameterizedSequence clone = new ParameterizedSequence(sequence.Clone(), area);
@@ -296,29 +300,14 @@ namespace NullSpace.SDK
 			return this;
 		}
 
-
-		/// <summary>
-		/// Internal use: turns an HDF into a pattern
-		/// </summary>
-		/// <param name="hdf"></param>
-		internal override void doLoadFromHDF(string key, HapticDefinitionFile hdf)
-		{
-			var pattern_def_array = hdf.patternDefinitions[key];
-			foreach (var seq in pattern_def_array)
-			{
-				AreaFlag area = new AreaParser(seq.area).GetArea();
-				HapticSequence thisSeq = new HapticSequence();
-				thisSeq.doLoadFromHDF(seq.sequence, hdf);
-				AddSequence(seq.time, area, thisSeq);
-			}
-		}
-
 		/// <summary>
 		/// Create a HapticHandle from this HapticPattern, which can be used to manipulate the effect. 
 		/// </summary>
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle()
 		{
+			HandleLazyAssetLoading();
+
 			EventList e = new ParameterizedPattern(this).Generate(1f, 0f);
 
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
@@ -336,6 +325,8 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle(double strength)
 		{
+			HandleLazyAssetLoading();
+
 			EventList e = new ParameterizedPattern(this).Generate((float)strength, 0f);
 
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
@@ -346,7 +337,6 @@ namespace NullSpace.SDK
 
 			return new HapticHandle(creator);
 		}
-
 
 		/// <summary>
 		/// <para>If you want to play a pattern but don't care about controlling playback, use this method. It will automatically clean up resources.</para>
@@ -369,20 +359,34 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
+		/// Internal use: turns an HDF into a pattern
+		/// </summary>
+		/// <param name="hdf"></param>
+		internal override void doLoadFromHDF(string key, HapticDefinitionFile hdf)
+		{
+			var pattern_def_array = hdf.pattern_definitions[key];
+			foreach (var seq in pattern_def_array)
+			{
+				AreaFlag area = new AreaParser(seq.area).GetArea();
+				HapticSequence thisSeq = new HapticSequence();
+				thisSeq.doLoadFromHDF(seq.sequence, hdf);
+				AddSequence(seq.time, area, thisSeq);
+			}
+		}
+
+		/// <summary>
 		/// Create an independent copy of this HapticPattern
 		/// </summary>
 		/// <returns></returns>
 		public HapticPattern Clone()
 		{
-			var clone = new HapticPattern();
+			var clone = new HapticPattern(LoadedAssetName);
 			clone.Sequences = new List<CommonArgs<ParameterizedSequence>>(_children);
 			return clone;
 		}
-
 		/// <summary>
 		/// Returns a string representation of this HapticPattern for debugging purposes, including all child sequences
 		/// </summary>
-		/// <returns></returns>
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder();
@@ -417,7 +421,6 @@ namespace NullSpace.SDK
 			}
 		}
 
-
 		/// <summary>
 		/// Construct an empty HapticExperience
 		/// </summary>
@@ -426,6 +429,11 @@ namespace NullSpace.SDK
 			_children = new List<CommonArgs<ParameterizedPattern>>();
 		}
 
+		public HapticExperience(string lazyLoadAssetPath) : base("experience")
+		{
+			LoadedAssetName = lazyLoadAssetPath;
+			_children = new List<CommonArgs<ParameterizedPattern>>();
+		}
 		/// <summary>
 		/// Add a HapticPattern to this HapticExperience with a given time offset and default strength of 1.0
 		/// </summary>
@@ -453,29 +461,14 @@ namespace NullSpace.SDK
 			return this;
 		}
 
-
-		/// <summary>
-		/// Internal use: turns an HDF into an experience
-		/// </summary>
-		/// <param name="hdf"></param>
-		internal override void doLoadFromHDF(string key, HapticDefinitionFile hdf)
-		{
-			var experience_def_array = hdf.experienceDefinitions[key];
-			foreach (var pat in experience_def_array)
-			{
-				HapticPattern p = new HapticPattern();
-				p.doLoadFromHDF(pat.pattern, hdf);
-				AddPattern(pat.time, p);
-			}
-		}
-
-
 		/// <summary>
 		/// Create a HapticHandle from this HapticExperience, which can be used to manipulate the effect. 
 		/// </summary>
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle()
 		{
+			HandleLazyAssetLoading();
+
 			EventList e = new ParameterizedExperience(this).Generate(1f, 0f);
 
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
@@ -493,6 +486,8 @@ namespace NullSpace.SDK
 		/// <returns>A new HapticHandle</returns>
 		public HapticHandle CreateHandle(double strength)
 		{
+			HandleLazyAssetLoading();
+
 			EventList e = new ParameterizedExperience(this).Generate((float)strength, 0f);
 
 			HapticHandle.CommandWithHandle creator = delegate (IntPtr handle)
@@ -502,7 +497,6 @@ namespace NullSpace.SDK
 
 			return new HapticHandle(creator);
 		}
-
 
 		/// <summary>
 		/// <para>If you want to play an experience but don't care about controlling playback, use this method. It will automatically clean up resources.</para>
@@ -525,16 +519,30 @@ namespace NullSpace.SDK
 		}
 
 		/// <summary>
+		/// Internal use: turns an HDF into an experience
+		/// </summary>
+		/// <param name="hdf"></param>
+		internal override void doLoadFromHDF(string key, HapticDefinitionFile hdf)
+		{
+			var experience_def_array = hdf.experience_definitions[key];
+			foreach (var pat in experience_def_array)
+			{
+				HapticPattern p = new HapticPattern();
+				p.doLoadFromHDF(pat.pattern, hdf);
+				AddPattern(pat.time, p);
+			}
+		}
+
+		/// <summary>
 		/// Create an independent copy of this HapticExperience
 		/// </summary>
 		/// <returns></returns>
 		public HapticExperience Clone()
 		{
-			var clone = new HapticExperience();
+			var clone = new HapticExperience(LoadedAssetName);
 			clone.Patterns = new List<CommonArgs<ParameterizedPattern>>(_children);
 			return clone;
 		}
-
 		/// <summary>
 		/// Returns a representation of this HapticExperience for debugging purposes, including the representation of child patterns
 		/// </summary>
@@ -552,7 +560,4 @@ namespace NullSpace.SDK
 			return sb.ToString();
 		}
 	}
-	
-
-	
 }

@@ -8,7 +8,6 @@ namespace NullSpace.SDK.FileUtilities
 {
 	public static class HapticResources
 	{
-
 		private static HapticDefinitionFile LoadHDF(string path)
 		{
 			var file = Resources.Load<JsonAsset>(path);
@@ -25,38 +24,45 @@ namespace NullSpace.SDK.FileUtilities
 		}
 		public static HapticSequence LoadSequence(string path)
 		{
-			
+
 			HapticDefinitionFile hdf = LoadHDF(path);
 
-			if (hdf.rootEffect.type == "sequence")
+			if (hdf.root_effect.type == "sequence")
 			{
-				var seq = CodeHapticFactory.CreateSequence(hdf.rootEffect.name, hdf);
+				var seq = CodeHapticFactory.CreateSequence(hdf.root_effect.name, hdf);
 				return seq;
 			}
 			else
 			{
-				throw new InvalidOperationException("Unable to load " + hdf.rootEffect.name + " as a HapticSequence because it is a " + hdf.rootEffect.type);
+				throw new InvalidOperationException("Unable to load " + hdf.root_effect.name + " as a HapticSequence because it is a " + hdf.root_effect.type);
 			}
 		}
-
 		public static HapticPattern LoadPattern(string path)
 		{
 			HapticDefinitionFile hdf = LoadHDF(path);
-			if (hdf.rootEffect.type == "pattern")
+			if (hdf.root_effect.type == "pattern")
 			{
-				var pat = CodeHapticFactory.CreatePattern(hdf.rootEffect.name, hdf);
+				var pat = CodeHapticFactory.CreatePattern(hdf.root_effect.name, hdf);
 				return pat;
-			} else
+			}
+			else
 			{
-				throw new InvalidOperationException("Unable to load " + hdf.rootEffect.name + " as a HapticPattern because it is a " + hdf.rootEffect.type);
+				throw new InvalidOperationException("Unable to load " + hdf.root_effect.name + " as a HapticPattern because it is a " + hdf.root_effect.type);
 			}
 		}
-
-	
 	}
 
 	public static class ParsingUtils
 	{
+		public interface IJsonDeserializable
+		{
+			void Deserialize(IDictionary<string, object> dict);
+		}
+		public interface IJsonSerializable
+		{
+			IDictionary<string, object> Serialize();
+		}
+
 		internal static float parseFloat(object f)
 		{
 
@@ -76,28 +82,28 @@ namespace NullSpace.SDK.FileUtilities
 			{
 				return defaultValue;
 			}
-			
+
 			try
 			{
-				
+
 				double intermediate = (double)map[key];
 				return (float)intermediate;
-			} catch (System.InvalidCastException e)
+			}
+			catch (System.InvalidCastException e)
 			{
 				Debug.LogException(e);
 				return defaultValue;
 			}
 		}
 
-	
 		/// <summary>
 		/// Parse a json object into a list of atoms (smallest unit that describes a sequence, pattern, or experience)
 		/// </summary>
 		/// <typeparam name="T">The json atom type</typeparam>
 		/// <param name="dict">The raw json object</param>
 		/// <returns>A dictionary representing the list of haptic effect IDs and their associated atoms</returns>
-		public static DefDictionary<TAtomType> parseDefinitionsDict<TAtomType>(IDictionary<string, object> dict) 
-			where TAtomType: IJsonDeserializable, new() 
+		public static DefDictionary<TAtomType> parseDefinitionsDict<TAtomType>(IDictionary<string, object> dict)
+			where TAtomType : IJsonDeserializable, new()
 		{
 			//setup a dictionary from string -> list of atoms for our result
 			DefDictionary<TAtomType> resultDict = new DefDictionary<TAtomType>();
@@ -119,28 +125,67 @@ namespace NullSpace.SDK.FileUtilities
 			return resultDict;
 		}
 
-		public interface IJsonDeserializable
+		public static IDictionary<string, object> encodeDefinitionsDict<TAtomType>(DefDictionary<TAtomType> dict)
+			where TAtomType : IJsonSerializable, new()
 		{
-			void Deserialize(IDictionary<string, object> dict);
+			IDictionary<string, object> returnDict = new Dictionary<string, object>();
+
+#if !UNITY_EDITOR
+			Console.WriteLine("Encode dict count: " + dict.Count + "   " + dict.GetType().ToString());
+#endif
+
+			foreach (var item in dict)
+			{
+				IList<object> atoms = new List<object>();
+				//Console.WriteLine("Item list count: " + item.Value.Count);
+				for (int i = 0; i < item.Value.Count; i++)
+				{
+#if !UNITY_EDITOR
+					Console.WriteLine("\t\t " + item.Key + "  -  " + item.Value[i].ToString());
+#endif
+					atoms.Add(item.Value[i].Serialize());
+				}
+
+				returnDict.Add(item.Key, atoms);
+			}
+
+			return returnDict;
 		}
 
+
+
 		[Serializable]
-		public class RootEffect : IJsonDeserializable
+		public class RootEffect : IJsonDeserializable, IJsonSerializable
 		{
 			[SerializeField]
 			public string name;
 			[SerializeField]
 			public string type;
-		
+
+			public RootEffect()
+			{ }
+
+			public RootEffect(string myName, string myType)
+			{
+				name = myName;
+				type = myType;
+			}
 
 			public void Deserialize(IDictionary<string, object> dict)
 			{
 				this.name = (string)dict["name"];
 				this.type = (string)dict["type"];
 			}
+			public IDictionary<string, object> Serialize()
+			{
+				Dictionary<string, object> dict = new Dictionary<string, object>();
+				dict.Add("name", name);
+				dict.Add("type", type);
+				return dict;
+			}
 		}
-	
-		public class JsonEffectAtom : IJsonDeserializable
+
+		public class JsonEffectAtom : IJsonDeserializable, IJsonSerializable
 		{
 			public string effect;
 
@@ -150,6 +195,17 @@ namespace NullSpace.SDK.FileUtilities
 
 			public float time;
 
+			public JsonEffectAtom()
+			{ }
+
+			public JsonEffectAtom(Effect effectEnum, float offset, float dur, float str = 1.0f)
+			{
+				effect = effectEnum.ToString();
+				duration = dur;
+				strength = str;
+				time = offset;
+			}
+
 			public void Deserialize(IDictionary<string, object> dict)
 			{
 				this.effect = dict["effect"] as string;
@@ -157,13 +213,18 @@ namespace NullSpace.SDK.FileUtilities
 				this.strength = tryParseFloatFromObject(dict, "strength", 1f);
 				this.time = tryParseFloatFromObject(dict, "time", 0f);
 			}
+			public IDictionary<string, object> Serialize()
+			{
+				Dictionary<string, object> dict = new Dictionary<string, object>();
+				dict.Add("effect", effect);
+				dict.Add("duration", duration);
+				dict.Add("strength", strength);
+				dict.Add("time", time);
+				return dict;
+			}
 		}
 
-
-	
-		
-
-		public class JsonSequenceAtom : IJsonDeserializable
+		public class JsonSequenceAtom : IJsonDeserializable, IJsonSerializable
 		{
 
 			public string sequence;
@@ -174,19 +235,37 @@ namespace NullSpace.SDK.FileUtilities
 
 			public float time;
 
+			public JsonSequenceAtom(string sequenceName, AreaFlag where, float str, float offset)
+			{
+				sequence = sequenceName;
+				area = where.ToString();
+				strength = str;
+				time = offset;
+			}
+
+			public JsonSequenceAtom()
+			{ }
 
 			public void Deserialize(IDictionary<string, object> dict)
 			{
 				this.sequence = dict["sequence"] as string;
 				this.area = dict["area"] as string;
-				this.strength = tryParseFloatFromObject(dict, "strength",  1f);
-				this.time = tryParseFloatFromObject(dict, "time",  0f);
+				this.strength = tryParseFloatFromObject(dict, "strength", 1f);
+				this.time = tryParseFloatFromObject(dict, "time", 0f);
+			}
+			public IDictionary<string, object> Serialize()
+			{
+				Dictionary<string, object> dict = new Dictionary<string, object>();
+				dict.Add("sequence", sequence);
+				dict.Add("area", area);
+				dict.Add("strength", strength);
+				dict.Add("time", time);
+				return dict;
 			}
 		}
 
-		public class JsonPatternAtom : IJsonDeserializable
+		public class JsonPatternAtom : IJsonDeserializable, IJsonSerializable
 		{
-
 			public string pattern;
 
 			public float strength;
@@ -199,19 +278,22 @@ namespace NullSpace.SDK.FileUtilities
 				this.pattern = dict["pattern"] as string;
 				this.strength = tryParseFloatFromObject(dict, "strength", 1f);
 				this.time = tryParseFloatFromObject(dict, "time", 0f);
-			
+
+			}
+			public IDictionary<string, object> Serialize()
+			{
+				Dictionary<string, object> dict = new Dictionary<string, object>();
+				dict.Add("pattern", pattern);
+				dict.Add("strength", strength);
+				dict.Add("time", time);
+				return dict;
 			}
 		}
-
-
-	
-		
 
 		public static HapticDefinitionFile ParseHDF(string path)
 		{
 			try
 			{
-			
 				var json = File.ReadAllText(path);
 
 				IDictionary<string, object> obj = MiniJSON.Json.Deserialize(json) as IDictionary<string, object>;
@@ -219,7 +301,7 @@ namespace NullSpace.SDK.FileUtilities
 				HapticDefinitionFile file = new HapticDefinitionFile();
 				file.Deserialize(obj);
 				return file;
-		
+
 
 
 			}
@@ -228,7 +310,5 @@ namespace NullSpace.SDK.FileUtilities
 				throw new HapticsLoadingException("Couldn't read the haptics asset at " + path, e);
 			}
 		}
-
-
 	}
 }

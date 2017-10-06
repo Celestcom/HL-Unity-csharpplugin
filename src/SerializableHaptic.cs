@@ -6,7 +6,9 @@ namespace NullSpace.SDK
 {
 	public class SerializableHaptic
 	{
+		protected bool Loaded = false;
 		private string _type;
+		protected string LoadedAssetName = "";
 
 		internal SerializableHaptic(string type)
 		{
@@ -41,17 +43,25 @@ namespace NullSpace.SDK
 				return;
 			}
 
-			if (hdf.rootEffect.type != _type)
+			if (hdf.root_effect.type != _type)
 			{
-				Debug.LogError(string.Format("File type mismatch at path [{0}]:\n\t file is a {1}, but this is a {2}", assetPath, hdf.rootEffect.type, _type));
+				Debug.LogError(string.Format("File type mismatch at path [{0}]:\n\t file is a {1}, but this is a {2}", assetPath, hdf.root_effect.type, _type));
 				return;
 			}
 
-			doLoadFromHDF(hdf.rootEffect.name, hdf);
+			LoadedAssetName = assetPath;
+			Loaded = true;
+			doLoadFromHDF(hdf.root_effect.name, hdf);
+		}
+
+		public void HandleLazyAssetLoading()
+		{
+			if (!Loaded && LoadedAssetName.Length > 0)
+			{
+				LoadFromAsset(LoadedAssetName);
+			}
 		}
 
 		internal virtual void doLoadFromHDF(string key, HapticDefinitionFile file) { }
-
-
 	}
 }
