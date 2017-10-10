@@ -7,7 +7,7 @@ namespace Hardlight.SDK
 {
 
 	unsafe struct HLVR_System { }
-	unsafe struct HLVR_Event { }
+	unsafe struct HLVR_EventData { }
 	unsafe struct HLVR_Timeline { }
 	unsafe struct HLVR_PlaybackHandle { }
 	unsafe struct HLVR_Effect { }
@@ -168,19 +168,19 @@ namespace Hardlight.SDK
 			/* Events */
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int HLVR_Event_Create(HLVR_Event** event_, HLVR_EventType type);
+			public static extern unsafe int HLVR_EventData_Create(HLVR_EventData** eventData);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe void HLVR_Event_Destroy(HLVR_Event** event_);
+			public static extern unsafe void HLVR_EventData_Destroy(HLVR_EventData** eventData);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int HLVR_Event_SetFloat(HLVR_Event* event_, HLVR_EventKey key, float value);
+			public static extern unsafe int HLVR_EventData_SetFloat(HLVR_EventData* eventData, HLVR_EventKey key, float value);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int HLVR_Event_SetInt(HLVR_Event* event_, HLVR_EventKey key, int value);
+			public static extern unsafe int HLVR_EventData_SetInt(HLVR_EventData* eventData, HLVR_EventKey key, int value);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int HLVR_Event_SetUInt32s(HLVR_Event* event_, HLVR_EventKey key, [In, Out] UInt32[] values, uint length);
+			public static extern unsafe int HLVR_EventData_SetUInt32s(HLVR_EventData* eventData, HLVR_EventKey key, [In, Out] UInt32[] values, uint length);
 
 			/* Timelines */
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
@@ -190,7 +190,7 @@ namespace Hardlight.SDK
 			public static extern unsafe void HLVR_Timeline_Destroy(HLVR_Timeline** timeline);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int HLVR_Timeline_AddEvent(HLVR_Timeline* timeline, HLVR_Event* eventPtr);
+			public static extern unsafe int HLVR_Timeline_AddEvent(HLVR_Timeline* timeline, float timeOffsetSeconds, HLVR_EventData* data, HLVR_EventType eventType);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int HLVR_Timeline_Transmit(HLVR_Timeline* timeline, HLVR_System* agent, HLVR_Effect* effect);
