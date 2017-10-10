@@ -130,7 +130,7 @@ namespace Hardlight.SDK
 			}
 
 			
-			Interop.HLVR_Timeline_Transmit(timelinePtr, NSVR_Plugin.Ptr, effect);
+			Interop.HLVR_Timeline_Transmit(timelinePtr, HLVR_Plugin.Ptr, effect);
 			
 
 			Interop.HLVR_Timeline_Destroy(&timelinePtr);

@@ -71,7 +71,7 @@ namespace Hardlight.SDK
 	/// </summary>
 	public static class HLVR
 	{
-		internal static unsafe HLVR_Agent* _ptr;
+		internal static unsafe HLVR_System* _ptr;
 		internal static bool _created = false;
 
 	
@@ -83,7 +83,7 @@ namespace Hardlight.SDK
 			internal static bool _disposed = false;
 			private IntPtr _bodyView = IntPtr.Zero;
 
-			internal static unsafe HLVR_Agent* Ptr
+			internal static unsafe HLVR_System* Ptr
 			{
 				get
 				{
@@ -110,9 +110,9 @@ namespace Hardlight.SDK
 					return;
 				}
 
-				fixed (HLVR_Agent** system_ptr = &_ptr)
+				fixed (HLVR_System** system_ptr = &_ptr)
 				{
-					if (Interop.OK(Interop.HLVR_Agent_Create(system_ptr)))
+					if (Interop.OK(Interop.HLVR_System_Create(system_ptr)))
 					{
 						_created = true;
 
@@ -224,7 +224,7 @@ namespace Hardlight.SDK
 			/// </summary>
 			public void PauseAll()
 			{
-				Interop.HLVR_Agent_SuspendEffects(Ptr);
+				Interop.HLVR_System_SuspendEffects(Ptr);
 			}
 
 
@@ -233,7 +233,7 @@ namespace Hardlight.SDK
 			/// </summary>
 			public void ResumeAll()
 			{
-				Interop.HLVR_Agent_ResumeEffects(Ptr);
+				Interop.HLVR_System_ResumeEffects(Ptr);
 			}
 
 			/// <summary>
@@ -241,7 +241,7 @@ namespace Hardlight.SDK
 			/// </summary>
 			public void ClearAll()
 			{
-				Interop.HLVR_Agent_CancelEffects(Ptr);
+				Interop.HLVR_System_CancelEffects(Ptr);
 			}
 
 			/// <summary>
@@ -278,7 +278,7 @@ namespace Hardlight.SDK
 			public ServiceConnectionStatus IsConnectedToService()
 			{
 				Interop.HLVR_PlatformInfo serviceInfo = new Interop.HLVR_PlatformInfo();
-				int value = Interop.HLVR_Agent_GetPlatformInfo(Ptr, ref serviceInfo);
+				int value = Interop.HLVR_System_GetPlatformInfo(Ptr, ref serviceInfo);
 
 				//	Debug.Log(string.Format("Value is {0}", value));
 				if (Interop.OK(value))
@@ -295,7 +295,7 @@ namespace Hardlight.SDK
 			/// </summary>
 			public void EnableTracking()
 			{
-				Interop.HLVR_Agent_EnableTracking(Ptr);
+				Interop.HLVR_System_EnableTracking(Ptr);
 
 			}
 
@@ -304,7 +304,7 @@ namespace Hardlight.SDK
 			/// </summary>
 			public void DisableTracking()
 			{
-				Interop.HLVR_Agent_DisableTracking(Ptr);
+				Interop.HLVR_System_DisableTracking(Ptr);
 			}
 
 			/// <summary>
@@ -330,7 +330,7 @@ namespace Hardlight.SDK
 			public TrackingUpdate PollTracking()
 			{
 				Interop.HLVR_TrackingUpdate t = new Interop.HLVR_TrackingUpdate();
-				Interop.HLVR_Agent_PollTracking(Ptr, ref t);
+				Interop.HLVR_System_PollTracking(Ptr, ref t);
 
 				TrackingUpdate update = new TrackingUpdate();
 				update.Chest = new UnityEngine.Quaternion(t.chest.x, t.chest.y, t.chest.z, t.chest.w);
@@ -360,10 +360,10 @@ namespace Hardlight.SDK
 
 					Interop.HLVR_BodyView_Release(ref _bodyView);
 
-					fixed (HLVR_Agent** ptr = &_ptr)
+					fixed (HLVR_System** ptr = &_ptr)
 					{
 						
-						Interop.HLVR_Agent_Destroy(ptr);
+						Interop.HLVR_System_Destroy(ptr);
 					}
 
 					disposedValue = true;
