@@ -306,13 +306,13 @@ namespace Hardlight.SDK
 	};
 
 	
-
 	public enum Region : int
 	{
 		unknown = 0,
 		body = 1 * Internal.Interop.SUBREGION_BLOCK_SIZE,
 		torso = 2 * Internal.Interop.SUBREGION_BLOCK_SIZE,
 		torso_front = 3 * Internal.Interop.SUBREGION_BLOCK_SIZE,
+		middle_sternum = 3 * Internal.Interop.SUBREGION_BLOCK_SIZE + 1,
 		chest_left = 4 * Internal.Interop.SUBREGION_BLOCK_SIZE,
 		chest_right = 5 * Internal.Interop.SUBREGION_BLOCK_SIZE,
 		upper_ab_left = 6 * Internal.Interop.SUBREGION_BLOCK_SIZE,
