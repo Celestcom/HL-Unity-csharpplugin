@@ -277,8 +277,8 @@ namespace Hardlight.SDK
 
 			public ServiceConnectionStatus IsConnectedToService()
 			{
-				Interop.HLVR_PlatformInfo serviceInfo = new Interop.HLVR_PlatformInfo();
-				int value = Interop.HLVR_System_GetPlatformInfo(Ptr, ref serviceInfo);
+				Interop.HLVR_RuntimeInfo serviceInfo = new Interop.HLVR_RuntimeInfo();
+				int value = Interop.HLVR_System_GetRuntimeInfo(Ptr, ref serviceInfo);
 
 				//	Debug.Log(string.Format("Value is {0}", value));
 				if (Interop.OK(value))

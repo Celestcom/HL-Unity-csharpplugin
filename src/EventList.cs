@@ -57,19 +57,19 @@ namespace Hardlight.SDK
 			Debug.Assert(timelinePtr != null);
 
 			
-			HLVR_EventData* eventPtr = null;
-			Interop.HLVR_EventData_Create(&eventPtr);
+			HLVR_Event* eventPtr = null;
+			Interop.HLVR_Event_Create(&eventPtr, Interop.HLVR_EventType.DiscreteHaptic);
 		
 			Debug.Assert(eventPtr != null);
 
-			Interop.HLVR_EventData_SetFloat(eventPtr, Interop.HLVR_EventKey.SimpleHaptic_Duration_Float, _duration);
-			Interop.HLVR_EventData_SetUInt32s(eventPtr, Interop.HLVR_EventKey.SimpleHaptic_Region_UInt32s, _area, (uint)_area.Length);
-			Interop.HLVR_EventData_SetFloat(eventPtr, Interop.HLVR_EventKey.SimpleHaptic_Strength_Float, _strength);
-			Interop.HLVR_EventData_SetInt(eventPtr, Interop.HLVR_EventKey.SimpleHaptic_Effect_Int, (int)_effect);
+			Interop.HLVR_Event_SetFloat(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Duration_Float, _duration);
+			Interop.HLVR_Event_SetUInt32s(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Region_UInt32s, _area, (uint)_area.Length);
+			Interop.HLVR_Event_SetFloat(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Strength_Float, _strength);
+			Interop.HLVR_Event_SetInt(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Effect_Int, (int)_effect);
 
-			Interop.HLVR_Timeline_AddEvent(timelinePtr, _time, eventPtr, Interop.HLVR_EventType.SimpleHaptic);
+			Interop.HLVR_Timeline_AddEvent(timelinePtr, _time, eventPtr);
 
-			Interop.HLVR_EventData_Destroy(&eventPtr);
+			Interop.HLVR_Event_Destroy(&eventPtr);
 			Debug.Assert(eventPtr == null);
 		}
 
