@@ -1,12 +1,12 @@
 ﻿using System;
 
-using NullSpace.Events;
+using Hardlight.Events;
 using System.Linq;
 using System.Collections.Generic;
-using NullSpace.SDK.FileUtilities;
+using Hardlight.SDK.FileUtilities;
 using UnityEngine;
 
-namespace NullSpace.SDK.FileUtilities
+namespace Hardlight.SDK.FileUtilities
 {
 	/// <summary>
 	/// Used to turn HapticDefinitionFiles into dynamic haptic effects
@@ -31,7 +31,7 @@ namespace NullSpace.SDK.FileUtilities
 		{
 		
 			HapticSequence s = new HapticSequence();
-			var sequence_def_array = hdf.sequenceDefinitions[key];
+			var sequence_def_array = hdf.sequence_definitions[key];
 			foreach (var effect in sequence_def_array)
 			{
 				Effect e = FileEffectToCodeEffect.TryParse(effect.effect, Effect.Click);
@@ -49,7 +49,7 @@ namespace NullSpace.SDK.FileUtilities
 		public static HapticPattern CreatePattern(string key, HapticDefinitionFile hdf)
 		{
 			HapticPattern p = new HapticPattern();
-			var pattern_def_array = hdf.patternDefinitions[key];
+			var pattern_def_array = hdf.pattern_definitions[key];
 			foreach (var seq in pattern_def_array)
 			{
 				AreaFlag area = new AreaParser(seq.area).GetArea();
@@ -68,7 +68,7 @@ namespace NullSpace.SDK.FileUtilities
 		public static HapticExperience CreateExperience(string key, HapticDefinitionFile hdf)
 		{
 			HapticExperience e = new HapticExperience();
-			var experience_def_array = hdf.experienceDefinitions[key];
+			var experience_def_array = hdf.experience_definitions[key];
 			foreach (var pat in experience_def_array)
 			{
 

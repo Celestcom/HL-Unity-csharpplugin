@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NullSpace.SDK.FileUtilities
+namespace Hardlight.SDK.FileUtilities
 { 
 	[Serializable]
 	public class JsonAsset : UnityEngine.ScriptableObject

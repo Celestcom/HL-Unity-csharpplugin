@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 
-namespace NullSpace.SDK
+namespace Hardlight.SDK
 {
 	internal class ParameterizedExperience
 	{

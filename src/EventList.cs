@@ -3,43 +3,43 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using NullSpace.Events;
-using NullSpace.SDK.Internal;
+using Hardlight.Events;
+using Hardlight.SDK.Internal;
 using System.Diagnostics;
-using static NullSpace.SDK.NSVR;
+using static Hardlight.SDK.HLVR;
 
-namespace NullSpace.SDK
+namespace Hardlight.SDK
 {
 	internal interface ITimeIndexed
 	{
 		float Time { get; }
 	}
-	internal abstract class SuitEvent : IComparable, ITimeIndexed
+	internal abstract class HardlightEvent : IComparable, ITimeIndexed
 	{
 		private SuitEventType _eventType;
 
 		public abstract float Time { get; }
 
-		protected abstract void  _generateEvent(IntPtr timelinePtr);
+		protected abstract unsafe void  _generateEvent(HLVR_Timeline* timeline);
 
-		protected SuitEvent(SuitEventType eventType)
+		protected HardlightEvent(SuitEventType eventType)
 		{
 			this._eventType = eventType;
 		}
-		public void Generate(IntPtr timelinePtr)
+		public unsafe void Generate(HLVR_Timeline* timeline)
 		{
-			_generateEvent(timelinePtr);
+			_generateEvent(timeline);
 		}
 
 		public abstract int CompareTo(object obj);
 	}
 
-	internal class BasicHapticEvent : SuitEvent, ITimeIndexed
+	internal class BasicHapticEvent : HardlightEvent, ITimeIndexed
 	{
 		private float _time;
 		private float _strength;
 		private float _duration;
-		private UInt32 _area;
+		private UInt32[] _area;
 		private Effect _effect;
 
 	
@@ -52,26 +52,25 @@ namespace NullSpace.SDK
 			}
 		}
 
-		protected override void _generateEvent(IntPtr timelinePtr)
+		protected override unsafe void _generateEvent(HLVR_Timeline* timelinePtr)
 		{
-			Debug.Assert(timelinePtr != IntPtr.Zero);
+			Debug.Assert(timelinePtr != null);
 
-			IntPtr eventPtr = IntPtr.Zero;
-			Interop.NSVR_Event_Create(ref eventPtr, Interop.NSVR_EventType.Basic_Haptic_Event);
-			Debug.Assert(eventPtr != IntPtr.Zero);
+			
+			HLVR_Event* eventPtr = null;
+			Interop.HLVR_Event_Create(&eventPtr, Interop.HLVR_EventType.DiscreteHaptic);
+		
+			Debug.Assert(eventPtr != null);
 
-			Interop.NSVR_Event_SetFloat(eventPtr, "duration", _duration);
-			//could be unsigned problem?!? Nah. Context: something is generating events without area information
-			Interop.NSVR_Event_SetInteger(eventPtr, "area",checked((int) _area));
-			Interop.NSVR_Event_SetFloat(eventPtr, "strength", _strength);
+			Interop.HLVR_Event_SetFloat(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Duration_Float, _duration);
+			Interop.HLVR_Event_SetUInt32s(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Region_UInt32s, _area, (uint)_area.Length);
+			Interop.HLVR_Event_SetFloat(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Strength_Float, _strength);
+			Interop.HLVR_Event_SetInt(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Effect_Int, (int)_effect);
 
-			Interop.NSVR_Event_SetFloat(eventPtr, "time", _time);
-			Interop.NSVR_Event_SetInteger(eventPtr, "effect", (int)_effect);
+			Interop.HLVR_Timeline_AddEvent(timelinePtr, _time, eventPtr);
 
-			Interop.NSVR_Timeline_AddEvent(timelinePtr, eventPtr);
-
-			Interop.NSVR_Event_Release(ref eventPtr);
-			Debug.Assert(eventPtr == IntPtr.Zero);
+			Interop.HLVR_Event_Destroy(&eventPtr);
+			Debug.Assert(eventPtr == null);
 		}
 
 		public override int CompareTo(object obj)
@@ -81,7 +80,7 @@ namespace NullSpace.SDK
 
 		}
 
-		public BasicHapticEvent(float time, float strength, float duration, UInt32 area, Effect effect)
+		public BasicHapticEvent(float time, float strength, float duration, UInt32[] area, Effect effect)
 			:base(SuitEventType.BasicHapticEvent)
 		{
 			
@@ -95,13 +94,13 @@ namespace NullSpace.SDK
 	}
 	internal class EventList { 
 	
-		private List<SuitEvent> _events;
+		private List<HardlightEvent> _events;
 		public EventList()
 		{
-			_events = new List<SuitEvent>();
+			_events = new List<HardlightEvent>();
 		}
 
-		public void AddEvent(SuitEvent e)
+		public void AddEvent(HardlightEvent e)
 		{
 			_events.Add(e);
 		}
@@ -114,35 +113,27 @@ namespace NullSpace.SDK
 				_events.Add(e);
 			}
 		}
-		public void Transmit(IntPtr playbackHandle)
+
+		public override string ToString()
 		{
-			//_events.Sort();
-
-
-			IntPtr timelinePtr = IntPtr.Zero;
-
-			unsafe
+			return string.Format("Event list made up of " + _events.Count + " events");
+		}
+		public unsafe void Transmit(HLVR_Effect* effect)
+		{
+			HLVR_Timeline* timelinePtr = null;
+			Interop.HLVR_Timeline_Create(&timelinePtr);
+		
+			for (int i = 0; i < _events.Count; i++)
 			{
-				Interop.NSVR_Timeline_Create(ref timelinePtr);
-			}
-
-			for (int i = 0; i < _events.Count; i++) {
-				Debug.Assert(timelinePtr != IntPtr.Zero);
-
 				_events[i].Generate(timelinePtr);
 			}
 
-			unsafe
-			{
-				Interop.NSVR_Timeline_Transmit(timelinePtr, NSVR_Plugin.Ptr, playbackHandle);
-			}
-			Interop.NSVR_Timeline_Release(ref timelinePtr);
-			Debug.Assert(timelinePtr == IntPtr.Zero);
 			
-		
+			Interop.HLVR_Timeline_Transmit(timelinePtr, HLVR_Plugin.Ptr, effect);
 			
-	
 
+			Interop.HLVR_Timeline_Destroy(&timelinePtr);
+			Debug.Assert(timelinePtr == null);
 		}
 
 

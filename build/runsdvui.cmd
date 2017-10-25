@@ -1,2 +1,0 @@
-cd /d "C:\Users\NullSpace Team\Documents\Visual Studio 2015\Projects\NSLoaderWrapper\build" &msbuild "UnityPluginWrapperExe.csproj" /t:sdvViewer /p:configuration="Release" /p:platform=x86
-exit %errorlevel% 

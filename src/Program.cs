@@ -1,11 +1,12 @@
 ﻿using System;
 
-using NullSpace.SDK;
-using NullSpace.SDK.Internal;
+using Hardlight.SDK;
+using Hardlight.SDK.Internal;
 using System.ServiceProcess;
 using System.Threading;
 using System.Diagnostics;
 using System.Collections.Generic;
+using Hardlight.SDK.FileUtilities;
 
 namespace NSLoaderWrapper
 {
@@ -13,111 +14,66 @@ namespace NSLoaderWrapper
 	public unsafe class Program
 	{
 
-		static unsafe NSVR_System* systemPtr;
-		static bool running = true;
-		public static void Monitor(object data)
-		{
-			UInt16[] strengths = new UInt16[16];
-			UInt32[] areas = new UInt32[16];
-			UInt32[] families = new UInt32[16];
-		
-			while (running)
-			{
 
-				uint resultCount = 0;
-				Interop.NSVR_Immediate_Sample(systemPtr, strengths, areas, families, 16, ref resultCount);
-
-				//	Console.WriteLine("Count: " + resultCount);
-
-				for (int i = 0; i < resultCount; i++)
-				{
-					Console.WriteLine(string.Format("area {0} : str {1}, fam {2}", areas[i], strengths[i], families[i]));
-				}
-
-				//	System.Threading.Thread.Sleep(100);
-			}
-		}
 		public static int Main()
 		{
 
+			HLVR.HLVR_Plugin plugin = new HLVR.HLVR_Plugin();
+			string rootPath = "D:/Users/Projects/Unity-SDK/Assets/StreamingAssets/Haptics/";
 
-			NSVR.NSVR_Plugin plugin = new NSVR.NSVR_Plugin();
+			AssetTool tool = new AssetTool();
+			tool.SetRootHapticsFolder(rootPath);
 
-			EventList e = new EventList();
-			e.AddEvent(new BasicHapticEvent(0, 1, 0, (uint)AreaFlag.Back_Both, Effect.Bump));
-		
-			IntPtr handle = IntPtr.Zero;
+			string mechStompPath = "D:/Users/Projects/Unity-SDK/Assets/StreamingAssets/Haptics/NS Demos/experiences/mech_stomp.experience";
 
-			Interop.NSVR_PlaybackHandle_Create(ref handle);
+			var mechHDF = tool.GetHapticDefinitionFile(mechStompPath);
+			var mechHDFstring = tool.GetHapticDefinitionFileJson(mechStompPath);
+
+			string mechStompJson = System.IO.File.ReadAllText(mechStompPath);
+			HapticDefinitionFile file = new HapticDefinitionFile();
+
+			Console.WriteLine("Deserializing\n");
+			file.Deserialize(mechHDFstring);
+
+			Console.WriteLine("Serializing\n");
+			var serialized = file.Serialize();
+
+			//Console.WriteLine("\nHDF String\n\t[" + mechHDFstring + "]");
+			Console.WriteLine("Raw Json\n\t[" + mechHDFstring + "]");
+			Console.WriteLine("Deserialized Json to HDF to JSON\n\t[" + serialized + "]");
+			//HapticSequence seq = new HapticSequence();
+			//seq.AddEffect(0.0f, new HapticEffect(Effect.Click, .1f));
+			//seq.AddEffect(0.25f, new HapticEffect(Effect.Click, .1f));
+			//seq.AddEffect(0.50f, new HapticEffect(Effect.Click, .1f));
+			//seq.AddEffect(0.75f, new HapticEffect(Effect.Click, .1f));
+
+			//Creat the HDF & it's root effect (which defines the file name to my understanding).
+			//ParsingUtils.RootEffect root = new ParsingUtils.RootEffect("click", "sequence");
+			//HapticDefinitionFile hdf = new HapticDefinitionFile(root);
+
+
+
+			////Probably need to create a JsonSequenceAtom that uses one of the atoms.
+
+			//hdf.sequence_definitions.Add("click", atomList);
+
+			//Make sure that HDF root effect is assigned
+			//Console.WriteLine(hdf.root_effect.name + "  " + hdf.root_effect.type + "\n");
+
+			//Attempt to serialize the HDF.
+			//string serialized = hdf.Serialize();
+
+			//Print out the serialization
+			//Console.WriteLine("\nJSON\n\t[" + serialized + "]");
+
 			Console.ReadLine();
 
-			e.Transmit(handle);
+			while (true)
+			{
+				var devices = plugin.GetKnownDevices();
+				Console.ReadLine();
+			}
 
-			Interop.NSVR_EffectInfo info = new Interop.NSVR_EffectInfo();
-			Interop.NSVR_PlaybackHandle_GetInfo(handle, ref info);
-			Console.WriteLine("Effect duration:" + info.Duration);
-			Console.ReadLine();
-			//if (handle != IntPtr.Zero)
-			//{
-			//	Console.WriteLine("Something wrong");
-			//}
-		//	HapticSequence s = new HapticSequence();
-		//	s.AddEffect(0, new HapticEffect(Effect.Bump));
-
-			Console.ReadLine();
-
-		//	var handle = s.CreateHandle(AreaFlag.All_Areas);
-
-			//handle.Play();
-		//	int x = 3;
-
-			Console.ReadLine();
-
-
-			
-			//while (true)
-			//{
-			//	Interop.NSVR_HandleInfo info = new Interop.NSVR_HandleInfo();
-			//	Interop.NSVR_PlaybackHandle_GetInfo(handlePtr, ref info);
-			//	Console.WriteLine(info.Elapsed);
-			//}
-
-
-
-			//		Interop.NSVR_PlaybackHandle_Command(handlePtr, Interop.NSVR_PlaybackCommand.Play);
-
-			//		System.Threading.Thread.Sleep(500);
-
-
-			//	}
-			//	bool dir =true;
-			//	ushort strength = 1;
-			//	while (true)
-			//	{
-			//		Console.WriteLine(strength);
-			//		ushort[] strengths = new ushort[16];
-			//		for (int i = 0; i < 16; i++) { strengths[i] = strength; }
-
-			//		var areaslist = new List<AreaFlag>{ AreaFlag.Chest_Left, AreaFlag.Chest_Right, AreaFlag.Upper_Ab_Left, AreaFlag.Upper_Ab_Both };
-			//		uint[] areas = new uint[4];
-
-			//		for (int i = 0; i < 4; i++) { areas[i] = ((uint)areaslist[i]); }
-			//		Interop.NSVR_Immediate_Set(systemPtr, strengths, areas, 4);
-			//		if (dir)
-			//		{
-			//			strength++;
-			//		} else
-			//		{
-			//			strength--;
-			//		}
-			//		if (strength > 254 || strength < 1)
-			//		{
-			//			dir = !dir;
-			//		}
-			//		Thread.Sleep(100);
-			//	}
-			//	return 0;
-			//}
 			return 0;
 		}
 

@@ -10,7 +10,7 @@ project "UnityPluginWrapperDLLs"
 	kind "SharedLib"
 	dotnetframework "3.5"
 	targetdir "bin/%{cfg.buildcfg}/%{cfg.platform}"
-	targetname "NSLoaderWrapper"
+	targetname "HardlightUnity"
 	clr "Unsafe"
 
 	libdirs {"C:/Program Files/Unity 5-4-1f1/Editor/Data/Managed/"}

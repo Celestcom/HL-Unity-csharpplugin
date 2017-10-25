@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
-namespace NullSpace.SDK
+namespace Hardlight.SDK
 {
 
 	public enum Effect
@@ -17,6 +18,75 @@ namespace NullSpace.SDK
 		Tick = 11,
 		Double_Click = 4,
 		Triple_Click = 16
+	}
+
+	internal static class AreaFlagToRegion
+	{
+		private static Dictionary<AreaFlag, Region> _regions;
+
+		static AreaFlagToRegion()
+		{
+			_regions = new Dictionary<AreaFlag, Region>()
+			{
+				{AreaFlag.Chest_Left, Region.chest_left},
+				{AreaFlag.Upper_Ab_Left, Region.upper_ab_left },
+				{AreaFlag.Mid_Ab_Left, Region.middle_ab_left },
+				{AreaFlag.Lower_Ab_Left, Region.lower_ab_left },
+				{AreaFlag.Shoulder_Left, Region.shoulder_left },
+				{AreaFlag.Upper_Arm_Left, Region.upper_arm_left },
+				{AreaFlag.Lower_Arm_Left, Region.lower_arm_left },
+				{AreaFlag.Back_Left, Region.upper_back_left },
+				{AreaFlag.Chest_Right, Region.chest_right},
+				{AreaFlag.Upper_Ab_Right, Region.upper_ab_right },
+				{AreaFlag.Mid_Ab_Right, Region.middle_ab_right },
+				{AreaFlag.Lower_Ab_Right, Region.lower_ab_right },
+				{AreaFlag.Shoulder_Right, Region.shoulder_right },
+				{AreaFlag.Upper_Arm_Right, Region.upper_arm_right },
+				{AreaFlag.Lower_Arm_Right, Region.lower_arm_right },
+				{AreaFlag.Back_Right, Region.upper_back_right }
+			};
+		}
+		private static AreaFlag[] StaticAreaFlag =
+	{
+			AreaFlag.Forearm_Left,
+			AreaFlag.Upper_Arm_Left,
+			AreaFlag.Shoulder_Left,
+			AreaFlag.Back_Left,
+			AreaFlag.Chest_Left,
+			AreaFlag.Upper_Ab_Left,
+			AreaFlag.Mid_Ab_Left,
+			AreaFlag.Lower_Ab_Left,
+			AreaFlag.Forearm_Right,
+			AreaFlag.Upper_Arm_Right,
+			AreaFlag.Shoulder_Right,
+			AreaFlag.Back_Right,
+			AreaFlag.Chest_Right,
+			AreaFlag.Upper_Ab_Right,
+			AreaFlag.Mid_Ab_Right,
+			AreaFlag.Lower_Ab_Right
+		};
+
+		public static UInt32[] GetRegions(AreaFlag area)
+		{
+		
+		List<UInt32> results = new List<uint>();
+			foreach (AreaFlag areaEnum in StaticAreaFlag)
+			{
+				if (area.ContainsArea(areaEnum))
+				{
+					if (_regions.ContainsKey(areaEnum))
+					{
+						Region translated = _regions[areaEnum];
+						results.Add((UInt32)(translated));
+					} else
+					{
+						Debug.Log("Couldn't find the region corresponding to area " + areaEnum);
+					}
+					
+				}
+			}
+			return results.ToArray();
+		}
 	}
 
 	/// <summary>
