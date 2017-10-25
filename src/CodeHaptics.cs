@@ -7,9 +7,9 @@ using System.Diagnostics;
 namespace Hardlight.SDK
 {
 	/// <summary>
-	/// HapticEffects are the base building blocks of more complex effects. They can be strung together, repeated over a duration, and given strengths and time offsets.
+	/// <para>HapticEffects are the base building blocks of more complex effects. They can be strung together, repeated over a duration, and given strengths and time offsets.
 	/// </summary>
-	public sealed class HapticEffect
+	public class HapticEffect
 	{
 		private Effect _effect;
 		private float _duration;
@@ -92,9 +92,9 @@ namespace Hardlight.SDK
 	/// <para>CodeSequences are haptic effects which play on a given area on the suit. The area is specified with an AreaFlag, which can represent anything from one location to the entire suit.</para>
 	/// <para>A HapticSequence is composed of one or more HapticEffects with time offsets.</para>
 	/// </summary>
-	public sealed class HapticSequence : SerializableHaptic
+	public class HapticSequence : SerializableHaptic
 	{
-		private IList<CommonArgs<HapticEffect>> _children;
+		public IList<CommonArgs<HapticEffect>> _children;
 
 		internal IList<CommonArgs<HapticEffect>> Effects
 		{
@@ -231,12 +231,13 @@ namespace Hardlight.SDK
 			return sb.ToString();
 		}
 	}
+
 	/// <summary>
-	/// HapticPatterns are used to combine one or more HapticSequences into a single, playable effect. Each HapticSequence added to the HapticPattern will have a time offset and optional strength, as well as a specified area.
+	/// <para>HapticPatterns are used to combine one or more HapticSequences into a single, playable effect. Each HapticSequence added to the HapticPattern will have a time offset and optional strength, as well as a specified area.
 	/// </summary>
-	public sealed class HapticPattern : SerializableHaptic
+	public class HapticPattern : SerializableHaptic
 	{
-		private IList<CommonArgs<ParameterizedSequence>> _children;
+		public IList<CommonArgs<ParameterizedSequence>> _children;
 
 		internal IList<CommonArgs<ParameterizedSequence>> Sequences
 		{
@@ -383,11 +384,11 @@ namespace Hardlight.SDK
 	}
 
 	/// <summary>
-	/// HapticExperiences are containers for one or more HapticPatterns.
+	/// <para>HapticExperiences are containers for one or more HapticPatterns.
 	/// </summary>
-	public sealed class HapticExperience : SerializableHaptic
+	public class HapticExperience : SerializableHaptic
 	{
-		private IList<CommonArgs<ParameterizedPattern>> _children;
+		public IList<CommonArgs<ParameterizedPattern>> _children;
 
 		internal IList<CommonArgs<ParameterizedPattern>> Patterns
 		{

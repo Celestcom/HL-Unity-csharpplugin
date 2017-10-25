@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Hardlight.SDK
 {
-	internal class ParameterizedPattern
+	public class ParameterizedPattern
 	{
 		private HapticPattern _pattern;
 		public ParameterizedPattern(HapticPattern pattern)
@@ -13,7 +13,7 @@ namespace Hardlight.SDK
 			_pattern = pattern;
 		}
 
-		public EventList Generate(float strength, float timeOffset)
+		internal EventList Generate(float strength, float timeOffset)
 		{
 			EventList events = new EventList();
 			foreach (var sequence in _pattern.Sequences)

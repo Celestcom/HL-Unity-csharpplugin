@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Hardlight.SDK
 {
-	internal class ParameterizedSequence
+	public class ParameterizedSequence
 	{
 		private HapticSequence _sequence;
 		private AreaFlag _area;
@@ -15,7 +15,7 @@ namespace Hardlight.SDK
 			_area = area;
 		}
 
-		public EventList Generate(float strength, float timeOffset)
+		internal EventList Generate(float strength, float timeOffset)
 		{
 			EventList events = new EventList();
 			foreach (var effect in _sequence.Effects)

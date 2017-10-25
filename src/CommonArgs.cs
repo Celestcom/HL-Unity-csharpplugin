@@ -6,7 +6,7 @@ using System.Text;
 namespace Hardlight.SDK
 {
 	
-	internal sealed class CommonArgs<THapticType>
+	public class CommonArgs<THapticType>
 	{
 		private THapticType _item;
 		float _time;

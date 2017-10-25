@@ -94,7 +94,7 @@ namespace Hardlight.SDK
 					}
 					else
 					{
-						throw new MemberAccessException("[HLVR] You must have a NS Manager prefab in your scene!\n");
+						throw new MemberAccessException("[HLVR] You must have a Hardlight Manager prefab in your scene!\n");
 
 					}
 
