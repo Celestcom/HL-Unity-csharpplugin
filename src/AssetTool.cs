@@ -114,7 +114,7 @@ namespace Hardlight.SDK.FileUtilities
 			_process.StartInfo.CreateNoWindow = true;
 
 			const string userRoot = "HKEY_CURRENT_USER";
-			const string subkey = "SOFTWARE\\Hardlight VR\\AssetTool";
+			const string subkey = "SOFTWARE\\WOW6432Node\\NullSpace VR\\AssetTool";
 			const string keyName = userRoot + "\\" + subkey;
 			try
 			{
