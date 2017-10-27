@@ -64,7 +64,7 @@ namespace Hardlight.SDK.FileUtilities
 		/// </summary>
 		/// <param name="areaFlag"></param>
 		/// <param name="regions"></param>
-		public void Get(Action<AreaFlag> areaFlag, Action<List<int>> regions) 
+		public void Get(Action<AreaFlag> areaFlag, Action<List<int>> regions)
 		{
 			switch (tag)
 			{
@@ -80,13 +80,61 @@ namespace Hardlight.SDK.FileUtilities
 		}
 	}
 
+	public interface IGenerator
+	{
+		List<long> Generate();
+	}
 
+
+
+
+	/// <summary>
+	/// How I think ScriptableGenerator will look like
+	/// </summary>
+	public class RandomGenerator : IGenerator
+	{
+
+		//[SerializeField] probably goes here, with some UI constraints for min and max
+		public int Count;
+
+		//[SerializeField] probably goes here..
+		public List<long> Regions;
+
+
+		private System.Random random;
+
+
+		public RandomGenerator(IDictionary<string, object> arguments)
+		{
+			random = new System.Random();
+
+			
+			Regions = new JsonParameter<long>("area-set").GetList(arguments, Enumerable.Range(1, 16).ToList().Select(x => (long)x).ToList());
+			Count = (int) new JsonParameter<long>("count").Get(arguments, 1);
+			
+		}
+
+		public RandomGenerator() : this(null)
+		{
+		}
+
+		public List<long> Generate()
+		{
+			var result = new List<long>();
+			while (result.Count < Count)
+			{
+				var randomIndex = random.Next(0, Regions.Count);
+				result.Add(Regions[randomIndex]);
+			}
+			return result;
+		}
+	}
 
 	public class ParsingError : Exception
 	{
 		public ParsingError(string message) : base(message) { }
 		public ParsingError(string message, Exception inner) : base(message, inner) { }
-	} 
+	}
 
 	/// <summary>
 	/// First representation of the generic json data within a pattern. Leaves the arguments for a generator
@@ -97,7 +145,7 @@ namespace Hardlight.SDK.FileUtilities
 		public double Time;
 		public string Sequence;
 		public string AreaGenerator;
-		public IDictionary<string, object> AreaGeneratorArgs; 
+		public IDictionary<string, object> AreaGeneratorArgs;
 	}
 
 	/// <summary>
@@ -108,131 +156,140 @@ namespace Hardlight.SDK.FileUtilities
 	{
 		public double Time;
 		public string Sequence;
-		public List<int> Area;
+		public IGenerator Generator;
 
-		public PatternEntry(RawEntry raw, List<int> area)
+		public PatternEntry(RawEntry raw, IGenerator gen)
 		{
 			Time = raw.Time;
 			Sequence = raw.Sequence;
-			Area = area;
+			Generator = gen;
 		}
 	}
 
-	
-	public class InputModel
+
+	public class ScriptablePatternData
 	{
 		public List<PatternEntry> Entries;
 	}
 
-
-	public class InputModelParser
+	public class JsonParameter<T>
 	{
-		/// <summary>
-		/// Represents a "generator" function that returns a list of areas given some user-defined parameters. 
-		/// The generator is responsible for validating its own arguments and throwing ArgumentExceptions if necessary.
-		/// </summary>
-		/// <param name="arguments">Raw dictionary of parameters</param>
-		/// <returns>List of areas</returns>
-		public delegate List<int> GeneratorDelegate(IDictionary<string, object> arguments);
+		private string key;
 
-		static Dictionary<string, GeneratorDelegate> generators = new Dictionary<string, GeneratorDelegate>()
+		public JsonParameter(string key)
 		{
-			{"random", new GeneratorDelegate(random_generator) }
+			this.key = key;
+		}
+
+		public List<T> GetList(IDictionary<string, object> arguments, List<T> defaultVal)
+		{
+
+			if (arguments == null || !arguments.ContainsKey(key))
+			{
+				return defaultVal;
+			}
+
+			try
+			{
+				ScriptablePatternParser.GetList(arguments, key, out defaultVal);
+				return defaultVal;
+			}
+			catch (ParsingError p)
+			{
+				throw new ArgumentException(string.Format("Parameter '{0}' parameter must be a {1}", key, typeof(T).FullName), p);
+			}
+		}
+
+	
+		public T Get(IDictionary<string, object> arguments, T defaultVal)
+		{
+			if (arguments == null || !arguments.ContainsKey(key))
+			{
+				return defaultVal;
+			}
+
+			try
+			{
+				ScriptablePatternParser.Get(arguments, key, out defaultVal);
+				return defaultVal;
+			}
+			catch (ParsingError p)
+			{
+				throw new ArgumentException(string.Format("Parameter '{0}' parameter must be a {1}", key, typeof(T).FullName), p);
+			}
+		}
+	}
+
+	/// <summary>
+	/// Responsible for turning a raw JSON representation of a ScriptablePattern into an intermediate format
+	/// suitable for creating a real ScriptablePattern
+	/// </summary>
+	public class ScriptablePatternParser
+	{
+		internal delegate IGenerator IGeneratorFactory(IDictionary<string, object> arguments);
+
+		internal static Dictionary<string, IGeneratorFactory> generators = new Dictionary<string, IGeneratorFactory>()
+		{
+			//Add new generator factory functions here
+			{"random", (args) => { return new RandomGenerator(args); } }
 		};
 
-
-		public class ParameterConstraint<T>
+		internal static ScriptablePatternData Parse(IList<object> list)
 		{
-			private string key;
+			ScriptablePatternData model = new ScriptablePatternData();
+			model.Entries = new List<PatternEntry>();
 
-			public ParameterConstraint(string key) {
-				this.key = key;
-			}
-
-			/// <summary>
-			/// Retrieve a list of T from the json, or return a default value
-			/// Note: default integral type in the json is long, default floating point type is double
-			/// </summary>
-			/// <param name="arguments">arguments dictionary</param>
-			/// <param name="defaultVal">default value</param>
-			/// <returns></returns>
-			public List<T> GetListOr(IDictionary<string, object> arguments, List<T> defaultVal)
+			for (int i = 0; i < list.Count; i++)
 			{
-				
-
-				if (arguments == null || !arguments.ContainsKey(key))
-				{
-					return defaultVal;
-				}
-
 				try
 				{
-					GetList<T>(arguments, key, out defaultVal);
-					return defaultVal;
-				} catch (ParsingError p)
+					model.Entries.Add(ParseEntry(list[i] as IDictionary<string, object>));
+				}
+				catch (ParsingError error)
 				{
-					throw new ArgumentException(string.Format("Parameter '{0}' parameter must be a {1}", key, typeof(T).FullName), p);
+					throw new ParsingError(string.Format("In entry [{0}], while parsing: {1} ", i, error.Message), error);
 				}
 			}
-		
-			/// <summary>
-			/// Retrieve a T from the json, or return a default value
-			/// Note: default integral type in the json is long, default floating point type is double
-			/// </summary>
-			/// <param name="arguments">arguments dictionary</param>
-			/// <param name="defaultVal">default value</param>
-			/// <returns></returns>
-			public T GetOr(IDictionary<string, object> arguments, T defaultVal)
-			{
-				if (arguments == null || !arguments.ContainsKey(key))
-				{
-					return defaultVal;
-				}
+			return model;
+		}
 
-				try
-				{
-					Get(arguments, key, out defaultVal);
-					return defaultVal;
-				} catch (ParsingError p)
-				{
-					throw new ArgumentException(string.Format("Parameter '{0}' parameter must be a {1}", key, typeof(T).FullName), p);
-				}
+
+		internal static PatternEntry ParseEntry(IDictionary<string, object> rawData)
+		{
+			if (rawData == null)
+			{
+				throw new ParsingError("Malformed json");
+			}
+
+
+			RawEntry rawEntry = ParseRawEntry(rawData);
+
+			try
+			{
+				var generator = MakeGenerator(rawEntry.AreaGenerator, rawEntry.AreaGeneratorArgs);
+				return new PatternEntry(rawEntry, generator);
+			}
+			catch (ArgumentException error)
+			{
+				throw new ParsingError(string.Format("While constructing generator: {0}", error.Message), error);
 			}
 		}
 
-	
 
-		public static List<int> random_generator(IDictionary<string, object> arguments)
+		internal static RawEntry ParseRawEntry(IDictionary<string, object> rawEntry)
 		{
-			System.Random gen = new System.Random();
-
-
-			var areas = new ParameterConstraint<long>("area-set").GetListOr(arguments, Enumerable.Range(1, 16).ToList().Select(x => (long)x).ToList());
-
-			int count = (int) new ParameterConstraint<long>("count").GetOr(arguments, 1);
-			
-			List<int> result = new List<int>();
-			while (result.Count < count)
-			{
-				var pick = gen.Next((int)areas.Min(), (int)areas.Max() + 1);
-				if (areas.Contains(pick)) {
-					result.Add(pick);
-				}
-			}
-
-			return result;
+			RawEntry entry = new RawEntry();
+			Get(rawEntry, "time", out entry.Time);
+			Get(rawEntry, "sequence", out entry.Sequence);
+			Get(rawEntry, "area", out entry.AreaGenerator);
+			Get(rawEntry, "params", out entry.AreaGeneratorArgs);
+			return entry;
 		}
 
-	
-		/// <summary>
-		/// Invoke a generator by name with the given json arguments
-		/// Throws ArgumentException if generatorName does not match any known generators
-		/// </summary>
-		/// <param name="generatorName">name of the generator</param>
-		/// <param name="arguments">json arguments to the generator</param>
-		/// <returns></returns>
-		public static List<int> Invoke(string generatorName, IDictionary<string, object> arguments)
+
+		internal static IGenerator MakeGenerator(string generatorName, IDictionary<string, object> arguments)
 		{
+
 			if (!generators.ContainsKey(generatorName))
 			{
 				throw new ArgumentException(string.Format("Could not find any generators of the name '{0}'", generatorName));
@@ -241,8 +298,7 @@ namespace Hardlight.SDK.FileUtilities
 			return generators[generatorName](arguments);
 		}
 
-	
-		private static object GetRawHelper(IDictionary<string, object> arguments, string key)
+		internal static object GetRawObject(IDictionary<string, object> arguments, string key)
 		{
 			object outVal = new object();
 			if (!arguments.TryGetValue(key, out outVal))
@@ -257,24 +313,26 @@ namespace Hardlight.SDK.FileUtilities
 
 			return outVal;
 		}
-		public static void GetList<T>(IDictionary<string, object> dict, string key, out List<T> value)
+
+		internal static void GetList<T>(IDictionary<string, object> dict, string key, out List<T> value)
 		{
-			object outVal = GetRawHelper(dict, key);
+			object outVal = GetRawObject(dict, key);
 			try
 			{
-				List<object> temp = (List<object>) outVal;
-				value = temp.Select(x => (T) x).ToList();
+				List<object> temp = (List<object>)outVal;
+				value = temp.Select(x => (T)x).ToList();
 			}
 			catch (InvalidCastException)
 			{
 				throw new ParsingError(string.Format("Parameter '{0}' was not of type {1} as expected", key, typeof(T).FullName));
 			}
 		}
-		public static void Get<T>(IDictionary<string, object> dict, string key, out T value) 
+
+		internal static void Get<T>(IDictionary<string, object> dict, string key, out T value)
 		{
-			object outVal = GetRawHelper(dict, key);
+			object outVal = GetRawObject(dict, key);
 			try
-			{ 
+			{
 				value = (T)outVal;
 			}
 			catch (InvalidCastException)
@@ -283,71 +341,17 @@ namespace Hardlight.SDK.FileUtilities
 			}
 		}
 
-		public static InputModel Parse(string json)
+		public static ScriptablePatternData Parse(string json)
 		{
 			var dict = MiniJSON.Json.Deserialize(json) as IDictionary<string, object>;
 			object pattern = null;
+
 			if (!dict.TryGetValue("pattern", out pattern))
 			{
 				throw new ParsingError("Couldn't find required key 'pattern'");
 			}
 
 			return Parse(pattern as IList<object>);
-		}
-
-		/// <summary>
-		/// Parse a RawEntry from the given raw json data
-		/// </summary>
-		/// <param name="rawEntry">raw json dictionary representing a RawEntry object</param>
-		/// <returns></returns>
-		public static RawEntry Parse(IDictionary<string, object> rawEntry)
-		{
-			RawEntry entry = new RawEntry();
-			Get(rawEntry, "time", out entry.Time);
-			Get(rawEntry, "sequence", out entry.Sequence);
-			Get(rawEntry, "area", out entry.AreaGenerator);
-			Get(rawEntry, "params", out entry.AreaGeneratorArgs);
-			return entry;
-		}
-
-		private static InputModel Parse(IList<object> list)
-		{
-			InputModel model = new InputModel();
-			model.Entries = new List<PatternEntry>();
-
-			for (int i = 0; i < list.Count; i++)
-			{
-				if (list[i] == null)
-				{
-					throw new ParsingError((string.Format("Entry [{0}] was malformed json", i)));
-				}
-
-				try
-				{
-					RawEntry raw = Parse(list[i] as IDictionary<string, object>);
-
-					try
-					{
-						var areas = Invoke(raw.AreaGenerator, raw.AreaGeneratorArgs);
-
-						model.Entries.Add(new PatternEntry(raw, areas));
-					}
-					catch (ArgumentException error)
-					{
-						throw new ParsingError(string.Format("In entry [{0}], while invoking generator: {1} ", i, error.Message), error);
-					}
-
-				} catch(ParsingError error)
-				{
-					throw new ParsingError(string.Format("In entry [{0}], while parsing: {1} ", i, error.Message), error);
-				}
-				
-
-
-			}
-
-			
-			return model;
 		}
 	}
 }
