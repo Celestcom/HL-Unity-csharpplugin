@@ -42,7 +42,7 @@ namespace NSLoaderWrapper
 
 		public static void testParsing()
 		{
-			string json = "{'pattern' : [{'time': 1.0, 'sequence': 'test', 'params' : {'max-depth' : 2}}]}".Replace("'", "\"");
+			string json = "{'pattern' : [{'time': 1.0, 'sequence': 'test', 'area' : 'random', 'params' : {'count' : 6, 'area-set' : [1,2, 3]}}]}".Replace("'", "\"");
 
 			try
 			{
@@ -50,10 +50,8 @@ namespace NSLoaderWrapper
 				Console.WriteLine("Okay");
 
 			
-				List<uint> areas = InputModelParser.Invoke("random", new Dictionary<string, object>() {
-					{ "area-set" , new List<double>(){ 1.0, 2.0  } },
-					{ "count" , 3.0 }
-				});
+		
+				
 
 
 
