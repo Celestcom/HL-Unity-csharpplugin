@@ -50,7 +50,7 @@ namespace NSLoaderWrapper
 
 
 
-				InputModel model = InputModelParser.Parse(json);
+				ScriptablePatternData model = ScriptablePatternParser.Parse(json);
 				Console.WriteLine("Okay");
 
 			
