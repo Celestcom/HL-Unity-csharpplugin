@@ -8,6 +8,7 @@ using Hardlight.SDK.FileUtilities;
 
 namespace Hardlight.SDK
 {
+	[Serializable]
 	public class ScriptableObjectHaptic : ScriptableObject
 	{
 		protected bool Loaded = false;

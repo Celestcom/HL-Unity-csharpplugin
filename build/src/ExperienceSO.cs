@@ -8,11 +8,12 @@ using Hardlight.SDK.FileUtilities;
 
 namespace Hardlight.SDK
 {
+	[Serializable]
 	[CreateAssetMenu(menuName = "Hardlight/Experience")]
 	public class ExperienceSO : ScriptableObjectHaptic
 	{
 		[SerializeField]
-		private List<ParameterizedPattern> _patterns;
+		private List<ParameterizedPattern> _patterns = new List<ParameterizedPattern>();
 
 		public List<ParameterizedPattern> Patterns
 		{

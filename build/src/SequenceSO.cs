@@ -8,11 +8,12 @@ using Hardlight.SDK.FileUtilities;
 
 namespace Hardlight.SDK
 {
+	[Serializable]
 	[CreateAssetMenu(menuName = "Hardlight/Sequence")]
 	public class SequenceSO : ScriptableObjectHaptic
 	{
 		[SerializeField]
-		private List<HapticEffect> _effects;
+		private List<HapticEffect> _effects = new List<HapticEffect>();
 		//[SerializeField]
 		//public List<CommonArgs<HapticEffect>> _moreOtherChildren;
 		//[SerializeField]
@@ -34,12 +35,6 @@ namespace Hardlight.SDK
 		/// </summary>
 		public void OnEnable()
 		{
-			_effects = new List<HapticEffect>();
-			_effects.Add(new HapticEffect(Effect.Buzz));
-			_effects.Add(new HapticEffect(Effect.Buzz));
-			_effects.Add(new HapticEffect(Effect.Buzz));
-			_effects.Add(new HapticEffect(Effect.Buzz));
-			_effects.Add(new HapticEffect(Effect.Buzz));
 		}
 
 		/// <summary>

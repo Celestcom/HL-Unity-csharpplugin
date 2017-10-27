@@ -8,6 +8,7 @@ using Hardlight.SDK.FileUtilities;
 
 namespace Hardlight.SDK
 {
+	[Serializable]
 	[CreateAssetMenu(menuName = "Hardlight/Pattern")]
 	public class PatternSO : ScriptableObjectHaptic
 	{
@@ -15,7 +16,7 @@ namespace Hardlight.SDK
 		//public List<SequenceSO> SequenceKeys;
 
 		[SerializeField]
-		private List<ParameterizedSequence> _sequences;
+		private List<ParameterizedSequence> _sequences = new List<ParameterizedSequence>();
 
 		public List<ParameterizedSequence> Sequences
 		{
@@ -28,7 +29,6 @@ namespace Hardlight.SDK
 		/// </summary>
 		public void OnEnable()
 		{
-			Sequences = new List<ParameterizedSequence>();
 		}
 
 		/// <summary>
