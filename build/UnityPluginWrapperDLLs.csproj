@@ -134,10 +134,17 @@
     <Compile Include="..\src\SuitEventType.cs">
       <Link>src\SuitEventType.cs</Link>
     </Compile>
+    <Compile Include="src\ExperienceSO.cs" />
+    <Compile Include="src\PatternSO.cs" />
+    <Compile Include="src\ScriptableObjectHaptic.cs" />
+    <Compile Include="src\SequenceSO.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>call "$(SolutionDir)scripts\CopyDLLs.bat"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

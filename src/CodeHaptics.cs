@@ -9,9 +9,12 @@ namespace Hardlight.SDK
 	/// <summary>
 	/// <para>HapticEffects are the base building blocks of more complex effects. They can be strung together, repeated over a duration, and given strengths and time offsets.
 	/// </summary>
-	public class HapticEffect
+	[Serializable]
+	public class HapticEffect : HapticElementBaseClass
 	{
+		[UnityEngine.SerializeField]
 		private Effect _effect;
+		[UnityEngine.SerializeField]
 		private float _duration;
 
 		/// <summary>
@@ -49,22 +52,15 @@ namespace Hardlight.SDK
 		/// <summary>
 		/// Construct a HapticEffect with a given Effect, and default duration of 0.0
 		/// </summary>
-		/// <param name="effect"></param>
-		public HapticEffect(Effect effect)
-		{
-			_effect = effect;
-			_duration = 0f;
-		}
-
-		/// <summary>
-		/// Construct a HapticEffect with a given Effect and duration
-		/// </summary>
-		/// <param name="effect"></param>
 		/// <param name="duration">Effect duration (fractional seconds)</param>
-		public HapticEffect(Effect effect, double duration)
+		/// <param name="time">How long from the start of the parent does this begin</param>
+		/// <param name="strength">How strong this effect should be (between 0 and 1.0f)</param>
+		public HapticEffect(Effect effect, double duration = 0.0f, float time = 0.0f, float strength = 1.0f)
 		{
 			_effect = effect;
 			Duration = duration;
+			Time = time;
+			Strength = strength;
 		}
 
 		/// <summary>
@@ -73,9 +69,7 @@ namespace Hardlight.SDK
 		/// <returns>A copy</returns>
 		public HapticEffect Clone()
 		{
-			HapticEffect clone = new HapticEffect(_effect);
-			clone.Duration = this._duration;
-			return clone;
+			return new HapticEffect(_effect, Duration, Time, Strength);
 		}
 
 		/// <summary>
@@ -159,7 +153,8 @@ namespace Hardlight.SDK
 		{
 			HandleLazyAssetLoading();
 
-			EventList e = new ParameterizedSequence(this, area).Generate((float)strength, 0f);
+			UnityEngine.Debug.LogError("Broken\n");
+			EventList e = new ParameterizedSequence(null, area).Generate((float)strength, 0f);
 			HapticHandle.CommandWithHandle creator = delegate (HLVR_Effect* handle)
 			{
 				e.Transmit(handle);
@@ -272,8 +267,8 @@ namespace Hardlight.SDK
 		 /// <param name="sequence">The HapticSequence to be added</param>
 		public HapticPattern AddSequence(double time, AreaFlag area, HapticSequence sequence)
 		{
-			ParameterizedSequence clone = new ParameterizedSequence(sequence.Clone(), area);
-			_children.Add(new CommonArgs<ParameterizedSequence>((float)time, 1f, clone));
+			//ParameterizedSequence clone = new ParameterizedSequence(sequence.Clone(), area);
+			//_children.Add(new CommonArgs<ParameterizedSequence>((float)time, 1f, clone));
 			return this;
 		}
 
@@ -286,8 +281,8 @@ namespace Hardlight.SDK
 		/// <param name="sequence">The HapticSequence to be added</param>
 		public HapticPattern AddSequence(double time, AreaFlag area, double strength, HapticSequence sequence)
 		{
-			ParameterizedSequence clone = new ParameterizedSequence(sequence.Clone(), area);
-			_children.Add(new CommonArgs<ParameterizedSequence>((float)time, (float)strength, clone));
+			//ParameterizedSequence clone = new ParameterizedSequence(sequence.Clone(), area);
+			//_children.Add(new CommonArgs<ParameterizedSequence>((float)time, (float)strength, clone));
 			return this;
 		}
 
@@ -309,7 +304,8 @@ namespace Hardlight.SDK
 		{
 			HandleLazyAssetLoading();
 
-			EventList e = new ParameterizedPattern(this).Generate((float)strength, 0f);
+			UnityEngine.Debug.LogError("Switched parameter to null\n");
+			EventList e = new ParameterizedPattern(null).Generate((float)strength, 0f);
 
 			HapticHandle.CommandWithHandle creator = delegate (HLVR_Effect* handle)
 			{
@@ -424,8 +420,8 @@ namespace Hardlight.SDK
 		/// <param name="sequence">The HapticSequence to be added</param>
 		public HapticExperience AddPattern(double time, HapticPattern pattern)
 		{
-			ParameterizedPattern clone = new ParameterizedPattern(pattern.Clone());
-			_children.Add(new CommonArgs<ParameterizedPattern>((float)time, 1f, clone));
+			//ParameterizedPattern clone = new ParameterizedPattern(pattern.Clone());
+			//_children.Add(new CommonArgs<ParameterizedPattern>((float)time, 1f, clone));
 			return this;
 		}
 
@@ -438,8 +434,10 @@ namespace Hardlight.SDK
 		/// <param name="sequence">The HapticSequence to be added</param>
 		public HapticExperience AddPattern(double time, double strength, HapticPattern pattern)
 		{
-			ParameterizedPattern clone = new ParameterizedPattern(pattern.Clone());
-			_children.Add(new CommonArgs<ParameterizedPattern>((float)time, (float)strength, clone));
+			UnityEngine.Debug.LogError("Removed pattern adding\n");
+
+			//ParameterizedPattern clone = new ParameterizedPattern(pattern.Clone());
+			//_children.Add(new CommonArgs<ParameterizedPattern>((float)time, (float)strength, clone));
 			return this;
 		}
 
@@ -461,7 +459,8 @@ namespace Hardlight.SDK
 		{
 			HandleLazyAssetLoading();
 
-			EventList e = new ParameterizedExperience(this).Generate((float)strength, 0f);
+			UnityEngine.Debug.LogError("Switched parameter to null\n");
+			EventList e = new ParameterizedExperience(null).Generate((float)strength, 0f);
 
 			HapticHandle.CommandWithHandle creator = delegate (HLVR_Effect* handle)
 			{

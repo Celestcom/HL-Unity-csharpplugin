@@ -43,7 +43,8 @@
     <OutputPath>bin\Release\Win32\</OutputPath>
     <BaseIntermediateOutputPath>obj\Win32\Release\UnityPluginWrapperExe\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -55,7 +56,8 @@
     <OutputPath>bin\Release\Win64\</OutputPath>
     <BaseIntermediateOutputPath>obj\Win64\Release\UnityPluginWrapperExe\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -130,6 +132,10 @@
     <Compile Include="..\src\SuitEventType.cs">
       <Link>src\SuitEventType.cs</Link>
     </Compile>
+    <Compile Include="src\ExperienceSO.cs" />
+    <Compile Include="src\PatternSO.cs" />
+    <Compile Include="src\ScriptableObjectHaptic.cs" />
+    <Compile Include="src\SequenceSO.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
