@@ -8,12 +8,79 @@ using UnityEngine;
 
 namespace Hardlight.SDK.FileUtilities
 {
-	
+	/// <summary>
+	/// Represents a discriminated union of all possible area types
+	/// Probably overkill for now..
+	/// </summary>
 	public class Area
 	{
-		public List<int> Regions;
-		public AreaFlag AreaFlag;
+		public enum AreaType
+		{
+			Unknown,
+			Region,
+			AreaFlag
+		}
+
+		private AreaType tag;
+		private List<int> regions;
+		private AreaFlag flag;
+
+		public AreaType Tag
+		{
+			get { return tag; }
+		}
+
+		/// <summary>
+		/// Default construct an Area with value AreaFlag.None
+		/// </summary>
+		public Area()
+		{
+			tag = AreaType.AreaFlag;
+			flag = AreaFlag.None;
+		}
+
+		/// <summary>
+		/// Construct an Area from a given AreaFlag
+		/// </summary>
+		/// <param name="areaFlag"></param>
+		public Area(AreaFlag areaFlag)
+		{
+			tag = AreaType.AreaFlag;
+			flag = areaFlag;
+		}
+
+		/// <summary>
+		/// Construct an Area from a given list of Regions
+		/// </summary>
+		/// <param name="regions"></param>
+		public Area(List<int> regions)
+		{
+			tag = AreaType.Region;
+			this.regions = new List<int>(regions);
+		}
+
+		/// <summary>
+		/// Retrieve the value of the Area
+		/// </summary>
+		/// <param name="areaFlag"></param>
+		/// <param name="regions"></param>
+		public void Get(Action<AreaFlag> areaFlag, Action<List<int>> regions) 
+		{
+			switch (tag)
+			{
+				case AreaType.AreaFlag:
+					areaFlag(flag);
+					break;
+				case AreaType.Region:
+					regions(this.regions);
+					break;
+				default:
+					break;
+			}
+		}
 	}
+
+
 
 	public class ParsingError : Exception
 	{
@@ -21,6 +88,10 @@ namespace Hardlight.SDK.FileUtilities
 		public ParsingError(string message, Exception inner) : base(message, inner) { }
 	} 
 
+	/// <summary>
+	/// First representation of the generic json data within a pattern. Leaves the arguments for a generator
+	/// for later parsing. 
+	/// </summary>
 	public class RawEntry
 	{
 		public double Time;
@@ -29,13 +100,25 @@ namespace Hardlight.SDK.FileUtilities
 		public IDictionary<string, object> AreaGeneratorArgs; 
 	}
 
+	/// <summary>
+	/// Second representation of json data within a pattern. Arguments for generator have been parsed, submitted to generator,
+	/// and result in a list of Regions. 
+	/// </summary>
 	public class PatternEntry
 	{
 		public double Time;
 		public string Sequence;
 		public List<int> Area;
+
+		public PatternEntry(RawEntry raw, List<int> area)
+		{
+			Time = raw.Time;
+			Sequence = raw.Sequence;
+			Area = area;
+		}
 	}
 
+	
 	public class InputModel
 	{
 		public List<PatternEntry> Entries;
@@ -57,17 +140,51 @@ namespace Hardlight.SDK.FileUtilities
 			{"random", new GeneratorDelegate(random_generator) }
 		};
 
+
 		public class ParameterConstraint<T>
 		{
-			string key;
+			private string key;
 
 			public ParameterConstraint(string key) {
 				this.key = key;
 			}
 
+			/// <summary>
+			/// Retrieve a list of T from the json, or return a default value
+			/// Note: default integral type in the json is long, default floating point type is double
+			/// </summary>
+			/// <param name="arguments">arguments dictionary</param>
+			/// <param name="defaultVal">default value</param>
+			/// <returns></returns>
+			public List<T> GetListOr(IDictionary<string, object> arguments, List<T> defaultVal)
+			{
+				
+
+				if (arguments == null || !arguments.ContainsKey(key))
+				{
+					return defaultVal;
+				}
+
+				try
+				{
+					GetList<T>(arguments, key, out defaultVal);
+					return defaultVal;
+				} catch (ParsingError p)
+				{
+					throw new ArgumentException(string.Format("Parameter '{0}' parameter must be a {1}", key, typeof(T).FullName), p);
+				}
+			}
+		
+			/// <summary>
+			/// Retrieve a T from the json, or return a default value
+			/// Note: default integral type in the json is long, default floating point type is double
+			/// </summary>
+			/// <param name="arguments">arguments dictionary</param>
+			/// <param name="defaultVal">default value</param>
+			/// <returns></returns>
 			public T GetOr(IDictionary<string, object> arguments, T defaultVal)
 			{
-				if (!arguments.ContainsKey(key))
+				if (arguments == null || !arguments.ContainsKey(key))
 				{
 					return defaultVal;
 				}
@@ -90,7 +207,7 @@ namespace Hardlight.SDK.FileUtilities
 			System.Random gen = new System.Random();
 
 
-			var areas = new ParameterConstraint<List<long>>("area-set").GetOr(arguments, Enumerable.Range(1, 16).ToList().Select(x => (long)x).ToList());
+			var areas = new ParameterConstraint<long>("area-set").GetListOr(arguments, Enumerable.Range(1, 16).ToList().Select(x => (long)x).ToList());
 
 			int count = (int) new ParameterConstraint<long>("count").GetOr(arguments, 1);
 			
@@ -107,6 +224,13 @@ namespace Hardlight.SDK.FileUtilities
 		}
 
 	
+		/// <summary>
+		/// Invoke a generator by name with the given json arguments
+		/// Throws ArgumentException if generatorName does not match any known generators
+		/// </summary>
+		/// <param name="generatorName">name of the generator</param>
+		/// <param name="arguments">json arguments to the generator</param>
+		/// <returns></returns>
 		public static List<int> Invoke(string generatorName, IDictionary<string, object> arguments)
 		{
 			if (!generators.ContainsKey(generatorName))
@@ -117,12 +241,11 @@ namespace Hardlight.SDK.FileUtilities
 			return generators[generatorName](arguments);
 		}
 
-
-
-		public static void Get<T>(IDictionary<string, object> dict, string key, out T value) where T: new()
+	
+		private static object GetRawHelper(IDictionary<string, object> arguments, string key)
 		{
 			object outVal = new object();
-			if (!dict.TryGetValue(key, out outVal))
+			if (!arguments.TryGetValue(key, out outVal))
 			{
 				throw new ParsingError(string.Format("Could not find required parameter '{0}'", key));
 			}
@@ -132,30 +255,33 @@ namespace Hardlight.SDK.FileUtilities
 				throw new ParsingError(string.Format("Parameter '{0}' was null, malformed json?", key));
 			}
 
+			return outVal;
+		}
+		public static void GetList<T>(IDictionary<string, object> dict, string key, out List<T> value)
+		{
+			object outVal = GetRawHelper(dict, key);
 			try
 			{
-				if (typeof(T).GetInterface("IList") != null)
-				{
-					List<object> temp = (List<object>)outVal;
-					value = new T();
-
-					foreach (var item in temp)
-					{
-						value.Add(item);
-					}
-				}
-				else
-				{
-					value = (T)outVal;
-				}
+				List<object> temp = (List<object>) outVal;
+				value = temp.Select(x => (T) x).ToList();
 			}
 			catch (InvalidCastException)
 			{
 				throw new ParsingError(string.Format("Parameter '{0}' was not of type {1} as expected", key, typeof(T).FullName));
 			}
 		}
-
-		
+		public static void Get<T>(IDictionary<string, object> dict, string key, out T value) 
+		{
+			object outVal = GetRawHelper(dict, key);
+			try
+			{ 
+				value = (T)outVal;
+			}
+			catch (InvalidCastException)
+			{
+				throw new ParsingError(string.Format("Parameter '{0}' was not of type {1} as expected", key, typeof(T).FullName));
+			}
+		}
 
 		public static InputModel Parse(string json)
 		{
@@ -168,6 +294,12 @@ namespace Hardlight.SDK.FileUtilities
 
 			return Parse(pattern as IList<object>);
 		}
+
+		/// <summary>
+		/// Parse a RawEntry from the given raw json data
+		/// </summary>
+		/// <param name="rawEntry">raw json dictionary representing a RawEntry object</param>
+		/// <returns></returns>
 		public static RawEntry Parse(IDictionary<string, object> rawEntry)
 		{
 			RawEntry entry = new RawEntry();
@@ -175,16 +307,9 @@ namespace Hardlight.SDK.FileUtilities
 			Get(rawEntry, "sequence", out entry.Sequence);
 			Get(rawEntry, "area", out entry.AreaGenerator);
 			Get(rawEntry, "params", out entry.AreaGeneratorArgs);
-
-			//entry.Time =(float) Get<double>(rawEntry, "time");
-			//entry.Sequence = Get<string>(rawEntry, "sequence");
-			//entry.AreaGenerator = Get<string>(rawEntry, "area");
-			//entry.AreaGeneratorArgs = Get<IDictionary<string, object>>(rawEntry, "params");
-
-		
 			return entry;
-
 		}
+
 		private static InputModel Parse(IList<object> list)
 		{
 			InputModel model = new InputModel();
@@ -192,32 +317,31 @@ namespace Hardlight.SDK.FileUtilities
 
 			for (int i = 0; i < list.Count; i++)
 			{
-
 				if (list[i] == null)
 				{
 					throw new ParsingError((string.Format("Entry [{0}] was malformed json", i)));
 				}
+
 				try
 				{
 					RawEntry raw = Parse(list[i] as IDictionary<string, object>);
 
-				
-					var areas = Invoke(raw.AreaGenerator, raw.AreaGeneratorArgs);
+					try
+					{
+						var areas = Invoke(raw.AreaGenerator, raw.AreaGeneratorArgs);
 
-					PatternEntry entry = new PatternEntry();
-					entry.Time = raw.Time;
-					entry.Sequence = raw.Sequence;
-					entry.Area = areas;
-					model.Entries.Add(entry);
+						model.Entries.Add(new PatternEntry(raw, areas));
+					}
+					catch (ArgumentException error)
+					{
+						throw new ParsingError(string.Format("In entry [{0}], while invoking generator: {1} ", i, error.Message), error);
+					}
 
 				} catch(ParsingError error)
 				{
-					throw new ParsingError(string.Format("In entry [{0}]: {1} ", i, error.Message), error);
+					throw new ParsingError(string.Format("In entry [{0}], while parsing: {1} ", i, error.Message), error);
 				}
-				catch (ArgumentException error)
-				{
-					throw new ParsingError(string.Format("In entry [{0}]: {1} ", i, error.Message), error);
-				}
+				
 
 
 			}
