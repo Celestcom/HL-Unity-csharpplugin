@@ -5,40 +5,89 @@ using System.Text;
 
 namespace Hardlight.SDK
 {
-	public class ParameterizedSequence
+	[Serializable]
+	public class ParameterizedSequence : HapticElementBaseClass
 	{
-		private HapticSequence _sequence;
+		[UnityEngine.SerializeField]
+		private SequenceSO _sequence;
+		[UnityEngine.SerializeField]
 		private AreaFlag _area;
-		public ParameterizedSequence(HapticSequence sequence, AreaFlag area)
+
+		public AreaFlag Area
 		{
-			_sequence = sequence;
-			_area = area;
+			get
+			{
+				return _area;
+			}
+
+			set
+			{
+				_area = value;
+			}
+		}
+		public SequenceSO Sequence
+		{
+			get
+			{
+				return _sequence;
+			}
+
+			set
+			{
+				_sequence = value;
+			}
+		}
+
+		//public ParameterizedSequence(HapticSequence sequence, AreaFlag area)
+		//{
+		//	_sequence = sequence;
+		//	_area = area;
+		//}
+		public ParameterizedSequence(SequenceSO sequence, AreaFlag area, float time = 0.0f, float strength = 1.0f)
+		{
+			Sequence = sequence;
+			Area = area;
+			Strength = strength;
+			Time = time;
 		}
 
 		internal EventList Generate(float strength, float timeOffset)
 		{
 			EventList events = new EventList();
-			foreach (var effect in _sequence.Effects)
+			var effects = Sequence.Effects;
+			foreach (var effect in effects)
 			{
-				float finalStrength = strength * effect.Strength;
-				float finalTime = timeOffset + effect.Time;
+				if (effect != null)
+				{
+					float finalStrength = strength * effect.Strength;
+					float finalTime = timeOffset + effect.Time;
 
-				var newApiRegions = AreaFlagToRegion.GetRegions(_area);
+					var newApiRegions = AreaFlagToRegion.GetRegions(Area);
 
-				events.AddEvent(new BasicHapticEvent(
-					finalTime,
-					finalStrength,
-					(float)effect.Item.Duration,
-					newApiRegions,
-					effect.Item.Effect	
-				));
+					events.AddEvent(new BasicHapticEvent(
+						finalTime,
+						finalStrength,
+						(float)effect.Duration,
+						newApiRegions,
+						effect.Effect
+					));
+				}
 			}
 			return events;
 		}
 
+		/// <summary>
+		/// Create an independent copy of this ParameterizedSequence
+		/// </summary>
+		/// <returns>A copy</returns>
+		public ParameterizedSequence Clone()
+		{
+			return new ParameterizedSequence(Sequence, Area, Time, Strength);
+		}
+
 		public override string ToString()
 		{
-			return string.Format("On area {0}: \n{1}", _area,  _sequence.ToString());
+			return string.Format("On area {0}: \n{1}", Area, Sequence.ToString());
 		}
 
 	}

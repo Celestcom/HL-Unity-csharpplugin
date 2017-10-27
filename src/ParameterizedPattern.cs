@@ -5,26 +5,56 @@ using System.Text;
 
 namespace Hardlight.SDK
 {
-	public class ParameterizedPattern
+	[Serializable]
+	public class ParameterizedPattern : HapticElementBaseClass
 	{
-		private HapticPattern _pattern;
-		public ParameterizedPattern(HapticPattern pattern)
+		[UnityEngine.SerializeField]
+		private PatternSO _pattern;
+
+		public PatternSO Pattern
 		{
-			_pattern = pattern;
+			get
+			{
+				return _pattern;
+			}
+
+			set
+			{
+				_pattern = value;
+			}
+		}
+
+		public ParameterizedPattern(PatternSO pattern, float time = 0.0f, float strength = 1.0f)
+		{
+			Pattern = pattern;
+			Time = time;
+			Strength = strength;
 		}
 
 		internal EventList Generate(float strength, float timeOffset)
 		{
 			EventList events = new EventList();
-			foreach (var sequence in _pattern.Sequences)
+			foreach (var sequence in Pattern.Sequences)
 			{
-				float finalStrength = strength * sequence.Strength;
-				float finalTime = timeOffset + sequence.Time;
+				if (sequence != null)
+				{
+					float finalStrength = strength * sequence.Strength;
+					float finalTime = timeOffset + sequence.Time;
 
-				EventList subEvents = sequence.Item.Generate(finalStrength, finalTime);
-				events.AddAll(subEvents);
+					EventList subEvents = sequence.Generate(finalStrength, finalTime);
+					events.AddAll(subEvents);
+				}
 			}
 			return events;
+		}
+
+		/// <summary>
+		/// Create an independent copy of this ParameterizedPattern
+		/// </summary>
+		/// <returns>A copy</returns>
+		public ParameterizedPattern Clone()
+		{
+			return new ParameterizedPattern(Pattern, Time, Strength);
 		}
 
 	}
