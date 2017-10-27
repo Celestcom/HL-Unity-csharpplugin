@@ -90,6 +90,18 @@
     <Compile Include="..\src\EventList.cs">
       <Link>src\EventList.cs</Link>
     </Compile>
+    <Compile Include="..\src\ExperienceSO.cs">
+      <Link>src\ExperienceSO.cs</Link>
+    </Compile>
+    <Compile Include="..\src\FileParsingV2.cs">
+      <Link>src\FileParsingV2.cs</Link>
+    </Compile>
+    <Compile Include="..\src\HapticEffect.cs">
+      <Link>src\HapticEffect.cs</Link>
+    </Compile>
+    <Compile Include="..\src\HapticElementBaseClass.cs">
+      <Link>src\HapticElementBaseClass.cs</Link>
+    </Compile>
     <Compile Include="..\src\HapticsDefinitionFile.cs">
       <Link>src\HapticsDefinitionFile.cs</Link>
     </Compile>
@@ -117,11 +129,20 @@
     <Compile Include="..\src\ParameterizedSequence.cs">
       <Link>src\ParameterizedSequence.cs</Link>
     </Compile>
+    <Compile Include="..\src\PatternSO.cs">
+      <Link>src\PatternSO.cs</Link>
+    </Compile>
     <Compile Include="..\src\Platform.cs">
       <Link>src\Platform.cs</Link>
     </Compile>
     <Compile Include="..\src\Program.cs">
       <Link>src\Program.cs</Link>
+    </Compile>
+    <Compile Include="..\src\ScriptableObjectHaptic.cs">
+      <Link>src\ScriptableObjectHaptic.cs</Link>
+    </Compile>
+    <Compile Include="..\src\SequenceSO.cs">
+      <Link>src\SequenceSO.cs</Link>
     </Compile>
     <Compile Include="..\src\SerializableDictionary.cs">
       <Link>src\SerializableDictionary.cs</Link>
@@ -132,10 +153,6 @@
     <Compile Include="..\src\SuitEventType.cs">
       <Link>src\SuitEventType.cs</Link>
     </Compile>
-    <Compile Include="src\ExperienceSO.cs" />
-    <Compile Include="src\PatternSO.cs" />
-    <Compile Include="src\ScriptableObjectHaptic.cs" />
-    <Compile Include="src\SequenceSO.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

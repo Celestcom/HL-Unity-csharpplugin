@@ -9,6 +9,8 @@ namespace Hardlight.SDK
 	public class ParameterizedSequence : HapticElementBaseClass
 	{
 		[UnityEngine.SerializeField]
+		private int _sequenceKey = 0;
+		[UnityEngine.SerializeField]
 		private SequenceSO _sequence;
 		[UnityEngine.SerializeField]
 		private AreaFlag _area;
@@ -35,6 +37,18 @@ namespace Hardlight.SDK
 			set
 			{
 				_sequence = value;
+			}
+		}
+		public int SequenceKey
+		{
+			get
+			{
+				return _sequenceKey;
+			}
+
+			set
+			{
+				_sequenceKey = value;
 			}
 		}
 

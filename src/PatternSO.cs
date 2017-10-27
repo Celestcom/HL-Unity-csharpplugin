@@ -12,8 +12,8 @@ namespace Hardlight.SDK
 	[CreateAssetMenu(menuName = "Hardlight/Pattern")]
 	public class PatternSO : ScriptableObjectHaptic
 	{
-		//[SerializeField]
-		//public List<SequenceSO> SequenceKeys;
+		[SerializeField]
+		public List<SequenceSO> SequenceKeys;
 
 		[SerializeField]
 		private List<ParameterizedSequence> _sequences = new List<ParameterizedSequence>();
