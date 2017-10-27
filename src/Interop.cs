@@ -59,14 +59,25 @@ namespace Hardlight.SDK
 			public enum HLVR_EventKey
 			{
 				Unknown = 0,
+				/* Common Keys */
+				Target_Regions_UInt32s,
+				Target_Nodes_UInt32s,
 
+				/* Event-Specific keys */
 				DiscreteHaptic_Duration_Float = 1000,
 				DiscreteHaptic_Strength_Float,
-				DiscreteHaptic_Effect_Int,
-				DiscreteHaptic_Region_UInt32s,
-				DiscreteHaptic_Nodes_UInt32s
+				DiscreteHaptic_Waveform_Int,
+
+				ContinuousHaptic_Strength_Float = 2000,
+
+
+
+				BufferedHaptic_Samples_Floats = 3000,
+				BufferedHaptic_Frequency_Float,
+
+
 			}
-			
+
 
 			public enum HLVR_EventType
 			{

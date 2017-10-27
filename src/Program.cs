@@ -14,11 +14,8 @@ namespace NSLoaderWrapper
 	public unsafe class Program
 	{
 
-
-		public static int Main()
+		public static void testMechStompSerialize()
 		{
-
-			HLVR.HLVR_Plugin plugin = new HLVR.HLVR_Plugin();
 			string rootPath = "D:/Users/Projects/Unity-SDK/Assets/StreamingAssets/Haptics/";
 
 			AssetTool tool = new AssetTool();
@@ -41,38 +38,40 @@ namespace NSLoaderWrapper
 			//Console.WriteLine("\nHDF String\n\t[" + mechHDFstring + "]");
 			Console.WriteLine("Raw Json\n\t[" + mechHDFstring + "]");
 			Console.WriteLine("Deserialized Json to HDF to JSON\n\t[" + serialized + "]");
-			//HapticSequence seq = new HapticSequence();
-			//seq.AddEffect(0.0f, new HapticEffect(Effect.Click, .1f));
-			//seq.AddEffect(0.25f, new HapticEffect(Effect.Click, .1f));
-			//seq.AddEffect(0.50f, new HapticEffect(Effect.Click, .1f));
-			//seq.AddEffect(0.75f, new HapticEffect(Effect.Click, .1f));
+		}
 
-			//Creat the HDF & it's root effect (which defines the file name to my understanding).
-			//ParsingUtils.RootEffect root = new ParsingUtils.RootEffect("click", "sequence");
-			//HapticDefinitionFile hdf = new HapticDefinitionFile(root);
+		public static void testParsing()
+		{
+			string json = "{'pattern' : [{'time': 1.0, 'sequence': 'test', 'area' : 'random', 'params' : {'count' : 6, 'area-set' : [1,2, 3]}}]}".Replace("'", "\"");
 
+			try
+			{
 
 
-			////Probably need to create a JsonSequenceAtom that uses one of the atoms.
 
-			//hdf.sequence_definitions.Add("click", atomList);
 
-			//Make sure that HDF root effect is assigned
-			//Console.WriteLine(hdf.root_effect.name + "  " + hdf.root_effect.type + "\n");
+				InputModel model = InputModelParser.Parse(json);
+				Console.WriteLine("Okay");
 
-			//Attempt to serialize the HDF.
-			//string serialized = hdf.Serialize();
+			
+		
+				
 
-			//Print out the serialization
-			//Console.WriteLine("\nJSON\n\t[" + serialized + "]");
+
+
+			} catch(ParsingError error)
+			{
+				Console.WriteLine(error.Message);
+			}
+		}
+		public static int Main()
+		{
+
+			//HLVR.HLVR_Plugin plugin = new HLVR.HLVR_Plugin();
+
+			testParsing();
 
 			Console.ReadLine();
-
-			while (true)
-			{
-				var devices = plugin.GetKnownDevices();
-				Console.ReadLine();
-			}
 
 			return 0;
 		}
