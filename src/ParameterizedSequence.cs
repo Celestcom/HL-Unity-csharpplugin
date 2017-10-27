@@ -38,11 +38,6 @@ namespace Hardlight.SDK
 			}
 		}
 
-		//public ParameterizedSequence(HapticSequence sequence, AreaFlag area)
-		//{
-		//	_sequence = sequence;
-		//	_area = area;
-		//}
 		public ParameterizedSequence(SequenceSO sequence, AreaFlag area, float time = 0.0f, float strength = 1.0f)
 		{
 			Sequence = sequence;
