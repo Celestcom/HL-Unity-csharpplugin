@@ -12,21 +12,13 @@ namespace Hardlight.SDK
 		private int _sequenceKey = 0;
 		[UnityEngine.SerializeField]
 		private SequenceSO _sequence;
+
+		public bool UsingGenerator = false;
 		[UnityEngine.SerializeField]
-		private AreaFlag _area;
+		private GeneratorLocation _generator;
+		[UnityEngine.SerializeField]
+		private AreaFlagLocation _areaLoc;
 
-		public AreaFlag Area
-		{
-			get
-			{
-				return _area;
-			}
-
-			set
-			{
-				_area = value;
-			}
-		}
 		public SequenceSO Sequence
 		{
 			get
@@ -49,6 +41,48 @@ namespace Hardlight.SDK
 			set
 			{
 				_sequenceKey = value;
+			}
+		}
+
+		public GeneratorLocation Generator
+		{
+			get
+			{
+				if (_generator == null)
+				{
+					_generator = new GeneratorLocation();
+				}
+				return _generator;
+			}
+
+			set
+			{
+				if (_generator == null)
+				{
+					_generator = new GeneratorLocation();
+				}
+				_generator = value;
+			}
+		}
+		//This could do something like talk to the generator?
+		public AreaFlag Area
+		{
+			get
+			{
+				if (_areaLoc == null)
+				{
+					_areaLoc = new AreaFlagLocation();
+				}
+				return _areaLoc.Area;
+			}
+
+			set
+			{
+				if (_areaLoc == null)
+				{
+					_areaLoc = new AreaFlagLocation();
+				}
+				_areaLoc.Area = value;
 			}
 		}
 

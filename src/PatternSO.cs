@@ -30,7 +30,6 @@ namespace Hardlight.SDK
 		public void OnEnable()
 		{
 		}
-
 		/// <summary>
 		/// Add a HapticSequence to this HapticPattern with a given time offset and AreaFlag, and default strength of 1.0
 		/// </summary>

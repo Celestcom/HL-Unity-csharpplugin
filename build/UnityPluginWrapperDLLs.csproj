@@ -153,6 +153,7 @@
     <Compile Include="..\src\SuitEventType.cs">
       <Link>src\SuitEventType.cs</Link>
     </Compile>
+    <Compile Include="src\LocationInfo.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
