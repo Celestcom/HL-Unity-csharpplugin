@@ -50,17 +50,16 @@ namespace Hardlight.SDK
 		}
 
 		/// <summary>
-		/// Construct a HapticEffect with a given Effect, and default duration of 0.0
+		/// Construct a HapticEffect with the given parameters
 		/// </summary>
+		/// <param name="effect">Which effect family should be used</param>
 		/// <param name="duration">Effect duration (fractional seconds)</param>
 		/// <param name="time">How long from the start of the parent does this begin</param>
 		/// <param name="strength">How strong this effect should be (between 0 and 1.0f)</param>
-		public HapticEffect(Effect effect, double duration = 0.0f, float time = 0.0f, float strength = 1.0f)
+		public HapticEffect(Effect effect = Effect.Click, float time = 0.0f, double duration = 0.0f, float strength = 1.0f) : base(time, strength)
 		{
 			_effect = effect;
 			Duration = duration;
-			Time = time;
-			Strength = strength;
 		}
 
 		/// <summary>
@@ -69,7 +68,7 @@ namespace Hardlight.SDK
 		/// <returns>A copy</returns>
 		public HapticEffect Clone()
 		{
-			return new HapticEffect(_effect, Duration, Time, Strength);
+			return new HapticEffect(_effect, Time, Duration, Strength);
 		}
 
 		/// <summary>

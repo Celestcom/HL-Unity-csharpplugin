@@ -15,7 +15,7 @@ namespace Hardlight.SDK
 			_type = type;
 		}
 
-		public void LoadFromAsset(string assetPath)
+		public void LoadFromJsonAsset(string assetPath)
 		{
 			var file = Resources.Load<JsonAsset>(assetPath);
 
@@ -58,7 +58,7 @@ namespace Hardlight.SDK
 		{
 			if (!Loaded && LoadedAssetName.Length > 0)
 			{
-				LoadFromAsset(LoadedAssetName);
+				LoadFromJsonAsset(LoadedAssetName);
 			}
 		}
 

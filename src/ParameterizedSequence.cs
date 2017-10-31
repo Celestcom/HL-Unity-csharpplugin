@@ -11,7 +11,7 @@ namespace Hardlight.SDK
 		[UnityEngine.SerializeField]
 		private int _sequenceKey = 0;
 		[UnityEngine.SerializeField]
-		private SequenceSO _sequence;
+		private HapticSequence _sequence;
 
 		public bool UsingGenerator = false;
 		[UnityEngine.SerializeField]
@@ -19,7 +19,7 @@ namespace Hardlight.SDK
 		[UnityEngine.SerializeField]
 		private AreaFlagLocation _areaLoc;
 
-		public SequenceSO Sequence
+		public HapticSequence Sequence
 		{
 			get
 			{
@@ -86,12 +86,10 @@ namespace Hardlight.SDK
 			}
 		}
 
-		public ParameterizedSequence(SequenceSO sequence, AreaFlag area, float time = 0.0f, float strength = 1.0f)
+		public ParameterizedSequence(HapticSequence sequence, AreaFlag area, float time = 0.0f, float strength = 1.0f) : base(time, strength)
 		{
 			Sequence = sequence;
 			Area = area;
-			Strength = strength;
-			Time = time;
 		}
 
 		internal EventList Generate(float strength, float timeOffset)
@@ -106,6 +104,11 @@ namespace Hardlight.SDK
 					float finalTime = timeOffset + effect.Time;
 
 					var newApiRegions = AreaFlagToRegion.GetRegions(Area);
+
+					//UnityEngine.Debug.Log(String.Format("{0} {1} {2} {3}", finalTime,
+					//	finalStrength,
+					//	(float)effect.Duration,
+					//	effect.Effect) + "\n");
 
 					events.AddEvent(new BasicHapticEvent(
 						finalTime,
