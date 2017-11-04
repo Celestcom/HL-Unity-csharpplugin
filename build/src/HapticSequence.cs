@@ -8,6 +8,10 @@ using Hardlight.SDK.FileUtilities;
 
 namespace Hardlight.SDK
 {
+	/// <summary>
+	/// Don't use HapticSequence seq = new HapticSequence
+	/// Use HapticSequence.CreateNew()
+	/// </summary>
 	[Serializable]
 	[CreateAssetMenu(menuName = "Hardlight/Sequence")]
 	public class HapticSequence : ScriptableObjectHaptic
@@ -209,6 +213,73 @@ namespace Hardlight.SDK
 		//	//doLoadFromHDF(hdf.root_effect.name, hdf);
 		//	return seq;
 		//}
+
+		public static HapticSequence LoadFromHDF(string jsonFileName)
+		{
+			HapticSequence seq = HapticSequence.CreateNew();
+			AssetTool tool = new AssetTool();
+			tool.SetRootHapticsFolder(UnityEngine.Application.streamingAssetsPath + "/Haptics/");
+			var hdf = tool.GetHapticDefinitionFile(jsonFileName);
+
+			foreach (var jsonEffect in hdf.sequence_definitions)
+			{
+				foreach (var eff in jsonEffect.Value)
+				{
+					Effect e = FileEffectToCodeEffect.TryParse(eff.effect, Effect.Click);
+					seq.AddEffect(e, eff.time, eff.duration, eff.strength);
+				}
+			}
+
+			return seq;
+		}
+
+		public static HapticSequence CreateAsset(string jsonPath)
+		{
+			return HapticResources.CreateSequence(jsonPath);
+		}
+
+		public static void SaveAsset(string fileNameWithoutExtension, HapticSequence sequence)
+		{
+			HapticResources.SaveSequence(fileNameWithoutExtension, sequence);
+		}
+		//public static HapticSequence CreateAsset(string jsonPath)
+		//{
+		//	var assetPath = "Assets/Resources/Haptics/";
+
+		//	var fileName = System.IO.Path.GetFileNameWithoutExtension(jsonPath);
+
+		//	////If we don't replace . with _, then Unity has serious trouble locating the file
+		//	var newAssetName = fileName.Replace('.', '_') + ".asset";
+		//	HapticSequence seq = null;
+
+		//	bool isSeq = jsonPath.Contains(".sequence");
+		//	bool isPat = jsonPath.Contains(".pattern");
+		//	bool isExp = jsonPath.Contains(".experience");
+		//	Debug.Log("Attemtping haptic asset import: " + jsonPath + " " + isSeq + "\n" + newAssetName + "\n\n" + "\n");
+
+		//	if (isSeq)
+		//	{
+		//		seq = HapticSequence.LoadFromHDF(jsonPath);
+		//	}
+		//	else if (isPat)
+		//	{
+		//		Debug.LogError("Attempted to run a HapticSequence.CreateAsset while providing a pattern at path: " + jsonPath + "\n\t");
+		//	}
+		//	else if (isPat)
+		//	{
+		//		Debug.LogError("Attempted to run a HapticSequence.CreateAsset while providing a experience at path: " + jsonPath + "\n\t");
+		//	}
+
+		//	if (seq != null)
+		//	{
+		//		UnityEditor.AssetDatabase.CreateAsset(seq, assetPath + newAssetName);
+		//		UnityEditor.AssetDatabase.SaveAssets();
+		//		UnityEditor.Selection.activeObject = seq;
+		//	}
+		//	return seq;
+		//}
+
+
 
 		/// <summary>
 		/// Internal use: turns an HDF into a pattern

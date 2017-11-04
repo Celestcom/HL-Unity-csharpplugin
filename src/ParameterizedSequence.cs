@@ -19,6 +19,9 @@ namespace Hardlight.SDK
 		[UnityEngine.SerializeField]
 		private AreaFlagLocation _areaLoc;
 
+		//This exists because Unity is a huge pain when it comes to serialization.
+		private AreaFlag _areaFlag;
+
 		public HapticSequence Sequence
 		{
 			get
@@ -69,20 +72,22 @@ namespace Hardlight.SDK
 		{
 			get
 			{
-				if (_areaLoc == null)
-				{
-					_areaLoc = new AreaFlagLocation();
-				}
-				return _areaLoc.Area;
+				return _areaFlag;
+				//if (_areaLoc == null)
+				//{
+				//	_areaLoc = new AreaFlagLocation();
+				//}
+				//return _areaLoc.Area;
 			}
 
 			set
 			{
-				if (_areaLoc == null)
-				{
-					_areaLoc = new AreaFlagLocation();
-				}
-				_areaLoc.Area = value;
+				_areaFlag = value;
+				//if (_areaLoc == null)
+				//{
+				//	_areaLoc = new AreaFlagLocation();
+				//}
+				//_areaLoc.Area = value;
 			}
 		}
 

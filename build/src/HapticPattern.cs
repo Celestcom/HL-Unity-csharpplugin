@@ -168,14 +168,54 @@ namespace Hardlight.SDK
 			return CreateInstance<HapticPattern>();
 		}
 
-		public static HapticPattern LoadFromHDF(string key)
+		public static HapticPattern CreateAsset(string jsonPath)
 		{
-			HapticPattern pat = HapticPattern.CreateNew();
-
-
-
-			return pat;
+			return HapticResources.CreatePattern(jsonPath);
 		}
+		public static void SaveAsset(string fileNameWithoutExtension, HapticPattern pattern)
+		{
+			HapticResources.SavePattern(fileNameWithoutExtension, pattern);
+		}
+
+		//public static HapticPattern LoadFromHDF(string jsonFileName)
+		//{
+		//	HapticPattern pat = HapticPattern.CreateNew();
+		//	AssetTool tool = new AssetTool();
+		//	tool.SetRootHapticsFolder(UnityEngine.Application.streamingAssetsPath + "/Haptics/");
+		//	var hdf = tool.GetHapticDefinitionFile(jsonFileName);
+
+		//	CodeHapticFactory.CreatePattern(, hdf);
+
+		//	foreach (var patternDef in hdf.pattern_definitions)
+		//	{
+		//		foreach (var jsonSeq in patternDef.Value)
+		//		{
+		//			string seq = jsonSeq.sequence;
+
+		//			pat.AddSequence(new ParameterizedSequence(null, jsonSeq.areaFlag, jsonSeq.time, jsonSeq.strength));
+		//		}
+		//		//thing.Value[0].
+		//	}
+		//	//foreach (var jsonEffect in hdf.sequence_definitions)
+		//	//{
+		//	//	foreach (var eff in jsonEffect.Value)
+		//	//	{
+		//	//		Effect e = FileEffectToCodeEffect.TryParse(eff.effect, Effect.Click);
+		//	//		pat.AddEffect(e, eff.time, eff.duration, eff.strength);
+		//	//	}
+		//	//}
+
+		//	return pat;
+		//}
+
+		//public static HapticPattern LoadFromHDF(string key)
+		//{
+		//	HapticPattern pat = HapticPattern.CreateNew();
+
+
+
+		//	return pat;
+		//}
 		/// <summary>
 		/// Internal use: turns an HDF into a pattern
 		/// </summary>
@@ -210,38 +250,38 @@ namespace Hardlight.SDK
 		/// <param name="resourcesPath">Files should be located in a Resources/Haptics folder. This does not append the Haptics folder (include it on your end)</param>
 		/// <returns></returns>
 		public static HapticPattern LoadFromAsset(string resourcesPath)
-	{
-		var pat = Resources.Load<HapticPattern>(resourcesPath);
-		if (pat != null)
 		{
-			return pat;
+			var pat = Resources.Load<HapticPattern>(resourcesPath);
+			if (pat != null)
+			{
+				return pat;
+			}
+
+			Debug.LogError("Attempted to load HapticPattern from path [" + resourcesPath + "] but failed.\n\rReturned a newly created and empty instance.\n");
+
+			return CreateInstance<HapticPattern>();
 		}
 
-		Debug.LogError("Attempted to load HapticPattern from path [" + resourcesPath + "] but failed.\n\rReturned a newly created and empty instance.\n");
 
-		return CreateInstance<HapticPattern>();
-	}
-
-
-	/// <summary>
-	/// Attempts to load an existing HapticPattern asset file from the provided asset bundle
-	/// If the path does not exist, it will return CreateNew()
-	/// </summary>
-	/// <param name="patternAssetName"></param>
-	/// <param name="bundle"></param>
-	/// <returns></returns>
-	public static HapticPattern LoadFromAssetBundle(string patternAssetName, AssetBundle bundle)
-	{
-		var pat = bundle.LoadAsset<HapticPattern>(patternAssetName);
-
-		if (pat != null)
+		/// <summary>
+		/// Attempts to load an existing HapticPattern asset file from the provided asset bundle
+		/// If the path does not exist, it will return CreateNew()
+		/// </summary>
+		/// <param name="patternAssetName"></param>
+		/// <param name="bundle"></param>
+		/// <returns></returns>
+		public static HapticPattern LoadFromAssetBundle(string patternAssetName, AssetBundle bundle)
 		{
-			return pat;
+			var pat = bundle.LoadAsset<HapticPattern>(patternAssetName);
+
+			if (pat != null)
+			{
+				return pat;
+			}
+
+			Debug.LogError("Attempted to load HapticPattern from asset bundle [" + bundle.name + "] with asset name [" + patternAssetName + "] but failed.\n\rReturned a newly created and empty instance.\n");
+
+			return CreateInstance<HapticPattern>();
 		}
-
-		Debug.LogError("Attempted to load HapticPattern from asset bundle [" + bundle.name + "] with asset name [" + patternAssetName + "] but failed.\n\rReturned a newly created and empty instance.\n");
-
-		return CreateInstance<HapticPattern>();
 	}
-}
 }

@@ -32,8 +32,7 @@ namespace Hardlight.SDK.FileUtilities
 			var sequence_def_array = hdf.sequence_definitions[key];
 			foreach (var effect in sequence_def_array)
 			{
-				Effect e = FileEffectToCodeEffect.TryParse(effect.effect, Effect.Click);
-				s.AddEffect(new HapticEffect(e, effect.time, effect.duration, effect.strength));
+				s.AddEffect(new HapticEffect(effect.ParseEffect(), effect.time, effect.duration, effect.strength));
 			}
 			return s;
 		}
@@ -48,11 +47,24 @@ namespace Hardlight.SDK.FileUtilities
 		{
 			HapticPattern p = ScriptableObject.CreateInstance<HapticPattern>();
 			var pattern_def_array = hdf.pattern_definitions[key];
-			foreach (var seq in pattern_def_array)
+			Dictionary<string, HapticSequence> usedSequences = new Dictionary<string, HapticSequence>();
+			foreach (var element in pattern_def_array)
 			{
-				AreaFlag area = new AreaParser(seq.area).GetArea();
-				HapticSequence thisSeq = CreateSequence(seq.sequence, hdf);
-				ParameterizedSequence paraSeq = new ParameterizedSequence(thisSeq, area, seq.time, seq.strength);
+				HapticSequence thisSeq = null;
+				if (usedSequences.ContainsKey(element.sequence))
+				{
+					thisSeq = usedSequences[element.sequence];
+				}
+
+				if (thisSeq == null)
+				{
+					thisSeq = CreateSequence(element.sequence, hdf);
+					thisSeq.name = element.sequence;
+
+					usedSequences.Add(element.sequence, thisSeq);
+				}
+
+				ParameterizedSequence paraSeq = new ParameterizedSequence(thisSeq, element.ParseAreaFlag(), element.time, element.strength);
 				p.AddSequence(paraSeq);
 			}
 			return p;
