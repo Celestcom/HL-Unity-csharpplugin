@@ -20,7 +20,6 @@ namespace Hardlight.SDK.FileUtilities
 	/// </summary>
 	public class CodeHapticFactory
 	{
-		
 		/// <summary>
 		/// Create a HapticSequence from a HapticDefinitionFile
 		/// </summary>
@@ -29,13 +28,11 @@ namespace Hardlight.SDK.FileUtilities
 		/// <returns></returns>
 		public static HapticSequence CreateSequence(string key, HapticDefinitionFile hdf)
 		{
-		
-			HapticSequence s = new HapticSequence();
+			HapticSequence s = ScriptableObject.CreateInstance<HapticSequence>();
 			var sequence_def_array = hdf.sequence_definitions[key];
 			foreach (var effect in sequence_def_array)
 			{
-				Effect e = FileEffectToCodeEffect.TryParse(effect.effect, Effect.Click);
-				s.AddEffect(effect.time, effect.strength, new HapticEffect(e, effect.duration));
+				s.AddEffect(new HapticEffect(effect.ParseEffect(), effect.time, effect.duration, effect.strength));
 			}
 			return s;
 		}
@@ -48,13 +45,27 @@ namespace Hardlight.SDK.FileUtilities
 		/// <returns></returns>
 		public static HapticPattern CreatePattern(string key, HapticDefinitionFile hdf)
 		{
-			HapticPattern p = new HapticPattern();
+			HapticPattern p = ScriptableObject.CreateInstance<HapticPattern>();
 			var pattern_def_array = hdf.pattern_definitions[key];
-			foreach (var seq in pattern_def_array)
+			Dictionary<string, HapticSequence> usedSequences = new Dictionary<string, HapticSequence>();
+			foreach (var element in pattern_def_array)
 			{
-				AreaFlag area = new AreaParser(seq.area).GetArea();
-				HapticSequence thisSeq = CreateSequence(seq.sequence, hdf);
-				p.AddSequence(seq.time, area, thisSeq);
+				HapticSequence thisSeq = null;
+				if (usedSequences.ContainsKey(element.sequence))
+				{
+					thisSeq = usedSequences[element.sequence];
+				}
+
+				if (thisSeq == null)
+				{
+					thisSeq = CreateSequence(element.sequence, hdf);
+					thisSeq.name = element.sequence;
+
+					usedSequences.Add(element.sequence, thisSeq);
+				}
+
+				ParameterizedSequence paraSeq = new ParameterizedSequence(thisSeq, element.ParseAreaFlag(), element.time, element.strength);
+				p.AddSequence(paraSeq);
 			}
 			return p;
 		}
@@ -67,13 +78,14 @@ namespace Hardlight.SDK.FileUtilities
 		/// <returns></returns>
 		public static HapticExperience CreateExperience(string key, HapticDefinitionFile hdf)
 		{
-			HapticExperience e = new HapticExperience();
+			HapticExperience e = ScriptableObject.CreateInstance<HapticExperience>();
 			var experience_def_array = hdf.experience_definitions[key];
 			foreach (var pat in experience_def_array)
 			{
-
 				HapticPattern thisPat = CreatePattern(pat.pattern, hdf);
-				e.AddPattern(pat.time, thisPat);
+
+				ParameterizedPattern paraPat = new ParameterizedPattern(thisPat, pat.time, pat.strength);
+				e.AddPattern(paraPat);
 			}
 			return e;
 		}

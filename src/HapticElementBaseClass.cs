@@ -16,6 +16,12 @@ namespace Hardlight.SDK
 		public float Time { get { return _time; } set { _time = value; } }
 		public float Strength { get { return _strength; } set { _strength = value; } }
 
+		public HapticElementBaseClass(float time = 0.0f, float strength = 1.0f)
+		{
+			Time = time;
+			Strength = strength;
+		}
+
 		public override string ToString()
 		{
 			return string.Format("Time: {0}, Strength: {1}", _time, _strength);

@@ -10,8 +10,17 @@ namespace Hardlight.SDK
 {
 	[Serializable]
 	[CreateAssetMenu(menuName = "Hardlight/Experience")]
-	public class ExperienceSO : ScriptableObjectHaptic
+	public class HapticExperience : ScriptableObjectHaptic
 	{
+		/// <summary>
+		/// DO NOT use new HapticExperience(). It will not work.
+		/// Use HapticExperience.CreateNew()
+		/// </summary>
+		public HapticExperience()
+		{
+
+		}
+
 		[SerializeField]
 		private List<ParameterizedPattern> _patterns = new List<ParameterizedPattern>();
 
@@ -27,7 +36,7 @@ namespace Hardlight.SDK
 		/// <param name="time">Time offset (fractional seconds)</param>
 		/// <param name="area">AreaFlag on which to play the HapticSequence</param>
 		/// <param name="sequence">The HapticSequence to be added</param>
-		public ExperienceSO AddPattern(double time, ParameterizedPattern pattern)
+		public HapticExperience AddPattern(ParameterizedPattern pattern)
 		{
 			Debug.LogError("unfinished\n", this);
 			//ParameterizedPattern clone = new ParameterizedPattern(pattern.Clone());
@@ -42,7 +51,7 @@ namespace Hardlight.SDK
 		/// <param name="area">AreaFlag on which to play the HapticSequence</param>
 		/// <param name="strength">Strength of the HapticSequence (0.0 - 1.0)</param>
 		/// <param name="sequence">The HapticSequence to be added</param>
-		public ExperienceSO AddPattern(double time, double strength, ParameterizedPattern pattern)
+		public HapticExperience AddPattern(double time, double strength, ParameterizedPattern pattern)
 		{
 			Debug.LogError("unfinished\n", this);
 			//ParameterizedPattern clone = new ParameterizedPattern(pattern.Clone());
@@ -105,7 +114,7 @@ namespace Hardlight.SDK
 		/// Create an independent copy of this HapticExperience
 		/// </summary>
 		/// <returns></returns>
-		public ExperienceSO Clone()
+		public HapticExperience Clone()
 		{
 			Debug.LogError("Unadded Clone\n", this);
 			//var clone = new HapticExperience(LoadedAssetName);
@@ -129,30 +138,53 @@ namespace Hardlight.SDK
 			return sb.ToString();
 		}
 
-		public static ExperienceSO LoadFromAsset(string resourcesPath)
+		/// <summary>
+		/// Use this instead of new HapticExperience()
+		/// </summary>
+		/// <returns></returns>
+		public static HapticExperience CreateNew()
 		{
-			var exp = Resources.Load<ExperienceSO>(resourcesPath);
-			if (exp != null)
-			{
-				return exp;
-			}
-
-			Debug.LogError("Attempted to load ExperienceSO from path [" + resourcesPath + "] but failed.\n\rReturned a newly created and empty instance.\n");
-
-			return CreateInstance<ExperienceSO>();
+			return CreateInstance<HapticExperience>();
 		}
-		public static ExperienceSO LoadFromAssetBundle(string experienceAssetName, AssetBundle bundle)
+
+		/// <summary>
+		/// Attempts to load an existing HapticSequence asset file
+		/// If the path does not exist, it will return CreateNew()
+		/// </summary>
+		/// <param name="resourcesPath">Files should be located in a Resources/Haptics folder. This does not append the Haptics folder (include it on your end)</param>
+		/// <returns></returns>
+		public static HapticExperience LoadFromAsset(string resourcesPath)
 		{
-			var exp = bundle.LoadAsset<ExperienceSO>(experienceAssetName);
+			var exp = Resources.Load<HapticExperience>(resourcesPath);
+			if (exp != null)
+			{
+				return exp;
+			}
+
+			Debug.LogError("Attempted to load HapticExperience from path [" + resourcesPath + "] but failed.\n\rReturned a newly created and empty instance.\n");
+
+			return CreateInstance<HapticExperience>();
+		}
+
+		/// <summary>
+		/// Attempts to load an existing HapticExperience asset file from the provided asset bundle
+		/// If the path does not exist, it will return CreateNew()
+		/// </summary>
+		/// <param name="experienceAssetName"></param>
+		/// <param name="bundle"></param>
+		/// <returns></returns>
+		public static HapticExperience LoadFromAssetBundle(string experienceAssetName, AssetBundle bundle)
+		{
+			var exp = bundle.LoadAsset<HapticExperience>(experienceAssetName);
 
 			if (exp != null)
 			{
 				return exp;
 			}
 
-			Debug.LogError("Attempted to load ExperienceSO from asset bundle [" + bundle.name + "] with asset name [" + experienceAssetName + "] but failed.\n\rReturned a newly created and empty instance.\n");
+			Debug.LogError("Attempted to load HapticExperience from asset bundle [" + bundle.name + "] with asset name [" + experienceAssetName + "] but failed.\n\rReturned a newly created and empty instance.\n");
 
-			return CreateInstance<ExperienceSO>();
+			return CreateInstance<HapticExperience>();
 		}
 	}
 }

@@ -90,9 +90,6 @@
     <Compile Include="..\src\EventList.cs">
       <Link>src\EventList.cs</Link>
     </Compile>
-    <Compile Include="..\src\ExperienceSO.cs">
-      <Link>src\ExperienceSO.cs</Link>
-    </Compile>
     <Compile Include="..\src\FileParsingV2.cs">
       <Link>src\FileParsingV2.cs</Link>
     </Compile>
@@ -129,9 +126,6 @@
     <Compile Include="..\src\ParameterizedSequence.cs">
       <Link>src\ParameterizedSequence.cs</Link>
     </Compile>
-    <Compile Include="..\src\PatternSO.cs">
-      <Link>src\PatternSO.cs</Link>
-    </Compile>
     <Compile Include="..\src\Platform.cs">
       <Link>src\Platform.cs</Link>
     </Compile>
@@ -140,9 +134,6 @@
     </Compile>
     <Compile Include="..\src\ScriptableObjectHaptic.cs">
       <Link>src\ScriptableObjectHaptic.cs</Link>
-    </Compile>
-    <Compile Include="..\src\SequenceSO.cs">
-      <Link>src\SequenceSO.cs</Link>
     </Compile>
     <Compile Include="..\src\SerializableDictionary.cs">
       <Link>src\SerializableDictionary.cs</Link>
@@ -153,6 +144,10 @@
     <Compile Include="..\src\SuitEventType.cs">
       <Link>src\SuitEventType.cs</Link>
     </Compile>
+    <Compile Include="src\HapticExperience.cs" />
+    <Compile Include="src\HapticPattern.cs" />
+    <Compile Include="src\HapticSequence.cs" />
+    <Compile Include="src\LocationInfo.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

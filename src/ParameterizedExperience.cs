@@ -9,8 +9,8 @@ namespace Hardlight.SDK
 	[Serializable]
 	internal class ParameterizedExperience : HapticElementBaseClass
 	{
-		private ExperienceSO _experience;
-		public ExperienceSO Experience
+		private HapticExperience _experience;
+		public HapticExperience Experience
 		{
 			get
 			{
@@ -23,11 +23,9 @@ namespace Hardlight.SDK
 			}
 		}
 
-		public ParameterizedExperience(ExperienceSO experience, float time = 0.0f, float strength = 1.0f)
+		public ParameterizedExperience(HapticExperience experience, float time = 0.0f, float strength = 1.0f) : base(time, strength)
 		{
 			Experience = experience;
-			Strength = strength;
-			Time = time;
 		}
 
 		public EventList Generate(float strength, float timeOffset)

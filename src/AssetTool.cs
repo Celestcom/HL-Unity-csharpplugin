@@ -215,6 +215,8 @@ namespace Hardlight.SDK.FileUtilities
 
 			var argString = createArgumentString(args);
 
+			//UnityEngine.Debug.Log(argString + "\n");
+
 			_process.StartInfo.Arguments = argString;
 			_process.Start();
 			string output = _process.StandardOutput.ReadToEnd();

@@ -9,9 +9,9 @@ namespace Hardlight.SDK
 	public class ParameterizedPattern : HapticElementBaseClass
 	{
 		[UnityEngine.SerializeField]
-		private PatternSO _pattern;
+		private HapticPattern _pattern;
 
-		public PatternSO Pattern
+		public HapticPattern Pattern
 		{
 			get
 			{
@@ -24,11 +24,9 @@ namespace Hardlight.SDK
 			}
 		}
 
-		public ParameterizedPattern(PatternSO pattern, float time = 0.0f, float strength = 1.0f)
+		public ParameterizedPattern(HapticPattern pattern, float time = 0.0f, float strength = 1.0f) : base(time, strength)
 		{
 			Pattern = pattern;
-			Time = time;
-			Strength = strength;
 		}
 
 		internal EventList Generate(float strength, float timeOffset)

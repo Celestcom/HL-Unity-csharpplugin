@@ -11,23 +11,18 @@ namespace Hardlight.SDK
 		[UnityEngine.SerializeField]
 		private int _sequenceKey = 0;
 		[UnityEngine.SerializeField]
-		private SequenceSO _sequence;
+		private HapticSequence _sequence;
+
+		public bool UsingGenerator = false;
 		[UnityEngine.SerializeField]
-		private AreaFlag _area;
+		private GeneratorLocation _generator;
+		[UnityEngine.SerializeField]
+		private AreaFlagLocation _areaLoc;
 
-		public AreaFlag Area
-		{
-			get
-			{
-				return _area;
-			}
+		//This exists because Unity is a huge pain when it comes to serialization.
+		private AreaFlag _areaFlag;
 
-			set
-			{
-				_area = value;
-			}
-		}
-		public SequenceSO Sequence
+		public HapticSequence Sequence
 		{
 			get
 			{
@@ -52,12 +47,54 @@ namespace Hardlight.SDK
 			}
 		}
 
-		public ParameterizedSequence(SequenceSO sequence, AreaFlag area, float time = 0.0f, float strength = 1.0f)
+		public GeneratorLocation Generator
+		{
+			get
+			{
+				if (_generator == null)
+				{
+					_generator = new GeneratorLocation();
+				}
+				return _generator;
+			}
+
+			set
+			{
+				if (_generator == null)
+				{
+					_generator = new GeneratorLocation();
+				}
+				_generator = value;
+			}
+		}
+		//This could do something like talk to the generator?
+		public AreaFlag Area
+		{
+			get
+			{
+				return _areaFlag;
+				//if (_areaLoc == null)
+				//{
+				//	_areaLoc = new AreaFlagLocation();
+				//}
+				//return _areaLoc.Area;
+			}
+
+			set
+			{
+				_areaFlag = value;
+				//if (_areaLoc == null)
+				//{
+				//	_areaLoc = new AreaFlagLocation();
+				//}
+				//_areaLoc.Area = value;
+			}
+		}
+
+		public ParameterizedSequence(HapticSequence sequence, AreaFlag area, float time = 0.0f, float strength = 1.0f) : base(time, strength)
 		{
 			Sequence = sequence;
 			Area = area;
-			Strength = strength;
-			Time = time;
 		}
 
 		internal EventList Generate(float strength, float timeOffset)
@@ -72,6 +109,11 @@ namespace Hardlight.SDK
 					float finalTime = timeOffset + effect.Time;
 
 					var newApiRegions = AreaFlagToRegion.GetRegions(Area);
+
+					//UnityEngine.Debug.Log(String.Format("{0} {1} {2} {3}", finalTime,
+					//	finalStrength,
+					//	(float)effect.Duration,
+					//	effect.Effect) + "\n");
 
 					events.AddEvent(new BasicHapticEvent(
 						finalTime,

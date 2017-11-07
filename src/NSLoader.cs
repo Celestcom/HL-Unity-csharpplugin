@@ -74,7 +74,7 @@ namespace Hardlight.SDK
 		internal static unsafe HLVR_System* _ptr;
 		internal static bool _created = false;
 
-	
+
 		/// <summary>
 		/// Main point of access to the plugin, implements IDisposable
 		/// </summary>
@@ -124,13 +124,13 @@ namespace Hardlight.SDK
 
 					}
 				}
-				
+
 
 			}
 
-			
-	
-			
+
+
+
 			public Dictionary<Region, EffectSampleInfo> PollBodyView()
 			{
 				Dictionary<Region, EffectSampleInfo> result = new Dictionary<Region, EffectSampleInfo>();
@@ -163,7 +163,7 @@ namespace Hardlight.SDK
 
 					float intensity = 0;
 					Interop.HLVR_BodyView_GetIntensity(_bodyView, i, ref intensity);
-					result[(Region)region] = new EffectSampleInfo((ushort)(intensity*255), 0, outRegion);
+					result[(Region)region] = new EffectSampleInfo((ushort)(intensity * 255), 0, outRegion);
 
 
 
@@ -185,8 +185,8 @@ namespace Hardlight.SDK
 			/// <param name="strength">Strength to play, from 0.0 - 1.0</param>
 			public void ControlDirectly(AreaFlag singleArea, double strength)
 			{
-	
-					
+
+
 				ushort[] intensities = new ushort[1];
 				UInt32[] areas = new UInt32[1];
 				areas[0] = (uint)singleArea;
@@ -284,7 +284,8 @@ namespace Hardlight.SDK
 				if (Interop.OK(value))
 				{
 					return ServiceConnectionStatus.Connected;
-				} else
+				}
+				else
 				{
 					return ServiceConnectionStatus.Disconnected;
 				}
@@ -362,7 +363,7 @@ namespace Hardlight.SDK
 
 					fixed (HLVR_System** ptr = &_ptr)
 					{
-						
+
 						Interop.HLVR_System_Destroy(ptr);
 					}
 
@@ -430,7 +431,6 @@ namespace Hardlight.SDK
 		/// <param name="creator"></param>
 		internal HapticHandle(CommandWithHandle creator)
 		{
-
 			init(creator);
 
 			Interop.HLVR_EffectInfo info = new Interop.HLVR_EffectInfo();
@@ -446,11 +446,12 @@ namespace Hardlight.SDK
 			if (Interop.OK(result))
 			{
 				_duration = info.Duration;
-			} else
-			{
-				Debug.LogError(string.Format("Failed to fetch information about haptic handle; the handle has been disposed and is no longer usable."));
 			}
-			
+			else
+			{
+				Debug.LogError(string.Format("Failed to fetch information about haptic handle; the handle has been disposed and is no longer usable.\n"));
+			}
+
 		}
 
 		/// <summary>
@@ -469,7 +470,7 @@ namespace Hardlight.SDK
 		internal unsafe void init(CommandWithHandle creator)
 		{
 			Debug.Assert(creator != null);
-			
+
 			_creator = creator;
 
 			fixed (HLVR_Effect** effect_ptr = &_handle)
@@ -554,13 +555,14 @@ namespace Hardlight.SDK
 			if (Interop.OK(Interop.HLVR_Effect_GetInfo(_handle, ref info)))
 			{
 				return info.Elapsed;
-			} else
+			}
+			else
 			{
 				return -1.0f;
 			}
 		}
 
-	
+
 
 		#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
@@ -591,9 +593,10 @@ namespace Hardlight.SDK
 		}
 
 		// TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-		~HapticHandle() {
-		   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-		   Dispose(false);
+		~HapticHandle()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(false);
 		}
 
 		/// <summary>
@@ -604,13 +607,13 @@ namespace Hardlight.SDK
 			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 			Dispose(true);
 			// TODO: uncomment the following line if the finalizer is overridden above.
-			 GC.SuppressFinalize(this);
+			GC.SuppressFinalize(this);
 		}
 		#endregion
 
 	}
-	
-	
+
+
 }
 
 
