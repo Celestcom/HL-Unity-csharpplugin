@@ -233,7 +233,7 @@ namespace Hardlight.SDK
 			return seq;
 		}
 
-		public static HapticSequence CreateAsset(string jsonPath)
+		public static HapticSequence LoadFromJson(string jsonPath)
 		{
 			return HapticResources.CreateSequence(jsonPath);
 		}

@@ -20,6 +20,7 @@ namespace Hardlight.SDK
 		private AreaFlagLocation _areaLoc;
 
 		//This exists because Unity is a huge pain when it comes to serialization.
+		[UnityEngine.SerializeField]
 		private AreaFlag _areaFlag;
 
 		public HapticSequence Sequence
@@ -82,6 +83,8 @@ namespace Hardlight.SDK
 
 			set
 			{
+				if (value == AreaFlag.None)
+					UnityEngine.Debug.LogError("Assigned empty area to a parameterized sequence\n");
 				_areaFlag = value;
 				//if (_areaLoc == null)
 				//{
@@ -107,7 +110,7 @@ namespace Hardlight.SDK
 				{
 					float finalStrength = strength * effect.Strength;
 					float finalTime = timeOffset + effect.Time;
-
+					 
 					var newApiRegions = AreaFlagToRegion.GetRegions(Area);
 
 					//UnityEngine.Debug.Log(String.Format("{0} {1} {2} {3}", finalTime,

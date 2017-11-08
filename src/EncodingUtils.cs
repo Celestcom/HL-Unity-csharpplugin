@@ -20,6 +20,111 @@ namespace Hardlight.SDK.FileUtilities
 	/// </summary>
 	public class CodeHapticFactory
 	{
+		public class SequenceImportData
+		{
+			public string SequenceKey;
+			public HapticSequence Sequence;
+			public bool saved = false;
+
+			public SequenceImportData(HapticSequence seq, string key)
+			{
+				Sequence = seq;
+				saved = false;
+				SequenceKey = key;
+			}
+		}
+		public class PatternImportData
+		{
+			public string PatternKey;
+			public HapticPattern Pattern;
+			public bool saved = false;
+
+			public PatternImportData(HapticPattern pat, string key)
+			{
+				Pattern = pat;
+				saved = false;
+				PatternKey = key;
+			}
+		}
+
+		private static Dictionary<string, SequenceImportData> _loadedSequences = new Dictionary<string, SequenceImportData>();
+		private static Dictionary<string, SequenceImportData> LoadedSequences
+		{
+			get
+			{
+				if (_loadedSequences == null)
+					_loadedSequences = new Dictionary<string, SequenceImportData>();
+				return _loadedSequences;
+			}
+
+			set
+			{
+				_loadedSequences = value;
+			}
+		}
+
+		private static Dictionary<string, PatternImportData> _loadedPatterns = new Dictionary<string, PatternImportData>();
+		private static Dictionary<string, PatternImportData> LoadedPatterns
+		{
+			get
+			{
+				if (_loadedPatterns == null)
+					_loadedPatterns = new Dictionary<string, PatternImportData>();
+				return _loadedPatterns;
+			}
+
+			set
+			{
+				_loadedPatterns = value;
+			}
+		}
+
+		public static void EnsureSequenceIsRemembered(string key, HapticSequence sequence)
+		{
+			key = HapticResources.CleanName(key);
+			if (!LoadedSequences.ContainsKey(key) && sequence != null)
+			{
+				LoadedSequences.Add(key, new SequenceImportData(sequence, key));
+			}
+		}
+		public static void EnsurePatternIsRemembered(string key, HapticPattern pattern)
+		{
+			key = HapticResources.CleanName(key);
+			if (!LoadedPatterns.ContainsKey(key) && pattern != null)
+			{
+				LoadedPatterns.Add(key, new PatternImportData(pattern, key));
+			}
+		}
+
+		public static SequenceImportData GetRememberedSequence(string key)
+		{
+			return LoadedSequences[key];
+		}
+		public static PatternImportData GetRememberedPattern(string key)
+		{
+			return LoadedPatterns[key];
+		}
+
+		public static bool SequenceExists(string key)
+		{
+			if (LoadedSequences.ContainsKey(key) && LoadedSequences[key].Sequence != null)
+			{
+				return true;
+			}
+			LoadedSequences.Remove(key);
+			return false;
+		}
+		public static bool PatternExists(string key)
+		{
+			if (LoadedPatterns.ContainsKey(key) && LoadedPatterns[key].Pattern != null)
+			{
+				return true;
+			}
+			LoadedPatterns.Remove(key);
+			return false;
+		}
+
+
 		/// <summary>
 		/// Create a HapticSequence from a HapticDefinitionFile
 		/// </summary>
@@ -28,13 +133,22 @@ namespace Hardlight.SDK.FileUtilities
 		/// <returns></returns>
 		public static HapticSequence CreateSequence(string key, HapticDefinitionFile hdf)
 		{
-			HapticSequence s = ScriptableObject.CreateInstance<HapticSequence>();
+			string cleanedKey = HapticResources.CleanName(key);
+			if (LoadedSequences.ContainsKey(cleanedKey))
+			{
+				//Debug.Log("Sequence: " + cleanedKey + " already exists, returning it instead of needless reconstruction\n");
+				return LoadedSequences[cleanedKey].Sequence;
+			}
+			//Debug.Log("Sequence: " + cleanedKey + " DOES NOT exist, creating a new one\n");
+
+			HapticSequence seq = ScriptableObject.CreateInstance<HapticSequence>();
 			var sequence_def_array = hdf.sequence_definitions[key];
 			foreach (var effect in sequence_def_array)
 			{
-				s.AddEffect(new HapticEffect(effect.ParseEffect(), effect.time, effect.duration, effect.strength));
+				seq.AddEffect(new HapticEffect(effect.ParseEffect(), effect.time, effect.duration, effect.strength));
 			}
-			return s;
+			EnsureSequenceIsRemembered(cleanedKey, seq);
+			return seq;
 		}
 
 		/// <summary>
@@ -45,29 +159,28 @@ namespace Hardlight.SDK.FileUtilities
 		/// <returns></returns>
 		public static HapticPattern CreatePattern(string key, HapticDefinitionFile hdf)
 		{
-			HapticPattern p = ScriptableObject.CreateInstance<HapticPattern>();
+			string cleanedKey = HapticResources.CleanName(key);
+			if (LoadedPatterns.ContainsKey(cleanedKey))
+			{
+				//Debug.Log("Pattern: " + cleanedKey + " already exists, returning it instead of needless reconstruction\n");
+				return LoadedPatterns[cleanedKey].Pattern;
+			}
+
+			HapticPattern pat = ScriptableObject.CreateInstance<HapticPattern>();
 			var pattern_def_array = hdf.pattern_definitions[key];
-			Dictionary<string, HapticSequence> usedSequences = new Dictionary<string, HapticSequence>();
+
 			foreach (var element in pattern_def_array)
 			{
-				HapticSequence thisSeq = null;
-				if (usedSequences.ContainsKey(element.sequence))
-				{
-					thisSeq = usedSequences[element.sequence];
-				}
-
-				if (thisSeq == null)
-				{
-					thisSeq = CreateSequence(element.sequence, hdf);
-					thisSeq.name = element.sequence;
-
-					usedSequences.Add(element.sequence, thisSeq);
-				}
+				//Debug.Log("Pattern Def Array: " + key + "  " + element.sequence + "\n");
+				HapticSequence thisSeq = CreateSequence(element.sequence, hdf);
+				thisSeq.name = element.sequence;
 
 				ParameterizedSequence paraSeq = new ParameterizedSequence(thisSeq, element.ParseAreaFlag(), element.time, element.strength);
-				p.AddSequence(paraSeq);
+				pat.AddSequence(paraSeq);
 			}
-			return p;
+
+			EnsurePatternIsRemembered(cleanedKey, pat);
+			return pat;
 		}
 
 		/// <summary>
@@ -78,16 +191,21 @@ namespace Hardlight.SDK.FileUtilities
 		/// <returns></returns>
 		public static HapticExperience CreateExperience(string key, HapticDefinitionFile hdf)
 		{
-			HapticExperience e = ScriptableObject.CreateInstance<HapticExperience>();
-			var experience_def_array = hdf.experience_definitions[key];
-			foreach (var pat in experience_def_array)
-			{
-				HapticPattern thisPat = CreatePattern(pat.pattern, hdf);
+			string cleanedKey = HapticResources.CleanName(key);
 
-				ParameterizedPattern paraPat = new ParameterizedPattern(thisPat, pat.time, pat.strength);
-				e.AddPattern(paraPat);
+			HapticExperience exp = ScriptableObject.CreateInstance<HapticExperience>();
+			var experience_def_array = hdf.experience_definitions[key];
+
+			foreach (var element in experience_def_array)
+			{
+				HapticPattern thisPat = CreatePattern(element.pattern, hdf);
+				thisPat.name = element.pattern;
+
+				ParameterizedPattern paraPat = new ParameterizedPattern(thisPat, element.time, element.strength);
+				exp.AddPattern(paraPat);
 			}
-			return e;
+
+			return exp;
 		}
 	}
 }
