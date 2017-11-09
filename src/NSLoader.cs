@@ -257,8 +257,6 @@ namespace Hardlight.SDK
 				return v;
 			}
 
-
-
 			public List<Device> GetKnownDevices()
 			{
 				List<Device> devices = new List<Device>();

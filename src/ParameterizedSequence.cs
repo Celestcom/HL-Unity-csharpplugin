@@ -83,8 +83,8 @@ namespace Hardlight.SDK
 
 			set
 			{
-				if (value == AreaFlag.None)
-					UnityEngine.Debug.LogError("Assigned empty area to a parameterized sequence\n");
+				//if (value == AreaFlag.None)
+				//	UnityEngine.Debug.LogError("Assigned empty area to a parameterized sequence\n");
 				_areaFlag = value;
 				//if (_areaLoc == null)
 				//{
