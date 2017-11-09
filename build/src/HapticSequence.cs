@@ -30,7 +30,13 @@ namespace Hardlight.SDK
 		public List<HapticEffect> Effects
 		{
 			get { return _effects; }
-			set { _effects = value; }
+			set
+			{
+				if (value != null)
+				{
+					_effects = value;
+				}
+			}
 		}
 
 		/// <summary>
@@ -157,144 +163,13 @@ namespace Hardlight.SDK
 		/// <summary>
 		/// Use this instead of new HapticSequence()
 		/// </summary>
+		/// <param name="name">Assigns the new SO's name</param>
 		/// <returns></returns>
-		public static HapticSequence CreateNew()
+		public static HapticSequence CreateNew(string name = "Empty Sequence")
 		{
-			return CreateInstance<HapticSequence>();
-		}
-
-		//public static HapticSequence LoadFromJsonAsset(string assetPath)
-		//{
-		//	var file = Resources.Load<JsonAsset>(assetPath);
-
-		//	if (file == null)
-		//	{
-		//		Debug.LogError(string.Format("Unable to load haptic resource at path [{0}]:\n\t file is null", assetPath));
-		//		//return;
-		//	}
-
-		//	HapticDefinitionFile hdf = new HapticDefinitionFile();
-
-		//	var json = file.GetJson();
-		//	if (json.Length == 0)
-		//	{
-		//		Debug.LogError(string.Format("Unable to load haptic resource at path [{0}]:\n\t file length is 0", assetPath));
-		//		//return;
-		//	}
-
-		//	try
-		//	{
-		//		hdf.Deserialize(json);
-		//	}
-		//	catch (HapticsAssetException e)
-		//	{
-		//		Debug.LogError(string.Format("Unable to load haptic resource at path [{0}]:\n\t {1}", assetPath, e.Message));
-		//		//return;
-		//	}
-
-		//	HapticSequence seq = HapticSequence.CreateNew();
-		//	foreach (var sequences in hdf.sequence_definitions)
-		//	{
-		//		foreach (var effectAtom in sequences.Value)
-		//		{
-		//			Effect e = FileEffectToCodeEffect.TryParse(effectAtom.effect, Effect.Click);
-		//			seq.AddEffect(e, effectAtom.time, effectAtom.duration, effectAtom.strength);
-		//		}
-		//	}
-
-		//	//if (hdf.root_effect.type != _type)
-		//	//{
-		//	//	Debug.LogError(string.Format("File type mismatch at path [{0}]:\n\t file is a {1}, but this is a {2}", assetPath, hdf.root_effect.type, _type));
-		//	//	return;
-		//	//}
-
-		//	//LoadedAssetName = assetPath;
-		//	//Loaded = true;
-		//	//doLoadFromHDF(hdf.root_effect.name, hdf);
-		//	return seq;
-		//}
-
-		public static HapticSequence LoadFromHDF(string jsonFileName)
-		{
-			HapticSequence seq = HapticSequence.CreateNew();
-			AssetTool tool = new AssetTool();
-			tool.SetRootHapticsFolder(UnityEngine.Application.streamingAssetsPath + "/Haptics/");
-			var hdf = tool.GetHapticDefinitionFile(jsonFileName);
-
-			foreach (var jsonEffect in hdf.sequence_definitions)
-			{
-				foreach (var eff in jsonEffect.Value)
-				{
-					Effect e = FileEffectToCodeEffect.TryParse(eff.effect, Effect.Click);
-					seq.AddEffect(e, eff.time, eff.duration, eff.strength);
-				}
-			}
-
-			return seq;
-		}
-
-		public static HapticSequence LoadFromJson(string jsonPath)
-		{
-			return HapticResources.CreateSequence(jsonPath);
-		}
-
-		public static void SaveAsset(string fileNameWithoutExtension, HapticSequence sequence)
-		{
-			HapticResources.SaveSequence(fileNameWithoutExtension, sequence);
-		}
-		//public static HapticSequence CreateAsset(string jsonPath)
-		//{
-		//	var assetPath = "Assets/Resources/Haptics/";
-
-		//	var fileName = System.IO.Path.GetFileNameWithoutExtension(jsonPath);
-
-		//	////If we don't replace . with _, then Unity has serious trouble locating the file
-		//	var newAssetName = fileName.Replace('.', '_') + ".asset";
-		//	HapticSequence seq = null;
-
-		//	bool isSeq = jsonPath.Contains(".sequence");
-		//	bool isPat = jsonPath.Contains(".pattern");
-		//	bool isExp = jsonPath.Contains(".experience");
-		//	Debug.Log("Attemtping haptic asset import: " + jsonPath + " " + isSeq + "\n" + newAssetName + "\n\n" + "\n");
-
-		//	if (isSeq)
-		//	{
-		//		seq = HapticSequence.LoadFromHDF(jsonPath);
-		//	}
-		//	else if (isPat)
-		//	{
-		//		Debug.LogError("Attempted to run a HapticSequence.CreateAsset while providing a pattern at path: " + jsonPath + "\n\t");
-		//	}
-		//	else if (isPat)
-		//	{
-		//		Debug.LogError("Attempted to run a HapticSequence.CreateAsset while providing a experience at path: " + jsonPath + "\n\t");
-		//	}
-
-		//	if (seq != null)
-		//	{
-		//		UnityEditor.AssetDatabase.CreateAsset(seq, assetPath + newAssetName);
-		//		UnityEditor.AssetDatabase.SaveAssets();
-		//		UnityEditor.Selection.activeObject = seq;
-		//	}
-		//	return seq;
-		//}
-
-
-
-		/// <summary>
-		/// Internal use: turns an HDF into a pattern
-		/// </summary>
-		/// <param name="hdf"></param>
-		public static HapticSequence LoadFromHDF(string key, HapticDefinitionFile hdf)
-		{
-			HapticSequence seq = HapticSequence.CreateNew();
-			var sequence_def_array = hdf.sequence_definitions[key];
-			foreach (var effect in sequence_def_array)
-			{
-				Effect e = FileEffectToCodeEffect.TryParse(effect.effect, Effect.Click);
-				seq.AddEffect(e, effect.time, effect.duration, effect.strength);
-			}
-			return seq;
+			var newSeq = CreateInstance<HapticSequence>();
+			newSeq.name = name;
+			return newSeq;
 		}
 		/// <summary>
 		/// Attempts to load an existing HapticSequence asset file
@@ -334,6 +209,21 @@ namespace Hardlight.SDK
 			Debug.LogError("Attempted to load HapticSequence from asset bundle [" + bundle.name + "] with asset name [" + sequenceAssetName + "] but failed.\n\rReturned a newly created and empty instance.\n");
 
 			return CreateNew();
+		}
+
+		public static HapticSequence LoadFromJson(string jsonPath)
+		{
+			return HapticResources.CreateSequence(jsonPath);
+		}
+
+		/// <summary>
+		/// Only available in UnityEditor
+		/// </summary>
+		/// <param name="fileNameWithoutExtension"></param>
+		/// <param name="sequence"></param>
+		public static void SaveAsset(string fileNameWithoutExtension, HapticSequence sequence)
+		{
+			HapticResources.SaveSequence(fileNameWithoutExtension, sequence);
 		}
 	}
 }

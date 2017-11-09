@@ -21,29 +21,33 @@ namespace Hardlight.SDK
 
 		}
 
-		[SerializeField]
-		private List<HapticSequence> sequenceKeys = new List<HapticSequence>();
-		public List<HapticSequence> SequenceKeys
-		{
-			get
-			{
-				return sequenceKeys;
-			}
+		//[SerializeField]
+		//private List<HapticSequence> sequenceKeys = new List<HapticSequence>();
+		//public List<HapticSequence> SequenceKeys
+		//{
+		//	get
+		//	{
+		//		return sequenceKeys;
+		//	}
 
-			set
-			{
-				sequenceKeys = value;
-			}
-		}
+		//	set
+		//	{
+		//		if (value != null)
+		//			sequenceKeys = value;
+		//	}
+		//}
 
 		[SerializeField]
 		private List<ParameterizedSequence> _sequences = new List<ParameterizedSequence>();
 		public List<ParameterizedSequence> Sequences
 		{
 			get { return _sequences; }
-			set { _sequences = value; }
+			set
+			{
+				if (value != null)
+					_sequences = value;
+			}
 		}
-
 
 		/// <summary>
 		/// Construct an empty HapticSequence
@@ -60,8 +64,6 @@ namespace Hardlight.SDK
 		public HapticPattern AddSequence(ParameterizedSequence sequence)
 		{
 			Sequences.Add(sequence.Clone());
-			//ParameterizedSequence clone = new ParameterizedSequence(sequence.Clone(), area);
-			//_children.Add(new CommonArgs<ParameterizedSequence>((float)time, 1f, clone));
 			return this;
 		}
 
@@ -163,15 +165,23 @@ namespace Hardlight.SDK
 		/// Use this instead of new HapticPattern()
 		/// </summary>
 		/// <returns></returns>
-		public static HapticPattern CreateNew()
+		public static HapticPattern CreateNew(string name = "Empty Sequence")
 		{
-			return CreateInstance<HapticPattern>();
+			var newPat = CreateInstance<HapticPattern>();
+			newPat.name = name;
+			return newPat;
 		}
 
 		public static HapticPattern LoadFromJson(string jsonPath)
 		{
 			return HapticResources.CreatePattern(jsonPath);
 		}
+
+		/// <summary>
+		/// Only available in UnityEditor
+		/// </summary>
+		/// <param name="fileNameWithoutExtension"></param>
+		/// <param name="pattern"></param>
 		public static void SaveAsset(string fileNameWithoutExtension, HapticPattern pattern)
 		{
 			HapticResources.SavePattern(fileNameWithoutExtension, pattern);

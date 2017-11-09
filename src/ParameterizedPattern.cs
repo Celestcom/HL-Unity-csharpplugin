@@ -5,12 +5,15 @@ using System.Text;
 
 namespace Hardlight.SDK
 {
+	/// <summary>
+	/// Combine a pattern with inherent time & strength info
+	/// Used for generating the timeline to play an experience.
+	/// </summary>
 	[Serializable]
-	public class ParameterizedPattern : HapticElementBaseClass
+	public class ParameterizedPattern : ParameterizedHapticElement
 	{
 		[UnityEngine.SerializeField]
 		private HapticPattern _pattern;
-
 		public HapticPattern Pattern
 		{
 			get

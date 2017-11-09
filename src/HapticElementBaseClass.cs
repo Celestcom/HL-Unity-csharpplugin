@@ -5,8 +5,12 @@ using System.Text;
 
 namespace Hardlight.SDK
 {
+	/// <summary>
+	/// An abstract base class for the parameterized elements (which means that they have time and strength)
+	/// At any level of haptics, you can adjust timing or strength of elements. This represents that.
+	/// </summary>
 	[Serializable]
-	public abstract class HapticElementBaseClass
+	public abstract class ParameterizedHapticElement
 	{
 		[UnityEngine.SerializeField]
 		private float _time;
@@ -16,7 +20,7 @@ namespace Hardlight.SDK
 		public float Time { get { return _time; } set { _time = value; } }
 		public float Strength { get { return _strength; } set { _strength = value; } }
 
-		public HapticElementBaseClass(float time = 0.0f, float strength = 1.0f)
+		public ParameterizedHapticElement(float time = 0.0f, float strength = 1.0f)
 		{
 			Time = time;
 			Strength = strength;

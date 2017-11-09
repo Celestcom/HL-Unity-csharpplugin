@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-
 using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+
 namespace Hardlight.SDK.FileUtilities
 {
 	public static class HapticResources
@@ -71,73 +71,36 @@ namespace Hardlight.SDK.FileUtilities
 			}
 		}
 
+		/// <summary>
+		/// Returns whether or not the key has the '.sequence' file extension
+		/// </summary>
+		/// <param name="key"></param>
 		public static bool IsSequence(string key)
 		{
 			return key.Contains(".sequence");
 		}
+		/// <summary>
+		/// Returns whether or not the key has the '.pattern' file extension
+		/// </summary>
+		/// <param name="key"></param>
 		public static bool IsPattern(string key)
 		{
 			return key.Contains(".pattern");
 		}
+		/// <summary>
+		/// Returns whether or not the key has the '.experience' file extension
+		/// </summary>
+		/// <param name="key"></param>
 		public static bool IsExperience(string key)
 		{
 			return key.Contains(".experience");
 		}
 
-		private static HapticDefinitionFile LoadHDFFromJson(string jsonPath)
-		{
-			var hdf = HapticAssetTool.GetHapticDefinitionFile(jsonPath);
-
-			if (hdf == null)
-			{
-				Debug.LogWarning("Unable to load haptic resource at path " + jsonPath);
-			}
-			return hdf;
-		}
-
-		public static HapticSequence LoadSequenceFromJson(string jsonPath)
-		{
-			HapticDefinitionFile hdf = LoadHDFFromJson(jsonPath);
-
-			if (hdf.root_effect.type == "sequence")
-			{
-				var seq = CodeHapticFactory.CreateSequence(hdf.root_effect.name, hdf);
-				return seq;
-			}
-			else
-			{
-				throw new InvalidOperationException("Unable to load " + hdf.root_effect.name + " as a HapticSequence because it is a " + hdf.root_effect.type);
-			}
-		}
-		public static HapticPattern LoadPatternFromJson(string jsonPath)
-		{
-			HapticDefinitionFile hdf = LoadHDFFromJson(jsonPath);
-			if (hdf.root_effect.type == "pattern")
-			{
-				//Debug.Log("Valid HDF. creating pattern elements\n");
-				var pat = CodeHapticFactory.CreatePattern(hdf.root_effect.name, hdf);
-				return pat;
-			}
-			else
-			{
-				throw new InvalidOperationException("Unable to load " + hdf.root_effect.name + " as a HapticPattern because it is a " + hdf.root_effect.type);
-			}
-		}
-		public static HapticExperience LoadExperienceFromJson(string jsonPath)
-		{
-			HapticDefinitionFile hdf = LoadHDFFromJson(jsonPath);
-			if (hdf.root_effect.type == "experience")
-			{
-				//Debug.Log("Valid HDF. creating experience elements\n");
-				var exp = CodeHapticFactory.CreateExperience(hdf.root_effect.name, hdf);
-				return exp;
-			}
-			else
-			{
-				throw new InvalidOperationException("Unable to load " + hdf.root_effect.name + " as a HapticExperience because it is a " + hdf.root_effect.type);
-			}
-		}
-
+		/// <summary>
+		/// Attempts to create a haptic sequence from the provided json path
+		/// It will create a HDF and then turn the hdf into a HapticSequence.
+		/// </summary>
+		/// <param name="jsonPath">Ex: StreamingAssets/Haptics/NS Demos/sequences/click.sequence</param>
 		public static HapticSequence CreateSequence(string jsonPath)
 		{
 			var fileName = Path.GetFileNameWithoutExtension(jsonPath);
@@ -166,6 +129,12 @@ namespace Hardlight.SDK.FileUtilities
 
 			return seq;
 		}
+
+		/// <summary>
+		/// Attempts to create a haptic pattern from the provided json path
+		/// It will create a HDF and then turn the hdf into a HapticPattern.
+		/// </summary>
+		/// <param name="jsonPath">Ex: StreamingAssets/Haptics/NS Demos/patterns/mech_stomp_left.pattern</param>
 		public static HapticPattern CreatePattern(string jsonPath)
 		{
 			var fileName = Path.GetFileNameWithoutExtension(jsonPath);
@@ -193,6 +162,12 @@ namespace Hardlight.SDK.FileUtilities
 
 			return pat;
 		}
+
+		/// <summary>
+		/// Attempts to create a haptic experience from the provided json path
+		/// It will create a HDF and then turn the hdf into a HapticExperience.
+		/// </summary>
+		/// <param name="jsonPath">Ex: StreamingAssets/Haptics/NS Demos/experiences/mech_stomp.experience</param>
 		public static HapticExperience CreateExperience(string jsonPath)
 		{
 			var fileName = Path.GetFileNameWithoutExtension(jsonPath);
@@ -221,8 +196,67 @@ namespace Hardlight.SDK.FileUtilities
 			return exp;
 		}
 
+		internal static HapticSequence LoadSequenceFromJson(string jsonPath)
+		{
+			HapticDefinitionFile hdf = LoadHDFFromJson(jsonPath);
+
+			if (hdf.root_effect.type == "sequence")
+			{
+				var seq = CodeHapticFactory.CreateSequenceFromHDF(hdf.root_effect.name, hdf);
+				return seq;
+			}
+			else
+			{
+				Debug.LogError("Error in LoadSequenceFromJson - likely an invalid path was provided\n\t" + hdf.root_effect.name + " is of type " + hdf.root_effect.type + "\n");
+				return HapticSequence.CreateNew();
+				//throw new InvalidOperationException("Unable to load " + hdf.root_effect.name + " as a HapticSequence because it is a " + hdf.root_effect.type);
+			}
+		}
+		internal static HapticPattern LoadPatternFromJson(string jsonPath)
+		{
+			HapticDefinitionFile hdf = LoadHDFFromJson(jsonPath);
+			if (hdf.root_effect.type == "pattern")
+			{
+				var pat = CodeHapticFactory.CreatePatternFromHDF(hdf.root_effect.name, hdf);
+				return pat;
+			}
+			else
+			{
+				Debug.LogError("Error in LoadPatternFromJson - likely an invalid path was provided\n\t" + hdf.root_effect.name + " is of type " + hdf.root_effect.type + "\n");
+				return HapticPattern.CreateNew();
+				//throw new InvalidOperationException("Unable to load " + hdf.root_effect.name + " as a HapticPattern because it is a " + hdf.root_effect.type);
+			}
+		}
+		internal static HapticExperience LoadExperienceFromJson(string jsonPath)
+		{
+			HapticDefinitionFile hdf = LoadHDFFromJson(jsonPath);
+			if (hdf.root_effect.type == "experience")
+			{
+				var exp = CodeHapticFactory.CreateExperienceFromHDF(hdf.root_effect.name, hdf);
+				return exp;
+			}
+			else
+			{
+				Debug.LogError("Error in LoadExperienceFromJson - likely an invalid path was provided\n\t" + hdf.root_effect.name + " is of type " + hdf.root_effect.type + "\n");
+				return HapticExperience.CreateNew();
+				//throw new InvalidOperationException("Unable to load " + hdf.root_effect.name + " as a HapticExperience because it is a " + hdf.root_effect.type);
+			}
+		}
+
+		internal static HapticDefinitionFile LoadHDFFromJson(string jsonPath)
+		{
+			var hdf = HapticAssetTool.GetHapticDefinitionFile(jsonPath);
+
+			if (hdf == null)
+			{
+				Debug.LogWarning("Unable to load haptic resource at path " + jsonPath);
+			}
+			return hdf;
+		}
+
 		public static void SaveSequence(string name, HapticSequence sequence)
 		{
+#if UNITY_EDITOR
 			if (sequence != null)
 			{
 				name = CleanName(name);
@@ -259,9 +293,11 @@ namespace Hardlight.SDK.FileUtilities
 			}
 			else
 				Debug.LogError("Attempted to save a null sequence asset [" + name + "]\n");
+#endif
 		}
 		public static void SavePattern(string name, HapticPattern pattern)
 		{
+#if UNITY_EDITOR
 			if (pattern != null)
 			{
 				//Debug.Log(name + "  " + pattern.name);
@@ -273,7 +309,7 @@ namespace Hardlight.SDK.FileUtilities
 					var patData = CodeHapticFactory.GetRememberedPattern(name);
 					if (!patData.saved)
 					{
-						#region Save Required Elements
+			#region Save Required Elements
 						for (int i = 0; i < pattern.Sequences.Count; i++)
 						{
 							if (pattern.Sequences[i] != null)
@@ -286,9 +322,9 @@ namespace Hardlight.SDK.FileUtilities
 								Debug.Log(name + " has null sequences at " + i + "\n");
 							}
 						}
-						#endregion
+			#endregion
 
-						#region Save Self
+			#region Save Self
 						string assetPath = GetDefaultSavePath();
 						string finalizedPath = TryToFindAvailableFileName(assetPath + name, GetAssetExtension());
 
@@ -301,27 +337,29 @@ namespace Hardlight.SDK.FileUtilities
 							//Debug.Log("Asset was created - " + finalizedPath + "  " + File.Exists(finalizedPath) + " does the lower case return true: " + File.Exists(finalizedPath.ToLower()) + "\n");
 						}
 						AssetDatabase.SetLabels(pattern, new string[] { "Haptics", "Pattern" });
-						Selection.activeObject = pattern; 
-						#endregion
+						Selection.activeObject = pattern;
+			#endregion
 					}
 				}
 			}
 			else
 				Debug.LogError("Attempted to save a null pattern asset [" + name + "]\n");
+#endif
 		}
 		public static void SaveExperience(string name, HapticExperience experience)
 		{
+#if UNITY_EDITOR
 			if (experience != null)
 			{
-				#region Save Required Elements
+			#region Save Required Elements
 				for (int i = 0; i < experience.Patterns.Count; i++)
 				{
 					string key = experience.Patterns[i].Pattern.name;
 					SavePattern(key, experience.Patterns[i].Pattern);
-				} 
-				#endregion
+				}
+			#endregion
 
-				#region Save Self
+			#region Save Self
 				string assetPath = GetDefaultSavePath();
 				name = CleanName(name);
 
@@ -332,11 +370,12 @@ namespace Hardlight.SDK.FileUtilities
 					AssetDatabase.CreateAsset(experience, finalizedPath);
 				}
 				AssetDatabase.SetLabels(experience, new string[] { "Haptics", "Experience" });
-				Selection.activeObject = experience; 
-				#endregion
+				Selection.activeObject = experience;
+			#endregion
 			}
 			else
 				Debug.LogError("Attempted to save a null experience asset [" + name + "]\n");
+#endif
 		}
 
 		public static string CleanName(string name)
@@ -366,10 +405,6 @@ namespace Hardlight.SDK.FileUtilities
 			}
 			return key;
 		}
-		//public static string RemovePeriodsFromFileName(string name)
-		//{
-		//	return name.Replace('.', '_');
-		//}
 		private static string GetDefaultSavePath()
 		{
 			return "Assets/Resources/Haptics/";
@@ -480,8 +515,6 @@ namespace Hardlight.SDK.FileUtilities
 
 			return returnDict;
 		}
-
-
 
 		[Serializable]
 		public class RootEffect : IJsonDeserializable, IJsonSerializable

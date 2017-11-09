@@ -106,7 +106,7 @@ namespace Hardlight.SDK
 				_disposed = false;
 				if (_created)
 				{
-					Debug.LogWarning("[HLVR] NSVR_Plugin should only be created by the NullSpace SDK\n");
+					Debug.LogWarning("[HLVR] HLVR_Plugin should only be created by the Hardlight SDK\n");
 					return;
 				}
 
@@ -267,7 +267,6 @@ namespace Hardlight.SDK
 				return devices;
 			}
 
-
 			public ServiceConnectionStatus IsConnectedToService()
 			{
 				Interop.HLVR_RuntimeInfo serviceInfo = new Interop.HLVR_RuntimeInfo();
@@ -284,38 +283,38 @@ namespace Hardlight.SDK
 				}
 			}
 
-			/// <summary>
-			/// Enable tracking on the suit
-			/// </summary>
-			public void EnableTracking()
-			{
-				Interop.HLVR_System_EnableTracking(Ptr);
+			///// <summary>
+			///// Enable tracking on the suit
+			///// </summary>
+			//public void EnableTracking()
+			//{
+			//	Interop.HLVR_System_EnableTracking(Ptr);
 
-			}
+			//}
 
-			/// <summary>
-			/// Disable tracking on the suit 
-			/// </summary>
-			public void DisableTracking()
-			{
-				Interop.HLVR_System_DisableTracking(Ptr);
-			}
+			///// <summary>
+			///// Disable tracking on the suit 
+			///// </summary>
+			//public void DisableTracking()
+			//{
+			//	Interop.HLVR_System_DisableTracking(Ptr);
+			//}
 
-			/// <summary>
-			/// Enable or disable tracking
-			/// </summary>
-			/// <param name="enableTracking">If true, enables tracking. Else disables tracking.</param>
-			public void SetTrackingEnabled(bool enableTracking)
-			{
-				if (enableTracking)
-				{
-					EnableTracking();
-				}
-				else
-				{
-					DisableTracking();
-				}
-			}
+			///// <summary>
+			///// Enable or disable tracking
+			///// </summary>
+			///// <param name="enableTracking">If true, enables tracking. Else disables tracking.</param>
+			//public void SetTrackingEnabled(bool enableTracking)
+			//{
+			//	if (enableTracking)
+			//	{
+			//		EnableTracking();
+			//	}
+			//	else
+			//	{
+			//		DisableTracking();
+			//	}
+			//}
 
 			/// <summary>
 			/// Poll the suit for the latest tracking data

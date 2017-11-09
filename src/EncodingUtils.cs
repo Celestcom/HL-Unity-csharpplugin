@@ -14,13 +14,16 @@ namespace Hardlight.SDK.FileUtilities
 	/// 1. create a .hdf using the asset tool binary
 	/// 2. Deserialize the .hdf into a HapticDefinitionFile
 	/// 3. Pass the HapticDefinitionFile to the CodeHapticFactory, along with the key of the root effect
-	/// 4. Get a dynamic effect out of it
+	/// 4. Get a ScriptableObjectHaptic out of the code haptic factory.
 	/// 
 	/// In practice, this is all done automatically by the plugin. 
 	/// </summary>
 	public class CodeHapticFactory
 	{
-		public class SequenceImportData
+		/// <summary>
+		/// A class which exists as the Value in LoadedSequences dictionary to prevent duplicate HapticSequence creation from ones that already exist.
+		/// </summary>
+		internal class SequenceImportData
 		{
 			public string SequenceKey;
 			public HapticSequence Sequence;
@@ -33,7 +36,10 @@ namespace Hardlight.SDK.FileUtilities
 				SequenceKey = key;
 			}
 		}
-		public class PatternImportData
+		/// <summary>
+		/// A class which exists as the Value in LoadedPatterns dictionary to prevent duplicate HapticPattern creation from ones that already exist.
+		/// </summary>
+		internal class PatternImportData
 		{
 			public string PatternKey;
 			public HapticPattern Pattern;
@@ -79,7 +85,7 @@ namespace Hardlight.SDK.FileUtilities
 			}
 		}
 
-		public static void EnsureSequenceIsRemembered(string key, HapticSequence sequence)
+		internal static void EnsureSequenceIsRemembered(string key, HapticSequence sequence)
 		{
 			key = HapticResources.CleanName(key);
 			if (!LoadedSequences.ContainsKey(key) && sequence != null)
@@ -87,7 +93,7 @@ namespace Hardlight.SDK.FileUtilities
 				LoadedSequences.Add(key, new SequenceImportData(sequence, key));
 			}
 		}
-		public static void EnsurePatternIsRemembered(string key, HapticPattern pattern)
+		internal static void EnsurePatternIsRemembered(string key, HapticPattern pattern)
 		{
 			key = HapticResources.CleanName(key);
 			if (!LoadedPatterns.ContainsKey(key) && pattern != null)
@@ -96,16 +102,16 @@ namespace Hardlight.SDK.FileUtilities
 			}
 		}
 
-		public static SequenceImportData GetRememberedSequence(string key)
+		internal static SequenceImportData GetRememberedSequence(string key)
 		{
 			return LoadedSequences[key];
 		}
-		public static PatternImportData GetRememberedPattern(string key)
+		internal static PatternImportData GetRememberedPattern(string key)
 		{
 			return LoadedPatterns[key];
 		}
 
-		public static bool SequenceExists(string key)
+		internal static bool SequenceExists(string key)
 		{
 			if (LoadedSequences.ContainsKey(key) && LoadedSequences[key].Sequence != null)
 			{
@@ -114,7 +120,7 @@ namespace Hardlight.SDK.FileUtilities
 			LoadedSequences.Remove(key);
 			return false;
 		}
-		public static bool PatternExists(string key)
+		internal static bool PatternExists(string key)
 		{
 			if (LoadedPatterns.ContainsKey(key) && LoadedPatterns[key].Pattern != null)
 			{
@@ -124,14 +130,13 @@ namespace Hardlight.SDK.FileUtilities
 			return false;
 		}
 
-
 		/// <summary>
 		/// Create a HapticSequence from a HapticDefinitionFile
 		/// </summary>
 		/// <param name="key">Name of the root effect</param>
 		/// <param name="hdf">A HapticDefinitionFile containing the root effect</param>
 		/// <returns></returns>
-		public static HapticSequence CreateSequence(string key, HapticDefinitionFile hdf)
+		public static HapticSequence CreateSequenceFromHDF(string key, HapticDefinitionFile hdf)
 		{
 			string cleanedKey = HapticResources.CleanName(key);
 			if (LoadedSequences.ContainsKey(cleanedKey))
@@ -157,7 +162,7 @@ namespace Hardlight.SDK.FileUtilities
 		/// <param name="key">Name of the root effect</param>
 		/// <param name="hdf">A HapticDefinitionFile containing the root effect</param>
 		/// <returns></returns>
-		public static HapticPattern CreatePattern(string key, HapticDefinitionFile hdf)
+		public static HapticPattern CreatePatternFromHDF(string key, HapticDefinitionFile hdf)
 		{
 			string cleanedKey = HapticResources.CleanName(key);
 			if (LoadedPatterns.ContainsKey(cleanedKey))
@@ -172,7 +177,7 @@ namespace Hardlight.SDK.FileUtilities
 			foreach (var element in pattern_def_array)
 			{
 				//Debug.Log("Pattern Def Array: " + key + "  " + element.sequence + "\n");
-				HapticSequence thisSeq = CreateSequence(element.sequence, hdf);
+				HapticSequence thisSeq = CreateSequenceFromHDF(element.sequence, hdf);
 				thisSeq.name = element.sequence;
 
 				ParameterizedSequence paraSeq = new ParameterizedSequence(thisSeq, element.ParseAreaFlag(), element.time, element.strength);
@@ -189,7 +194,7 @@ namespace Hardlight.SDK.FileUtilities
 		/// <param name="key"></param>
 		/// <param name="hdf"></param>
 		/// <returns></returns>
-		public static HapticExperience CreateExperience(string key, HapticDefinitionFile hdf)
+		public static HapticExperience CreateExperienceFromHDF(string key, HapticDefinitionFile hdf)
 		{
 			string cleanedKey = HapticResources.CleanName(key);
 
@@ -198,7 +203,7 @@ namespace Hardlight.SDK.FileUtilities
 
 			foreach (var element in experience_def_array)
 			{
-				HapticPattern thisPat = CreatePattern(element.pattern, hdf);
+				HapticPattern thisPat = CreatePatternFromHDF(element.pattern, hdf);
 				thisPat.name = element.pattern;
 
 				ParameterizedPattern paraPat = new ParameterizedPattern(thisPat, element.time, element.strength);

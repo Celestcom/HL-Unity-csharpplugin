@@ -5,15 +5,22 @@ using System.Text;
 
 namespace Hardlight.SDK
 {
+	/// <summary>
+	/// Combine sequence & location information for presence in a Pattern's Sequences array.
+	/// Parameterized also means it inherently has time & strength
+	/// </summary>
 	[Serializable]
-	public class ParameterizedSequence : HapticElementBaseClass
+	public class ParameterizedSequence : ParameterizedHapticElement
 	{
-		[UnityEngine.SerializeField]
-		private int _sequenceKey = 0;
+		//[UnityEngine.SerializeField]
+		//private int _sequenceKey = 0;
 		[UnityEngine.SerializeField]
 		private HapticSequence _sequence;
 
 		public bool UsingGenerator = false;
+		/// <summary>
+		/// [Incomplete] This exists for the future capability to add Generators to Parameterized sequences (allowing for randomization of which area to play a haptic on)
+		/// </summary>
 		[UnityEngine.SerializeField]
 		private GeneratorLocation _generator;
 		[UnityEngine.SerializeField]
@@ -35,18 +42,18 @@ namespace Hardlight.SDK
 				_sequence = value;
 			}
 		}
-		public int SequenceKey
-		{
-			get
-			{
-				return _sequenceKey;
-			}
+		//public int SequenceKey
+		//{
+		//	get
+		//	{
+		//		return _sequenceKey;
+		//	}
 
-			set
-			{
-				_sequenceKey = value;
-			}
-		}
+		//	set
+		//	{
+		//		_sequenceKey = value;
+		//	}
+		//}
 
 		public GeneratorLocation Generator
 		{

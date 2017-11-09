@@ -106,7 +106,6 @@ namespace Hardlight.SDK.FileUtilities
 		/// </summary>
 		public AssetTool()
 		{
-
 			_process = new Process();
 			_process.StartInfo.RedirectStandardOutput = true;
 			_process.StartInfo.UseShellExecute = false;
@@ -119,7 +118,6 @@ namespace Hardlight.SDK.FileUtilities
 			try
 			{
 				string path = (string)Microsoft.Win32.Registry.GetValue(keyName, "InstallPath", "unknown");
-
 				if (path == "unknown")
 				{
 #if UNITY_EDITOR
@@ -160,8 +158,6 @@ namespace Hardlight.SDK.FileUtilities
 			}
 		}
 
-
-
 		/// <summary>
 		/// Set the user's root haptics directory
 		/// </summary>
@@ -178,7 +174,6 @@ namespace Hardlight.SDK.FileUtilities
 		/// <returns>List of PackageInfo objects</returns>
 		public List<PackageInfo> TryGetPackageInfo()
 		{
-
 			if (_rootPath == null || _rootPath == "")
 			{
 				throw new InvalidOperationException("You must supply a non-empty root haptics path using SetRootHapticsFolder before calling this method");
@@ -205,20 +200,16 @@ namespace Hardlight.SDK.FileUtilities
 				packages.Add(package);
 			}
 			return packages;
-
-
-
 		}
 
 		private string executeToolAndWaitForResult(ArgList args)
 		{
-
 			var argString = createArgumentString(args);
 
-			//UnityEngine.Debug.Log(argString + "\n");
-
 			_process.StartInfo.Arguments = argString;
+
 			_process.Start();
+
 			string output = _process.StandardOutput.ReadToEnd();
 
 			_process.WaitForExit(500);
@@ -265,7 +256,6 @@ namespace Hardlight.SDK.FileUtilities
 
 
 		}
-
 
 		/// <summary>
 		/// Given a path to the raw haptic asset, return the json representation of a HapticDefinitionFile

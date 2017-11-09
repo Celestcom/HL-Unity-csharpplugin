@@ -27,7 +27,11 @@ namespace Hardlight.SDK
 		public List<ParameterizedPattern> Patterns
 		{
 			get { return _patterns; }
-			set { _patterns = value; }
+			set
+			{
+				if (value != null)
+					_patterns = value;
+			}
 		}
 
 		/// <summary>
@@ -136,15 +140,23 @@ namespace Hardlight.SDK
 		/// Use this instead of new HapticExperience()
 		/// </summary>
 		/// <returns></returns>
-		public static HapticExperience CreateNew()
+		public static HapticExperience CreateNew(string name = "Empty Sequence")
 		{
-			return CreateInstance<HapticExperience>();
+			var newExp = CreateInstance<HapticExperience>();
+			newExp.name = name;
+			return newExp;
 		}
 
 		public static HapticExperience LoadFromJson(string jsonPath)
 		{
 			return HapticResources.CreateExperience(jsonPath);
 		}
+
+		/// <summary>
+		/// Only available in UnityEditor
+		/// </summary>
+		/// <param name="fileNameWithoutExtension"></param>
+		/// <param name="experience"></param>
 		public static void SaveAsset(string fileNameWithoutExtension, HapticExperience experience)
 		{
 			HapticResources.SaveExperience(fileNameWithoutExtension, experience);

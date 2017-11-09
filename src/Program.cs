@@ -16,29 +16,31 @@ namespace NSLoaderWrapper
 
 		public static void testMechStompSerialize()
 		{
-			string rootPath = "D:/Users/Projects/Unity-SDK/Assets/StreamingAssets/Haptics/";
 
-			AssetTool tool = new AssetTool();
-			tool.SetRootHapticsFolder(rootPath);
+			
+				//string rootPath = "D:/Users/Projects/Unity-SDK/Assets/StreamingAssets/Haptics/";
 
-			string mechStompPath = "D:/Users/Projects/Unity-SDK/Assets/StreamingAssets/Haptics/NS Demos/experiences/mech_stomp.experience";
+				//AssetTool tool = new AssetTool();
+				//tool.SetRootHapticsFolder(rootPath);
 
-			var mechHDF = tool.GetHapticDefinitionFile(mechStompPath);
-			var mechHDFstring = tool.GetHapticDefinitionFileJson(mechStompPath);
+				//string mechStompPath = "D:/Users/Projects/Unity-SDK/Assets/StreamingAssets/Haptics/NS Demos/experiences/mech_stomp.experience";
 
-			string mechStompJson = System.IO.File.ReadAllText(mechStompPath);
-			HapticDefinitionFile file = new HapticDefinitionFile();
+				//var mechHDF = tool.GetHapticDefinitionFile(mechStompPath);
+				//var mechHDFstring = tool.GetHapticDefinitionFileJson(mechStompPath);
 
-			Console.WriteLine("Deserializing\n");
-			file.Deserialize(mechHDFstring);
+				//string mechStompJson = System.IO.File.ReadAllText(mechStompPath);
+				//HapticDefinitionFile file = new HapticDefinitionFile();
 
-			Console.WriteLine("Serializing\n");
-			var serialized = file.Serialize();
+				//Console.WriteLine("Deserializing\n");
+				//file.Deserialize(mechHDFstring);
 
-			//Console.WriteLine("\nHDF String\n\t[" + mechHDFstring + "]");
-			Console.WriteLine("Raw Json\n\t[" + mechHDFstring + "]");
-			Console.WriteLine("Deserialized Json to HDF to JSON\n\t[" + serialized + "]");
-		}
+				//Console.WriteLine("Serializing\n");
+				//var serialized = file.Serialize();
+
+				////Console.WriteLine("\nHDF String\n\t[" + mechHDFstring + "]");
+				//Console.WriteLine("Raw Json\n\t[" + mechHDFstring + "]");
+				//Console.WriteLine("Deserialized Json to HDF to JSON\n\t[" + serialized + "]");
+			}
 
 		public static void testParsing()
 		{
@@ -69,7 +71,22 @@ namespace NSLoaderWrapper
 
 			//HLVR.HLVR_Plugin plugin = new HLVR.HLVR_Plugin();
 
-			testParsing();
+			const string userRoot = "HKEY_LOCAL_MACHINE";
+			const string subkey = "SOFTWARE\\WOW6432Node\\NullSpace VR\\AssetTool";
+			const string keyName = userRoot + "\\" + subkey;
+			try
+			{
+				string path = (string)Microsoft.Win32.Registry.GetValue(keyName, "InstallPath", "unknown");
+				Console.WriteLine("Path: " + path + "\n");
+
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine("Exception e: " + e.Message + "\n");
+			}
+
+
+			//testParsing();
 
 			Console.ReadLine();
 
