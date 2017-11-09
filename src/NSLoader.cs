@@ -128,9 +128,6 @@ namespace Hardlight.SDK
 
 			}
 
-
-
-
 			public Dictionary<Region, EffectSampleInfo> PollBodyView()
 			{
 				Dictionary<Region, EffectSampleInfo> result = new Dictionary<Region, EffectSampleInfo>();
@@ -217,7 +214,6 @@ namespace Hardlight.SDK
 
 			}
 
-
 			/** END INTERNAL **/
 			/// <summary>
 			/// Pause all currently active effects
@@ -226,7 +222,6 @@ namespace Hardlight.SDK
 			{
 				Interop.HLVR_System_SuspendEffects(Ptr);
 			}
-
 
 			/// <summary>
 			/// Resume all effects that were paused with a call to PauseAll()

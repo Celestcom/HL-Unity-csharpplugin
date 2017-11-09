@@ -153,7 +153,7 @@ namespace Hardlight.SDK.FileUtilities
 			if (isSeq)
 			{
 				seq = LoadSequenceFromJson(jsonPath);
-				seq.name = fileName;
+				seq.name = CleanName(fileName);
 			}
 			else if (isPat)
 			{
@@ -180,7 +180,7 @@ namespace Hardlight.SDK.FileUtilities
 			if (isPat)
 			{
 				pat = LoadPatternFromJson(jsonPath);
-				pat.name = fileName;
+				pat.name = CleanName(fileName);
 			}
 			else if (isSeq)
 			{
@@ -207,7 +207,7 @@ namespace Hardlight.SDK.FileUtilities
 			if (isExp)
 			{
 				exp = LoadExperienceFromJson(jsonPath);
-				exp.name = fileName;
+				exp.name = CleanName(fileName);
 			}
 			else if (isSeq)
 			{
