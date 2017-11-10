@@ -5,21 +5,29 @@ using System.Text;
 
 namespace Hardlight.SDK
 {
+	/// <summary>
+	/// Combine sequence & location information for presence in a Pattern's Sequences array.
+	/// Parameterized also means it inherently has time & strength
+	/// </summary>
 	[Serializable]
-	public class ParameterizedSequence : HapticElementBaseClass
+	public class ParameterizedSequence : ParameterizedHapticElement
 	{
-		[UnityEngine.SerializeField]
-		private int _sequenceKey = 0;
+		//[UnityEngine.SerializeField]
+		//private int _sequenceKey = 0;
 		[UnityEngine.SerializeField]
 		private HapticSequence _sequence;
 
 		public bool UsingGenerator = false;
+		/// <summary>
+		/// [Incomplete] This exists for the future capability to add Generators to Parameterized sequences (allowing for randomization of which area to play a haptic on)
+		/// </summary>
 		[UnityEngine.SerializeField]
 		private GeneratorLocation _generator;
 		[UnityEngine.SerializeField]
 		private AreaFlagLocation _areaLoc;
 
 		//This exists because Unity is a huge pain when it comes to serialization.
+		[UnityEngine.SerializeField]
 		private AreaFlag _areaFlag;
 
 		public HapticSequence Sequence
@@ -34,18 +42,18 @@ namespace Hardlight.SDK
 				_sequence = value;
 			}
 		}
-		public int SequenceKey
-		{
-			get
-			{
-				return _sequenceKey;
-			}
+		//public int SequenceKey
+		//{
+		//	get
+		//	{
+		//		return _sequenceKey;
+		//	}
 
-			set
-			{
-				_sequenceKey = value;
-			}
-		}
+		//	set
+		//	{
+		//		_sequenceKey = value;
+		//	}
+		//}
 
 		public GeneratorLocation Generator
 		{
@@ -82,6 +90,8 @@ namespace Hardlight.SDK
 
 			set
 			{
+				//if (value == AreaFlag.None)
+				//	UnityEngine.Debug.LogError("Assigned empty area to a parameterized sequence\n");
 				_areaFlag = value;
 				//if (_areaLoc == null)
 				//{
@@ -107,7 +117,7 @@ namespace Hardlight.SDK
 				{
 					float finalStrength = strength * effect.Strength;
 					float finalTime = timeOffset + effect.Time;
-
+					 
 					var newApiRegions = AreaFlagToRegion.GetRegions(Area);
 
 					//UnityEngine.Debug.Log(String.Format("{0} {1} {2} {3}", finalTime,

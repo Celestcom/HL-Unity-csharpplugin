@@ -21,29 +21,33 @@ namespace Hardlight.SDK
 
 		}
 
-		[SerializeField]
-		private List<HapticSequence> sequenceKeys = new List<HapticSequence>();
-		public List<HapticSequence> SequenceKeys
-		{
-			get
-			{
-				return sequenceKeys;
-			}
+		//[SerializeField]
+		//private List<HapticSequence> sequenceKeys = new List<HapticSequence>();
+		//public List<HapticSequence> SequenceKeys
+		//{
+		//	get
+		//	{
+		//		return sequenceKeys;
+		//	}
 
-			set
-			{
-				sequenceKeys = value;
-			}
-		}
+		//	set
+		//	{
+		//		if (value != null)
+		//			sequenceKeys = value;
+		//	}
+		//}
 
 		[SerializeField]
 		private List<ParameterizedSequence> _sequences = new List<ParameterizedSequence>();
 		public List<ParameterizedSequence> Sequences
 		{
 			get { return _sequences; }
-			set { _sequences = value; }
+			set
+			{
+				if (value != null)
+					_sequences = value;
+			}
 		}
-
 
 		/// <summary>
 		/// Construct an empty HapticSequence
@@ -60,8 +64,6 @@ namespace Hardlight.SDK
 		public HapticPattern AddSequence(ParameterizedSequence sequence)
 		{
 			Sequences.Add(sequence.Clone());
-			//ParameterizedSequence clone = new ParameterizedSequence(sequence.Clone(), area);
-			//_children.Add(new CommonArgs<ParameterizedSequence>((float)time, 1f, clone));
 			return this;
 		}
 
@@ -163,86 +165,28 @@ namespace Hardlight.SDK
 		/// Use this instead of new HapticPattern()
 		/// </summary>
 		/// <returns></returns>
-		public static HapticPattern CreateNew()
+		public static HapticPattern CreateNew(string name = "Empty Sequence")
 		{
-			return CreateInstance<HapticPattern>();
+			var newPat = CreateInstance<HapticPattern>();
+			newPat.name = name;
+			return newPat;
 		}
 
-		public static HapticPattern CreateAsset(string jsonPath)
+		public static HapticPattern LoadFromJson(string jsonPath)
 		{
 			return HapticResources.CreatePattern(jsonPath);
 		}
+
+		/// <summary>
+		/// Only available in UnityEditor
+		/// </summary>
+		/// <param name="fileNameWithoutExtension"></param>
+		/// <param name="pattern"></param>
 		public static void SaveAsset(string fileNameWithoutExtension, HapticPattern pattern)
 		{
 			HapticResources.SavePattern(fileNameWithoutExtension, pattern);
 		}
 
-		//public static HapticPattern LoadFromHDF(string jsonFileName)
-		//{
-		//	HapticPattern pat = HapticPattern.CreateNew();
-		//	AssetTool tool = new AssetTool();
-		//	tool.SetRootHapticsFolder(UnityEngine.Application.streamingAssetsPath + "/Haptics/");
-		//	var hdf = tool.GetHapticDefinitionFile(jsonFileName);
-
-		//	CodeHapticFactory.CreatePattern(, hdf);
-
-		//	foreach (var patternDef in hdf.pattern_definitions)
-		//	{
-		//		foreach (var jsonSeq in patternDef.Value)
-		//		{
-		//			string seq = jsonSeq.sequence;
-
-		//			pat.AddSequence(new ParameterizedSequence(null, jsonSeq.areaFlag, jsonSeq.time, jsonSeq.strength));
-		//		}
-		//		//thing.Value[0].
-		//	}
-		//	//foreach (var jsonEffect in hdf.sequence_definitions)
-		//	//{
-		//	//	foreach (var eff in jsonEffect.Value)
-		//	//	{
-		//	//		Effect e = FileEffectToCodeEffect.TryParse(eff.effect, Effect.Click);
-		//	//		pat.AddEffect(e, eff.time, eff.duration, eff.strength);
-		//	//	}
-		//	//}
-
-		//	return pat;
-		//}
-
-		//public static HapticPattern LoadFromHDF(string key)
-		//{
-		//	HapticPattern pat = HapticPattern.CreateNew();
-
-
-
-		//	return pat;
-		//}
-		/// <summary>
-		/// Internal use: turns an HDF into a pattern
-		/// </summary>
-		/// <param name="hdf"></param>
-		//public static HapticPattern LoadFromHDF(string key, HapticDefinitionFile hdf)
-		//{
-		//	HapticPattern pat = HapticPattern.CreateNew();
-		//	var pattern_def_array = hdf.pattern_definitions[key];
-		//	foreach (var seq in pattern_def_array)
-		//	{
-		//		AreaFlag area = new AreaParser(seq.area).GetArea();
-		//		HapticSequence thisSeq = HapticSequence.CreateNew();
-
-		////		thisSeq.doLoadFromHDF(seq.sequence, hdf);
-		//		pat.AddSequence(new ParameterizedSequence(thisSeq, area, );
-		//	}
-		//	return pat;
-		//}
-
-		//		var pattern_def_array = hdf.pattern_definitions[key];
-		//		foreach (var seq in pattern_def_array)
-		//		{
-		//			AreaFlag area = new AreaParser(seq.area).GetArea();
-		//			HapticSequenceOld thisSeq = new HapticSequenceOld();
-		//			thisSeq.doLoadFromHDF(seq.sequence, hdf);
-		//			AddSequence(seq.time, area, thisSeq);
-		//		}
 		/// <summary>
 		/// Attempts to load an existing HapticPattern asset file
 		/// If the path does not exist, it will return CreateNew()
@@ -261,7 +205,6 @@ namespace Hardlight.SDK
 
 			return CreateInstance<HapticPattern>();
 		}
-
 
 		/// <summary>
 		/// Attempts to load an existing HapticPattern asset file from the provided asset bundle

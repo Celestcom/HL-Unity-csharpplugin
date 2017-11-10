@@ -106,7 +106,7 @@ namespace Hardlight.SDK
 				_disposed = false;
 				if (_created)
 				{
-					Debug.LogWarning("[HLVR] NSVR_Plugin should only be created by the NullSpace SDK\n");
+					Debug.LogWarning("[HLVR] HLVR_Plugin should only be created by the Hardlight SDK\n");
 					return;
 				}
 
@@ -127,9 +127,6 @@ namespace Hardlight.SDK
 
 
 			}
-
-
-
 
 			public Dictionary<Region, EffectSampleInfo> PollBodyView()
 			{
@@ -217,7 +214,6 @@ namespace Hardlight.SDK
 
 			}
 
-
 			/** END INTERNAL **/
 			/// <summary>
 			/// Pause all currently active effects
@@ -226,7 +222,6 @@ namespace Hardlight.SDK
 			{
 				Interop.HLVR_System_SuspendEffects(Ptr);
 			}
-
 
 			/// <summary>
 			/// Resume all effects that were paused with a call to PauseAll()
@@ -257,8 +252,6 @@ namespace Hardlight.SDK
 				return v;
 			}
 
-
-
 			public List<Device> GetKnownDevices()
 			{
 				List<Device> devices = new List<Device>();
@@ -273,7 +266,6 @@ namespace Hardlight.SDK
 
 				return devices;
 			}
-
 
 			public ServiceConnectionStatus IsConnectedToService()
 			{
@@ -291,38 +283,38 @@ namespace Hardlight.SDK
 				}
 			}
 
-			/// <summary>
-			/// Enable tracking on the suit
-			/// </summary>
-			public void EnableTracking()
-			{
-				Interop.HLVR_System_EnableTracking(Ptr);
+			///// <summary>
+			///// Enable tracking on the suit
+			///// </summary>
+			//public void EnableTracking()
+			//{
+			//	Interop.HLVR_System_EnableTracking(Ptr);
 
-			}
+			//}
 
-			/// <summary>
-			/// Disable tracking on the suit 
-			/// </summary>
-			public void DisableTracking()
-			{
-				Interop.HLVR_System_DisableTracking(Ptr);
-			}
+			///// <summary>
+			///// Disable tracking on the suit 
+			///// </summary>
+			//public void DisableTracking()
+			//{
+			//	Interop.HLVR_System_DisableTracking(Ptr);
+			//}
 
-			/// <summary>
-			/// Enable or disable tracking
-			/// </summary>
-			/// <param name="enableTracking">If true, enables tracking. Else disables tracking.</param>
-			public void SetTrackingEnabled(bool enableTracking)
-			{
-				if (enableTracking)
-				{
-					EnableTracking();
-				}
-				else
-				{
-					DisableTracking();
-				}
-			}
+			///// <summary>
+			///// Enable or disable tracking
+			///// </summary>
+			///// <param name="enableTracking">If true, enables tracking. Else disables tracking.</param>
+			//public void SetTrackingEnabled(bool enableTracking)
+			//{
+			//	if (enableTracking)
+			//	{
+			//		EnableTracking();
+			//	}
+			//	else
+			//	{
+			//		DisableTracking();
+			//	}
+			//}
 
 			/// <summary>
 			/// Poll the suit for the latest tracking data

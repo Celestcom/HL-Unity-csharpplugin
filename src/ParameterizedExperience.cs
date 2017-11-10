@@ -6,8 +6,12 @@ using System.Text;
 
 namespace Hardlight.SDK
 {
+	/// <summary>
+	/// Combine an experience with inherent time & strength info
+	/// Used for generating the timeline to play an experience.
+	/// </summary>
 	[Serializable]
-	internal class ParameterizedExperience : HapticElementBaseClass
+	internal class ParameterizedExperience : ParameterizedHapticElement
 	{
 		private HapticExperience _experience;
 		public HapticExperience Experience

@@ -27,35 +27,33 @@ namespace Hardlight.SDK
 		public List<ParameterizedPattern> Patterns
 		{
 			get { return _patterns; }
-			set { _patterns = value; }
+			set
+			{
+				if (value != null)
+					_patterns = value;
+			}
+		}
+
+		/// <summary>
+		/// Adds a HapticPattern to this HapticExperience with a given time offset and default strength of 1.0
+		/// </summary>
+		/// <param name="pattern">The pattern with time/strength attributes</param>
+		/// <param name="time">Time offset (fractional seconds)</param>
+		/// <param name="strength">Strength of the Pattern (for switching which effects are used)</param>
+		/// <returns></returns>
+		public HapticExperience AddPattern(HapticPattern pattern, double time, double strength)
+		{
+			Patterns.Add(new ParameterizedPattern(pattern, (float)time, (float)strength));
+			return this;
 		}
 
 		/// <summary>
 		/// Add a HapticPattern to this HapticExperience with a given time offset and default strength of 1.0
 		/// </summary>
-		/// <param name="time">Time offset (fractional seconds)</param>
-		/// <param name="area">AreaFlag on which to play the HapticSequence</param>
-		/// <param name="sequence">The HapticSequence to be added</param>
+		/// <param name="pattern">The pattern with time/strength attributes</param>
 		public HapticExperience AddPattern(ParameterizedPattern pattern)
 		{
-			Debug.LogError("unfinished\n", this);
-			//ParameterizedPattern clone = new ParameterizedPattern(pattern.Clone());
-			//_children.Add(new CommonArgs<ParameterizedPattern>((float)time, 1f, clone));
-			return this;
-		}
-
-		/// <summary>
-		/// Add a HapticPattern to this HapticExperience with a given time offset and strength.
-		/// </summary>
-		/// <param name="time">Time offset (fractional seconds)</param>
-		/// <param name="area">AreaFlag on which to play the HapticSequence</param>
-		/// <param name="strength">Strength of the HapticSequence (0.0 - 1.0)</param>
-		/// <param name="sequence">The HapticSequence to be added</param>
-		public HapticExperience AddPattern(double time, double strength, ParameterizedPattern pattern)
-		{
-			Debug.LogError("unfinished\n", this);
-			//ParameterizedPattern clone = new ParameterizedPattern(pattern.Clone());
-			//_children.Add(new CommonArgs<ParameterizedPattern>((float)time, (float)strength, clone));
+			Patterns.Add(pattern);
 			return this;
 		}
 
@@ -142,9 +140,26 @@ namespace Hardlight.SDK
 		/// Use this instead of new HapticExperience()
 		/// </summary>
 		/// <returns></returns>
-		public static HapticExperience CreateNew()
+		public static HapticExperience CreateNew(string name = "Empty Sequence")
 		{
-			return CreateInstance<HapticExperience>();
+			var newExp = CreateInstance<HapticExperience>();
+			newExp.name = name;
+			return newExp;
+		}
+
+		public static HapticExperience LoadFromJson(string jsonPath)
+		{
+			return HapticResources.CreateExperience(jsonPath);
+		}
+
+		/// <summary>
+		/// Only available in UnityEditor
+		/// </summary>
+		/// <param name="fileNameWithoutExtension"></param>
+		/// <param name="experience"></param>
+		public static void SaveAsset(string fileNameWithoutExtension, HapticExperience experience)
+		{
+			HapticResources.SaveExperience(fileNameWithoutExtension, experience);
 		}
 
 		/// <summary>

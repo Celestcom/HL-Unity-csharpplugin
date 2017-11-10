@@ -10,7 +10,7 @@ namespace Hardlight.SDK
 	/// </para>
 	/// </summary>
 	[Serializable]
-	public class HapticEffect : HapticElementBaseClass
+	public class HapticEffect : ParameterizedHapticElement
 	{
 		[UnityEngine.SerializeField]
 		private Effect _effect;

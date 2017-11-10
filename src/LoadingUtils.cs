@@ -1,20 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
-
 using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+
 namespace Hardlight.SDK.FileUtilities
 {
 	public static class HapticResources
 	{
-		private static string TryToFindAvailableFileName(string desiredPathAndName)
+		private static bool Exists(string enginePath, string desiredPathAndName)
+		{
+			bool normalExists = File.Exists((enginePath + desiredPathAndName));
+			//bool lowerExists = File.Exists((enginePath + desiredPathAndName).ToLower());
+			//Debug.Log("looking at " + desiredPathAndName + "\tNormalExists: " + normalExists + "\n\tLowerExists:" + lowerExists + "\n");
+			return normalExists;
+		}
+		private static string GetEnginePath()
 		{
 			string enginePath = Application.dataPath;
+			//this removes the Path/[Assets] from the Application.dataPath;
 			enginePath = Application.dataPath.Remove(enginePath.Length - 6, 6);
-			bool exists = File.Exists(enginePath + desiredPathAndName);
+			return enginePath;
+		}
+		private static string TryToFindAvailableFileName(string desiredPathAndName, string extension = ".asset")
+		{
+			string enginePath = GetEnginePath();
+			bool exists = Exists(enginePath, desiredPathAndName + extension);
 
-			Debug.Log("Desired Path: " + desiredPathAndName + "\n" + enginePath + "\n" + enginePath + desiredPathAndName);
+			desiredPathAndName = RemoveExtension(desiredPathAndName, extension);
+			//Debug.Log("Desired Path: " + desiredPathAndName + " " + exists + "\n" + enginePath + "\n" + enginePath + desiredPathAndName);
 
 			bool succeeded = true;
 			int extraChecks = 2;
@@ -23,13 +37,13 @@ namespace Hardlight.SDK.FileUtilities
 				succeeded = false;
 				for (int i = 0; i < extraChecks; i++)
 				{
-					exists = File.Exists(enginePath + desiredPathAndName + " " + i);
-					Debug.Log("Trying to find file: " + desiredPathAndName + " " + i + "\n\t[" + exists + "]");
+					exists = File.Exists(enginePath + desiredPathAndName + " " + i + extension);
+					//Debug.Log("Checking for: " + enginePath + desiredPathAndName + " " + i + extension + "\n" + exists);
 					if (!exists)
 					{
-						i = int.MaxValue;
+						desiredPathAndName = desiredPathAndName + " " + i;
 						succeeded = true;
-						desiredPathAndName = desiredPathAndName + i;
+						break;
 					}
 				}
 			}
@@ -39,7 +53,9 @@ namespace Hardlight.SDK.FileUtilities
 				throw new HapticsAssetException("Could not create asset for sequence [" + desiredPathAndName + "]\nToo many similarly named files (checked " + extraChecks + " files)...\n\tSuggestion: clean up some excessive names and try again.");
 			}
 
-			return desiredPathAndName;
+			//Debug.Log("We have found a valid name: " + desiredPathAndName + extension + "\n");
+
+			return desiredPathAndName + extension;
 		}
 		private static AssetTool assetTool;
 		public static AssetTool HapticAssetTool
@@ -55,80 +71,36 @@ namespace Hardlight.SDK.FileUtilities
 			}
 		}
 
+		/// <summary>
+		/// Returns whether or not the key has the '.sequence' file extension
+		/// </summary>
+		/// <param name="key"></param>
 		public static bool IsSequence(string key)
 		{
 			return key.Contains(".sequence");
 		}
+		/// <summary>
+		/// Returns whether or not the key has the '.pattern' file extension
+		/// </summary>
+		/// <param name="key"></param>
 		public static bool IsPattern(string key)
 		{
 			return key.Contains(".pattern");
 		}
+		/// <summary>
+		/// Returns whether or not the key has the '.experience' file extension
+		/// </summary>
+		/// <param name="key"></param>
 		public static bool IsExperience(string key)
 		{
 			return key.Contains(".experience");
 		}
-		public static HapticSequence SequenceExists(string key)
-		{
-			string assetName = GetHapticFileName(key);
 
-			return HapticSequence.LoadFromAsset(key);
-		}
-
-		public static string GetHapticFileName(string key)
-		{
-			return key.Replace('.', '_') + ".asset";
-		}
-
-		private static HapticDefinitionFile LoadHDFFromJson(string jsonPath)
-		{
-			var hdf = HapticAssetTool.GetHapticDefinitionFile(jsonPath);
-
-			if (hdf == null)
-			{
-				Debug.LogWarning("Unable to load haptic resource at path " + jsonPath);
-			}
-			return hdf;
-			//var file = Resources.Load<JsonAsset>(path);
-
-			//if (file == null)
-			//{
-			//	Debug.LogWarning("Unable to load haptic resource at path " + path);
-			//	return null;
-			//}
-
-			//HapticDefinitionFile hdf = new HapticDefinitionFile();
-			//hdf.Deserialize(file.GetJson());
-			//return hdf;
-		}
-		public static HapticSequence LoadSequenceFromJson(string jsonPath)
-		{
-			HapticDefinitionFile hdf = LoadHDFFromJson(jsonPath);
-
-			if (hdf.root_effect.type == "sequence")
-			{
-				var seq = CodeHapticFactory.CreateSequence(hdf.root_effect.name, hdf);
-				return seq;
-			}
-			else
-			{
-				throw new InvalidOperationException("Unable to load " + hdf.root_effect.name + " as a HapticSequence because it is a " + hdf.root_effect.type);
-			}
-		}
-		public static HapticPattern LoadPatternFromJson(string jsonPath)
-		{
-			HapticDefinitionFile hdf = LoadHDFFromJson(jsonPath);
-			if (hdf.root_effect.type == "pattern")
-			{
-				Debug.Log("Valid HDF. creating pattern elements\n");
-				var pat = CodeHapticFactory.CreatePattern(hdf.root_effect.name, hdf);
-				return pat;
-			}
-			else
-			{
-				throw new InvalidOperationException("Unable to load " + hdf.root_effect.name + " as a HapticPattern because it is a " + hdf.root_effect.type);
-			}
-		}
-
+		/// <summary>
+		/// Attempts to create a haptic sequence from the provided json path
+		/// It will create a HDF and then turn the hdf into a HapticSequence.
+		/// </summary>
+		/// <param name="jsonPath">Ex: StreamingAssets/Haptics/NS Demos/sequences/click.sequence</param>
 		public static HapticSequence CreateSequence(string jsonPath)
 		{
 			var fileName = Path.GetFileNameWithoutExtension(jsonPath);
@@ -144,20 +116,25 @@ namespace Hardlight.SDK.FileUtilities
 			if (isSeq)
 			{
 				seq = LoadSequenceFromJson(jsonPath);
-				seq.name = fileName;
+				seq.name = CleanName(fileName);
 			}
 			else if (isPat)
 			{
 				Debug.LogError("Attempted to run a HapticResources.CreatePattern while providing a pattern at path: " + jsonPath + "\n\t");
 			}
-			else if (isPat)
+			else if (isExp)
 			{
 				Debug.LogError("Attempted to run a HapticResources.CreateSequence while providing a experience at path: " + jsonPath + "\n\t");
 			}
 
-			SaveSequence(fileName, seq);
 			return seq;
 		}
+
+		/// <summary>
+		/// Attempts to create a haptic pattern from the provided json path
+		/// It will create a HDF and then turn the hdf into a HapticPattern.
+		/// </summary>
+		/// <param name="jsonPath">Ex: StreamingAssets/Haptics/NS Demos/patterns/mech_stomp_left.pattern</param>
 		public static HapticPattern CreatePattern(string jsonPath)
 		{
 			var fileName = Path.GetFileNameWithoutExtension(jsonPath);
@@ -172,7 +149,40 @@ namespace Hardlight.SDK.FileUtilities
 			if (isPat)
 			{
 				pat = LoadPatternFromJson(jsonPath);
-				pat.name = fileName;
+				pat.name = CleanName(fileName);
+			}
+			else if (isSeq)
+			{
+				Debug.LogError("Attempted to run a HapticPattern.CreateAsset while providing a sequence at path: " + jsonPath + "\n\t");
+			}
+			else if (isExp)
+			{
+				Debug.LogError("Attempted to run a HapticPattern.CreateAsset while providing a experience at path: " + jsonPath + "\n\t");
+			}
+
+			return pat;
+		}
+
+		/// <summary>
+		/// Attempts to create a haptic experience from the provided json path
+		/// It will create a HDF and then turn the hdf into a HapticExperience.
+		/// </summary>
+		/// <param name="jsonPath">Ex: StreamingAssets/Haptics/NS Demos/experiences/mech_stomp.experience</param>
+		public static HapticExperience CreateExperience(string jsonPath)
+		{
+			var fileName = Path.GetFileNameWithoutExtension(jsonPath);
+
+			////If we don't replace . with _, then Unity has serious trouble locating the file
+			HapticExperience exp = null;
+
+			bool isSeq = IsSequence(jsonPath);
+			bool isPat = IsPattern(jsonPath);
+			bool isExp = IsExperience(jsonPath);
+
+			if (isExp)
+			{
+				exp = LoadExperienceFromJson(jsonPath);
+				exp.name = CleanName(fileName);
 			}
 			else if (isSeq)
 			{
@@ -180,54 +190,228 @@ namespace Hardlight.SDK.FileUtilities
 			}
 			else if (isPat)
 			{
-				Debug.LogError("Attempted to run a HapticPattern.CreateAsset while providing a experience at path: " + jsonPath + "\n\t");
+				Debug.LogError("Attempted to run a HapticPattern.CreateAsset while providing a pattern at path: " + jsonPath + "\n\t");
 			}
 
-			//SavePattern(fileName, pat);
-			return pat;
+			return exp;
 		}
 
-		public static void SavePattern(string name, HapticPattern pattern)
+		internal static HapticSequence LoadSequenceFromJson(string jsonPath)
 		{
-			string assetPath = "Assets/Resources/Haptics/";
-			name = GetHapticFileName(name);
+			HapticDefinitionFile hdf = LoadHDFFromJson(jsonPath);
 
-			string finalizedPath = TryToFindAvailableFileName(assetPath + name);
-			Debug.Log(finalizedPath + "\n\t" + name + "\n");
-			if (pattern != null)
+			if (hdf.root_effect.type == "sequence")
 			{
-				HashSet<HapticSequence> keys = new HashSet<HapticSequence>();
-				for (int i = 0; i < pattern.Sequences.Count; i++)
-				{
-					if (!keys.Contains(pattern.Sequences[i].Sequence))
-					{
-						SaveSequence(pattern.Sequences[i].Sequence.name, pattern.Sequences[i].Sequence);
-						keys.Add(pattern.Sequences[i].Sequence);
-					}
-				}
-
-				AssetDatabase.CreateAsset(pattern, finalizedPath);
-				AssetDatabase.SaveAssets();
-				Selection.activeObject = pattern;
+				var seq = CodeHapticFactory.CreateSequenceFromHDF(hdf.root_effect.name, hdf);
+				return seq;
 			}
 			else
-				Debug.LogError("Attempted to save an invalid asset [" + name + "]\n");
+			{
+				Debug.LogError("Error in LoadSequenceFromJson - likely an invalid path was provided\n\t" + hdf.root_effect.name + " is of type " + hdf.root_effect.type + "\n");
+				return HapticSequence.CreateNew();
+				//throw new InvalidOperationException("Unable to load " + hdf.root_effect.name + " as a HapticSequence because it is a " + hdf.root_effect.type);
+			}
 		}
+		internal static HapticPattern LoadPatternFromJson(string jsonPath)
+		{
+			HapticDefinitionFile hdf = LoadHDFFromJson(jsonPath);
+			if (hdf.root_effect.type == "pattern")
+			{
+				var pat = CodeHapticFactory.CreatePatternFromHDF(hdf.root_effect.name, hdf);
+				return pat;
+			}
+			else
+			{
+				Debug.LogError("Error in LoadPatternFromJson - likely an invalid path was provided\n\t" + hdf.root_effect.name + " is of type " + hdf.root_effect.type + "\n");
+				return HapticPattern.CreateNew();
+				//throw new InvalidOperationException("Unable to load " + hdf.root_effect.name + " as a HapticPattern because it is a " + hdf.root_effect.type);
+			}
+		}
+		internal static HapticExperience LoadExperienceFromJson(string jsonPath)
+		{
+			HapticDefinitionFile hdf = LoadHDFFromJson(jsonPath);
+			if (hdf.root_effect.type == "experience")
+			{
+				var exp = CodeHapticFactory.CreateExperienceFromHDF(hdf.root_effect.name, hdf);
+				return exp;
+			}
+			else
+			{
+				Debug.LogError("Error in LoadExperienceFromJson - likely an invalid path was provided\n\t" + hdf.root_effect.name + " is of type " + hdf.root_effect.type + "\n");
+				return HapticExperience.CreateNew();
+				//throw new InvalidOperationException("Unable to load " + hdf.root_effect.name + " as a HapticExperience because it is a " + hdf.root_effect.type);
+			}
+		}
+
+		internal static HapticDefinitionFile LoadHDFFromJson(string jsonPath)
+		{
+			var hdf = HapticAssetTool.GetHapticDefinitionFile(jsonPath);
+
+			if (hdf == null)
+			{
+				Debug.LogWarning("Unable to load haptic resource at path " + jsonPath);
+			}
+			return hdf;
+		}
+
 		public static void SaveSequence(string name, HapticSequence sequence)
 		{
-			string assetPath = "Assets/Resources/Haptics/";
-			name = GetHapticFileName(name);
-
-			string finalizedPath = TryToFindAvailableFileName(assetPath + name);
-
+#if UNITY_EDITOR
 			if (sequence != null)
 			{
-				AssetDatabase.CreateAsset(sequence, finalizedPath);
-				AssetDatabase.SaveAssets();
-				Selection.activeObject = sequence;
+				name = CleanName(name);
+				CodeHapticFactory.EnsureSequenceIsRemembered(name, sequence);
+				if (CodeHapticFactory.SequenceExists(name))
+				{
+					var seqData = CodeHapticFactory.GetRememberedSequence(name);
+					if (!seqData.saved)
+					{
+						string assetPath = GetDefaultSavePath();
+						string finalizedPath = TryToFindAvailableFileName(assetPath + name, GetAssetExtension());
+
+						//Debug.Log("Seq  " + name + " - Finalized Path: " + finalizedPath + "\n");
+
+						if (!AssetDatabase.Contains(sequence))
+						{
+							seqData.saved = true;
+							//Debug.Log("We are saving sequence: " + sequence.name + "\nAttempting: [" + finalizedPath + "]  " + Exists("", finalizedPath) + "\n");
+							AssetDatabase.CreateAsset(sequence, finalizedPath);
+							//Debug.Log("Asset was created - " + File.Exists(finalizedPath) + " does the lower case return true: " + File.Exists(finalizedPath.ToLower()) + "\n");
+						}
+						else
+						{
+							//Debug.LogError("Not saving: " + name + " sequence because it already exists?");
+						}
+						AssetDatabase.SetLabels(sequence, new string[] { "Haptics", "Sequence" });
+						Selection.activeObject = sequence;
+					}
+					//else
+					//	Debug.Log("Not saving: " + name + " sequence because we think it has been saved already");
+				}
+				//else
+				//	Debug.LogError("Not saving: " + name + " sequence because it isn't in our sequence memory dictionary");
 			}
 			else
-				Debug.LogError("Attempted to save an invalid asset [" + name + "]\n");
+				Debug.LogError("Attempted to save a null sequence asset [" + name + "]\n");
+#endif
+		}
+		public static void SavePattern(string name, HapticPattern pattern)
+		{
+#if UNITY_EDITOR
+			if (pattern != null)
+			{
+				//Debug.Log(name + "  " + pattern.name);
+				name = CleanName(name);
+				CodeHapticFactory.EnsurePatternIsRemembered(name, pattern);
+				//Debug.Log("Looking for: " + CleanName(pattern.name) + "\n");
+				if (CodeHapticFactory.PatternExists(name))
+				{
+					var patData = CodeHapticFactory.GetRememberedPattern(name);
+					if (!patData.saved)
+					{
+			#region Save Required Elements
+						for (int i = 0; i < pattern.Sequences.Count; i++)
+						{
+							if (pattern.Sequences[i] != null)
+							{
+								string key = pattern.Sequences[i].Sequence.name;
+								SaveSequence(key, pattern.Sequences[i].Sequence);
+							}
+							else
+							{
+								Debug.Log(name + " has null sequences at " + i + "\n");
+							}
+						}
+			#endregion
+
+			#region Save Self
+						string assetPath = GetDefaultSavePath();
+						string finalizedPath = TryToFindAvailableFileName(assetPath + name, GetAssetExtension());
+
+						//Debug.Log("Pat  " + name + " - " + finalizedPath + "\n");
+
+						if (!AssetDatabase.Contains(pattern))
+						{
+							patData.saved = true;
+							AssetDatabase.CreateAsset(pattern, finalizedPath);
+							//Debug.Log("Asset was created - " + finalizedPath + "  " + File.Exists(finalizedPath) + " does the lower case return true: " + File.Exists(finalizedPath.ToLower()) + "\n");
+						}
+						AssetDatabase.SetLabels(pattern, new string[] { "Haptics", "Pattern" });
+						Selection.activeObject = pattern;
+			#endregion
+					}
+				}
+			}
+			else
+				Debug.LogError("Attempted to save a null pattern asset [" + name + "]\n");
+#endif
+		}
+		public static void SaveExperience(string name, HapticExperience experience)
+		{
+#if UNITY_EDITOR
+			if (experience != null)
+			{
+			#region Save Required Elements
+				for (int i = 0; i < experience.Patterns.Count; i++)
+				{
+					string key = experience.Patterns[i].Pattern.name;
+					SavePattern(key, experience.Patterns[i].Pattern);
+				}
+			#endregion
+
+			#region Save Self
+				string assetPath = GetDefaultSavePath();
+				name = CleanName(name);
+
+				string finalizedPath = TryToFindAvailableFileName(assetPath + name, GetAssetExtension());
+
+				if (!AssetDatabase.Contains(experience))
+				{
+					AssetDatabase.CreateAsset(experience, finalizedPath);
+				}
+				AssetDatabase.SetLabels(experience, new string[] { "Haptics", "Experience" });
+				Selection.activeObject = experience;
+			#endregion
+			}
+			else
+				Debug.LogError("Attempted to save a null experience asset [" + name + "]\n");
+#endif
+		}
+
+		public static string CleanName(string name)
+		{
+			return StripNamespace(RemoveExtension(name));
+		}
+		private static string RemoveExtension(string filePath, string extension = ".asset")
+		{
+			string[] ext = new string[1];
+			ext[0] = extension;
+			if (filePath.Contains(extension))
+			{
+				return filePath.Split(ext, StringSplitOptions.RemoveEmptyEntries)[0];
+			}
+			return filePath;
+		}
+		private static string StripNamespace(string key)
+		{
+			//string output = "Dealing with key [" + key + "]\n";
+			if (key.Contains("."))
+			{
+				var split = key.Split('.');
+				//Debug.Log("split count: " + split.Length + "\n");
+				//output += "Returning [" + split[split.Length - 1] + "]";
+				//Debug.Log(output + "\n");
+				return split[split.Length - 1];
+			}
+			return key;
+		}
+		private static string GetDefaultSavePath()
+		{
+			return "Assets/Resources/Haptics/";
+		}
+		private static string GetAssetExtension()
+		{
+			return ".asset";
 		}
 	}
 
@@ -331,8 +515,6 @@ namespace Hardlight.SDK.FileUtilities
 
 			return returnDict;
 		}
-
-
 
 		[Serializable]
 		public class RootEffect : IJsonDeserializable, IJsonSerializable
