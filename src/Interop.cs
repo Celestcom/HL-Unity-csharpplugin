@@ -64,7 +64,7 @@ namespace Hardlight.SDK
 				Target_Nodes_UInt32s,
 
 				/* Event-Specific keys */
-				DiscreteHaptic_Duration_Float = 1000,
+				DiscreteHaptic_Repetitions_UInt32 = 1000,
 				DiscreteHaptic_Strength_Float,
 				DiscreteHaptic_Waveform_Int,
 
@@ -188,6 +188,9 @@ namespace Hardlight.SDK
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int HLVR_Event_SetInt(HLVR_Event* eventData, HLVR_EventKey key, int value);
+
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
+			public static extern unsafe int HLVR_Event_SetUInt32(HLVR_Event* eventData, HLVR_EventKey key, UInt32 value);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int HLVR_Event_SetUInt32s(HLVR_Event* eventData, HLVR_EventKey key, [In, Out] UInt32[] values, uint length);

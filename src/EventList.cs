@@ -62,7 +62,7 @@ namespace Hardlight.SDK
 		
 			Debug.Assert(eventPtr != null);
 
-			Interop.HLVR_Event_SetFloat(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Duration_Float, _duration);
+			Interop.HLVR_Event_SetUInt32(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Repetitions_UInt32, (uint)( _duration * 8));
 			Interop.HLVR_Event_SetUInt32s(eventPtr, Interop.HLVR_EventKey.Target_Regions_UInt32s, _area, (uint)_area.Length);
 			Interop.HLVR_Event_SetFloat(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Strength_Float, _strength);
 			Interop.HLVR_Event_SetInt(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Waveform_Int, (int)_effect);
