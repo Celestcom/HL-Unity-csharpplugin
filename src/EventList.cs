@@ -20,7 +20,7 @@ namespace Hardlight.SDK
 
 		public abstract float Time { get; }
 
-		protected abstract unsafe void  _generateEvent(HLVR_Timeline* timeline);
+		protected abstract unsafe void _generateEvent(HLVR_Timeline* timeline);
 
 		protected HardlightEvent(SuitEventType eventType)
 		{
@@ -42,7 +42,28 @@ namespace Hardlight.SDK
 		private UInt32[] _area;
 		private Effect _effect;
 
-	
+		public const int EffectDefaultDuration = 150; //This is defined inside of the service, changing it here does not influence all cases.
+		public static Dictionary<Effect, int> EffectDurations = new Dictionary<Effect, int>()
+		{
+			{ Effect.Bump, 200},
+			{ Effect.Buzz, 300},
+			{ Effect.Click, 100},
+			{ Effect.Fuzz, 220},
+			{ Effect.Hum, 300},
+			{ Effect.Pulse, 150},
+			{ Effect.Tick, 80},
+			{ Effect.Double_Click, 300},
+			{ Effect.Triple_Click, 400}
+		};
+
+		protected int GetEffectDuration(Effect effect)
+		{
+			if (EffectDurations.ContainsKey(effect))
+			{
+				return EffectDurations[effect];
+			}
+			else return EffectDefaultDuration;
+		}
 
 		public override float Time
 		{
@@ -56,13 +77,12 @@ namespace Hardlight.SDK
 		{
 			Debug.Assert(timelinePtr != null);
 
-			
 			HLVR_Event* eventPtr = null;
 			Interop.HLVR_Event_Create(&eventPtr, Interop.HLVR_EventType.DiscreteHaptic);
-		
+
 			Debug.Assert(eventPtr != null);
 
-			Interop.HLVR_Event_SetUInt32(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Repetitions_UInt32, (uint)( _duration * 8));
+			Interop.HLVR_Event_SetUInt32(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Repetitions_UInt32, (uint)(_duration * 1000 / GetEffectDuration(_effect)));
 			Interop.HLVR_Event_SetUInt32s(eventPtr, Interop.HLVR_EventKey.Target_Regions_UInt32s, _area, (uint)_area.Length);
 			Interop.HLVR_Event_SetFloat(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Strength_Float, _strength);
 			Interop.HLVR_Event_SetInt(eventPtr, Interop.HLVR_EventKey.DiscreteHaptic_Waveform_Int, (int)_effect);
@@ -81,19 +101,20 @@ namespace Hardlight.SDK
 		}
 
 		public BasicHapticEvent(float time, float strength, float duration, UInt32[] area, Effect effect)
-			:base(SuitEventType.BasicHapticEvent)
+			: base(SuitEventType.BasicHapticEvent)
 		{
-			
+
 			this._time = time;
 			this._strength = strength;
 			this._duration = duration;
 			this._area = area;
 			this._effect = effect;
 		}
-		
+
 	}
-	internal class EventList { 
-	
+	internal class EventList
+	{
+
 		private List<HardlightEvent> _events;
 		public EventList()
 		{
@@ -122,15 +143,15 @@ namespace Hardlight.SDK
 		{
 			HLVR_Timeline* timelinePtr = null;
 			Interop.HLVR_Timeline_Create(&timelinePtr);
-		
+
 			for (int i = 0; i < _events.Count; i++)
 			{
 				_events[i].Generate(timelinePtr);
 			}
 
-			
+
 			Interop.HLVR_Timeline_Transmit(timelinePtr, HLVR_Plugin.Ptr, effect);
-			
+
 
 			Interop.HLVR_Timeline_Destroy(&timelinePtr);
 			Debug.Assert(timelinePtr == null);

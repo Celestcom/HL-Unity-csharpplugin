@@ -77,7 +77,7 @@ namespace Hardlight.SDK
 		/// <returns></returns>
 		public override string ToString()
 		{
-			return string.Format("{0} for {1} seconds", this.Effect.ToString(), _duration);
+			return string.Format("{0} at time {1} for {2} seconds - {3} strength", this.Effect.ToString(), Time, _duration, Strength);
 		}
 	}
 }

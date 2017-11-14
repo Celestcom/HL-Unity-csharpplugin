@@ -19,7 +19,7 @@ namespace Hardlight.SDK
 		Double_Click = 4,
 		Triple_Click = 16
 	}
-
+	
 	internal static class AreaFlagToRegion
 	{
 		private static Dictionary<AreaFlag, Region> _regions;
@@ -68,8 +68,8 @@ namespace Hardlight.SDK
 
 		public static UInt32[] GetRegions(AreaFlag area)
 		{
-		
-		List<UInt32> results = new List<uint>();
+
+			List<UInt32> results = new List<uint>();
 			foreach (AreaFlag areaEnum in StaticAreaFlag)
 			{
 				if (area.ContainsArea(areaEnum))
@@ -78,11 +78,12 @@ namespace Hardlight.SDK
 					{
 						Region translated = _regions[areaEnum];
 						results.Add((UInt32)(translated));
-					} else
+					}
+					else
 					{
 						Debug.Log("Couldn't find the region corresponding to area " + areaEnum);
 					}
-					
+
 				}
 			}
 			return results.ToArray();
@@ -129,7 +130,7 @@ namespace Hardlight.SDK
 		/// <returns></returns>
 		public static Effect TryParse(string effect, Effect defaultEffect)
 		{
-		
+
 
 			if (_effects.ContainsKey(effect))
 			{
