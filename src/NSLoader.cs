@@ -175,44 +175,6 @@ namespace Hardlight.SDK
 				return (value < min) ? min : (value > max) ? max : value;
 			}
 
-			/// <summary>
-			/// Control the volume of an area directly. 
-			/// </summary>
-			/// <param name="singleArea">An AreaFlag representing a single area</param>
-			/// <param name="strength">Strength to play, from 0.0 - 1.0</param>
-			public void ControlDirectly(AreaFlag singleArea, double strength)
-			{
-
-
-				ushort[] intensities = new ushort[1];
-				UInt32[] areas = new UInt32[1];
-				areas[0] = (uint)singleArea;
-				intensities[0] = (ushort)(255 * Clamp(strength, 0.0, 1.0));
-				Interop.HLVR_Immediate_Set(Ptr, intensities, areas, 1);
-			}
-
-			/// <summary>
-			/// Control the volume of multiple areas directly. 
-			/// </summary>
-			/// <param name="singleAreas">List of AreaFlags, each representing a single area</param>
-			/// <param name="strengths">Strength to play, from 0-255</param>
-			public void ControlDirectly(AreaFlag[] singleAreas, ushort[] strengths)
-			{
-				if (singleAreas.Length != strengths.Length)
-				{
-					Debug.LogWarning("You may not pass an area array and strength array of different lengths");
-					return;
-				}
-
-				UInt32[] areas = new UInt32[singleAreas.Length];
-				for (int i = 0; i < singleAreas.Length; i++)
-				{
-					areas[i] = (UInt32)(singleAreas[i]);
-				}
-
-				Interop.HLVR_Immediate_Set(Ptr, strengths, areas, areas.Length);
-
-			}
 
 			/** END INTERNAL **/
 			/// <summary>
@@ -283,38 +245,6 @@ namespace Hardlight.SDK
 				}
 			}
 
-			///// <summary>
-			///// Enable tracking on the suit
-			///// </summary>
-			//public void EnableTracking()
-			//{
-			//	Interop.HLVR_System_EnableTracking(Ptr);
-
-			//}
-
-			///// <summary>
-			///// Disable tracking on the suit 
-			///// </summary>
-			//public void DisableTracking()
-			//{
-			//	Interop.HLVR_System_DisableTracking(Ptr);
-			//}
-
-			///// <summary>
-			///// Enable or disable tracking
-			///// </summary>
-			///// <param name="enableTracking">If true, enables tracking. Else disables tracking.</param>
-			//public void SetTrackingEnabled(bool enableTracking)
-			//{
-			//	if (enableTracking)
-			//	{
-			//		EnableTracking();
-			//	}
-			//	else
-			//	{
-			//		DisableTracking();
-			//	}
-			//}
 
 			/// <summary>
 			/// Poll the suit for the latest tracking data
