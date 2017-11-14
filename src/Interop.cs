@@ -68,10 +68,6 @@ namespace Hardlight.SDK
 				DiscreteHaptic_Strength_Float,
 				DiscreteHaptic_Waveform_Int,
 
-				ContinuousHaptic_Strength_Float = 2000,
-
-
-
 				BufferedHaptic_Samples_Floats = 3000,
 				BufferedHaptic_Frequency_Float,
 
@@ -83,6 +79,10 @@ namespace Hardlight.SDK
 			{
 				Unknown = 0,
 				DiscreteHaptic = 1,
+				BufferedHaptic = 3,
+				BeginAnalogAudio = 3,
+				EndAnalogAudio = 5,
+
 			};
 
 
