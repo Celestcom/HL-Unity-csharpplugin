@@ -11,21 +11,6 @@
     <AssemblyName>UnityPluginWrapperExe</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -58,12 +43,10 @@
     <OutputPath>bin\Release\Win32\</OutputPath>
     <BaseIntermediateOutputPath>obj\Win32\Release\UnityPluginWrapperExe\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>bin\Release\Win32\HardlightUnity.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release Win64|x64' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -72,12 +55,10 @@
     <OutputPath>bin\Release\Win64\</OutputPath>
     <BaseIntermediateOutputPath>obj\Win64\Release\UnityPluginWrapperExe\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>bin\Release\Win64\HardlightUnity.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -88,6 +69,9 @@
   <ItemGroup>
     <Compile Include="..\src\AreaParser.cs">
       <Link>src\AreaParser.cs</Link>
+    </Compile>
+    <Compile Include="..\src\AssemblyInfo.cs">
+      <Link>src\AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="..\src\AssetTool.cs">
       <Link>src\AssetTool.cs</Link>
@@ -116,6 +100,15 @@
     <Compile Include="..\src\HapticElementBaseClass.cs">
       <Link>src\HapticElementBaseClass.cs</Link>
     </Compile>
+    <Compile Include="..\src\HapticExperience.cs">
+      <Link>src\HapticExperience.cs</Link>
+    </Compile>
+    <Compile Include="..\src\HapticPattern.cs">
+      <Link>src\HapticPattern.cs</Link>
+    </Compile>
+    <Compile Include="..\src\HapticSequence.cs">
+      <Link>src\HapticSequence.cs</Link>
+    </Compile>
     <Compile Include="..\src\HapticsDefinitionFile.cs">
       <Link>src\HapticsDefinitionFile.cs</Link>
     </Compile>
@@ -127,6 +120,9 @@
     </Compile>
     <Compile Include="..\src\LoadingUtils.cs">
       <Link>src\LoadingUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\src\LocationInfo.cs">
+      <Link>src\LocationInfo.cs</Link>
     </Compile>
     <Compile Include="..\src\MiniJson.cs">
       <Link>src\MiniJson.cs</Link>
@@ -161,27 +157,10 @@
     <Compile Include="..\src\SuitEventType.cs">
       <Link>src\SuitEventType.cs</Link>
     </Compile>
-    <Compile Include="src\HapticExperience.cs" />
-    <Compile Include="src\HapticPattern.cs" />
-    <Compile Include="src\HapticSequence.cs" />
-    <Compile Include="src\LocationInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.5">
-      <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>call "$(SolutionDir)scripts\CopyDLLs.bat"</PostBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
