@@ -32,7 +32,7 @@ namespace NGitVersion.Model
 
         public string Company        { get { return "NullSpace VR"; } }
         public string Product        { get { return "Hardlight SDK"; } }
-        public string Copyright      { get { return "Copyright © 2017"; } }
+        public string Copyright      { get { return "Copyright © 2017 NullSpace VR, Inc."; } }
         public string Trademark      { get { return ""; } }
         public string Culture        { get { return ""; } }
 
