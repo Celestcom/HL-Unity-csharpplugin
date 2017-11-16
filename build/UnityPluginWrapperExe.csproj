@@ -43,7 +43,8 @@
     <OutputPath>bin\Release\Win32\</OutputPath>
     <BaseIntermediateOutputPath>obj\Win32\Release\UnityPluginWrapperExe\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -55,7 +56,8 @@
     <OutputPath>bin\Release\Win64\</OutputPath>
     <BaseIntermediateOutputPath>obj\Win64\Release\UnityPluginWrapperExe\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -115,9 +117,6 @@
     <Compile Include="..\src\Interop.cs">
       <Link>src\Interop.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonAsset.cs">
-      <Link>src\JsonAsset.cs</Link>
-    </Compile>
     <Compile Include="..\src\LoadingUtils.cs">
       <Link>src\LoadingUtils.cs</Link>
     </Compile>
@@ -150,9 +149,6 @@
     </Compile>
     <Compile Include="..\src\SerializableDictionary.cs">
       <Link>src\SerializableDictionary.cs</Link>
-    </Compile>
-    <Compile Include="..\src\SerializableHaptic.cs">
-      <Link>src\SerializableHaptic.cs</Link>
     </Compile>
     <Compile Include="..\src\SuitEventType.cs">
       <Link>src\SuitEventType.cs</Link>
