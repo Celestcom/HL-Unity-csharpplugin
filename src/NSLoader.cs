@@ -269,8 +269,12 @@ namespace Hardlight.SDK
 
 			void Dispose(bool disposing)
 			{
+				UnityEngine.Debug.Log("x64 Inside the disposer for HLVR_Plugin");
+				UnityEngine.Debug.Log(string.Format("Callstack: {0}", Environment.StackTrace));
 				if (!disposedValue)
 				{
+					UnityEngine.Debug.Log("x64 !disposedValue");
+
 					if (disposing)
 					{
 						// TODO: dispose managed state (managed objects).
@@ -279,15 +283,17 @@ namespace Hardlight.SDK
 					// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
 					// TODO: set large fields to null.
 
-					_created = false;
+					UnityEngine.Debug.Log("x64 Releasing bodyview");
 
 					Interop.HLVR_BodyView_Release(ref _bodyView);
 
 					fixed (HLVR_System** ptr = &_ptr)
 					{
+						UnityEngine.Debug.Log("x64 destroying system");
 
 						Interop.HLVR_System_Destroy(ptr);
 					}
+					_created = false;
 
 					disposedValue = true;
 					_disposed = true;
