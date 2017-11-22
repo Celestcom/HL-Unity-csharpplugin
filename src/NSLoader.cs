@@ -284,13 +284,8 @@ namespace Hardlight.SDK
 					Interop.HLVR_BodyView_Release(ref _bodyView);
 
 					Debug.Assert(_ptr != null);
-					fixed (HLVR_System** ptr = &_ptr)
-					{
-					//	UnityEngine.Debug.Log("x64 destroying system");
+					Interop.HLVR_System_Destroy(_ptr);
 					
-						Interop.HLVR_System_Destroy(ptr);
-						
-					}
 					_ptr = null;
 
 					_created = false;
@@ -508,10 +503,7 @@ namespace Hardlight.SDK
 				{
 					unsafe
 					{
-						fixed (HLVR_Effect** ptr = &_handle)
-						{
-							Interop.HLVR_Effect_Destroy(ptr);
-						}
+						Interop.HLVR_Effect_Destroy(_handle);
 					}
 
 				}

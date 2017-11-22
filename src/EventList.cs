@@ -89,7 +89,7 @@ namespace Hardlight.SDK
 
 			Interop.HLVR_Timeline_AddEvent(timelinePtr, _time, eventPtr);
 
-			Interop.HLVR_Event_Destroy(&eventPtr);
+			Interop.HLVR_Event_Destroy(eventPtr);
 			Debug.Assert(eventPtr == null);
 		}
 
@@ -153,7 +153,7 @@ namespace Hardlight.SDK
 			Interop.HLVR_Timeline_Transmit(timelinePtr, HLVR_Plugin.Ptr, effect);
 
 
-			Interop.HLVR_Timeline_Destroy(&timelinePtr);
+			Interop.HLVR_Timeline_Destroy(timelinePtr);
 			Debug.Assert(timelinePtr == null);
 		}
 
