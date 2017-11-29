@@ -256,31 +256,43 @@ namespace Hardlight.SDK
 				Interop.HLVR_System_PollTracking(Ptr, ref t);
 
 				TrackingUpdate update = new TrackingUpdate();
-				update.Chest = ReverseChirality(new UnityEngine.Quaternion(t.chest.x, t.chest.y, t.chest.z, t.chest.w));
-				update.LeftUpperArm = ReverseChirality(new UnityEngine.Quaternion(t.left_upper_arm.x, t.left_upper_arm.y, t.left_upper_arm.z, t.left_upper_arm.w));
-				update.RightUpperArm = ReverseChirality(new UnityEngine.Quaternion(t.right_upper_arm.x, t.right_upper_arm.y, t.right_upper_arm.z, t.right_upper_arm.w));
-				update.LeftForearm = ReverseChirality(new UnityEngine.Quaternion(t.left_forearm.x, t.left_forearm.y, t.left_forearm.z, t.left_forearm.w));
-				update.RightForearm = ReverseChirality(new UnityEngine.Quaternion(t.right_forearm.x, t.right_forearm.y, t.right_forearm.z, t.right_forearm.w));
+				update.Chest = new UnityEngine.Quaternion(t.chest.x, t.chest.y, t.chest.z, t.chest.w);
+				update.LeftUpperArm = new UnityEngine.Quaternion(t.left_upper_arm.x, t.left_upper_arm.y, t.left_upper_arm.z, t.left_upper_arm.w);
+				update.RightUpperArm = new UnityEngine.Quaternion(t.right_upper_arm.x, t.right_upper_arm.y, t.right_upper_arm.z, t.right_upper_arm.w);
+				update.LeftForearm = new UnityEngine.Quaternion(t.left_forearm.x, t.left_forearm.y, t.left_forearm.z, t.left_forearm.w);
+				update.RightForearm = new UnityEngine.Quaternion(t.right_forearm.x, t.right_forearm.y, t.right_forearm.z, t.right_forearm.w);
+
+				//update.Chest = ReverseChirality(new UnityEngine.Quaternion(t.chest.x, t.chest.y, t.chest.z, t.chest.w));
+				//update.LeftUpperArm = ReverseChirality(new UnityEngine.Quaternion(t.left_upper_arm.x, t.left_upper_arm.y, t.left_upper_arm.z, t.left_upper_arm.w));
+				//update.RightUpperArm = ReverseChirality(new UnityEngine.Quaternion(t.right_upper_arm.x, t.right_upper_arm.y, t.right_upper_arm.z, t.right_upper_arm.w));
+				//update.LeftForearm = ReverseChirality(new UnityEngine.Quaternion(t.left_forearm.x, t.left_forearm.y, t.left_forearm.z, t.left_forearm.w));
+				//update.RightForearm = ReverseChirality(new UnityEngine.Quaternion(t.right_forearm.x, t.right_forearm.y, t.right_forearm.z, t.right_forearm.w));
 				return update;
 			}
 
-			private UnityEngine.Quaternion ReverseChirality(UnityEngine.Quaternion quat)
-			{
-				quat.x = -quat.x;
-				quat.z = -quat.z;
-				return quat;
-			}
+			//private UnityEngine.Quaternion ReverseChirality(UnityEngine.Quaternion quat, bool reverseX, bool reverseY, bool reverseZ, bool reverseW)
+			//{
+			//	if (reverseX)
+			//		quat.x = -quat.x;
+			//	if (reverseY)
+			//		quat.y = -quat.y;
+			//	if (reverseZ)
+			//		quat.z = -quat.z;
+			//	if (reverseW)
+			//		quat.w = -quat.w;
+			//	return quat;
+			//}
 
 			#region IDisposable Support
 			private bool disposedValue = false; // To detect redundant calls
 
 			void Dispose(bool disposing)
 			{
-				UnityEngine.Debug.Log("x64 Inside the disposer for HLVR_Plugin");
-				UnityEngine.Debug.Log(string.Format("Callstack: {0}", Environment.StackTrace));
+				//UnityEngine.Debug.Log("x64 Inside the disposer for HLVR_Plugin");
+				//UnityEngine.Debug.Log(string.Format("Callstack: {0}", Environment.StackTrace));
 				if (!disposedValue)
 				{
-					UnityEngine.Debug.Log("x64 !disposedValue");
+					//UnityEngine.Debug.Log("x64 !disposedValue");
 
 					if (disposing)
 					{
@@ -290,13 +302,13 @@ namespace Hardlight.SDK
 					// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
 					// TODO: set large fields to null.
 
-					UnityEngine.Debug.Log("x64 Releasing bodyview");
+					//UnityEngine.Debug.Log("x64 Releasing bodyview");
 
 					Interop.HLVR_BodyView_Release(ref _bodyView);
 
 					fixed (HLVR_System** ptr = &_ptr)
 					{
-						UnityEngine.Debug.Log("x64 destroying system");
+						//UnityEngine.Debug.Log("x64 destroying system");
 
 						Interop.HLVR_System_Destroy(ptr);
 					}

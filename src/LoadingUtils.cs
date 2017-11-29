@@ -256,7 +256,6 @@ namespace Hardlight.SDK.FileUtilities
 
 		public static void SaveSequence(string name, HapticSequence sequence)
 		{
-#if UNITY_EDITOR
 			if (sequence != null)
 			{
 				name = CleanName(name);
@@ -293,11 +292,9 @@ namespace Hardlight.SDK.FileUtilities
 			}
 			else
 				Debug.LogError("Attempted to save a null sequence asset [" + name + "]\n");
-#endif
 		}
 		public static void SavePattern(string name, HapticPattern pattern)
 		{
-#if UNITY_EDITOR
 			if (pattern != null)
 			{
 				//Debug.Log(name + "  " + pattern.name);
@@ -309,7 +306,7 @@ namespace Hardlight.SDK.FileUtilities
 					var patData = CodeHapticFactory.GetRememberedPattern(name);
 					if (!patData.saved)
 					{
-			#region Save Required Elements
+						#region Save Required Elements
 						for (int i = 0; i < pattern.Sequences.Count; i++)
 						{
 							if (pattern.Sequences[i] != null)
@@ -322,9 +319,9 @@ namespace Hardlight.SDK.FileUtilities
 								Debug.Log(name + " has null sequences at " + i + "\n");
 							}
 						}
-			#endregion
+						#endregion
 
-			#region Save Self
+						#region Save Self
 						string assetPath = GetDefaultSavePath();
 						string finalizedPath = TryToFindAvailableFileName(assetPath + name, GetAssetExtension());
 
@@ -338,28 +335,26 @@ namespace Hardlight.SDK.FileUtilities
 						}
 						AssetDatabase.SetLabels(pattern, new string[] { "Haptics", "Pattern" });
 						Selection.activeObject = pattern;
-			#endregion
+						#endregion
 					}
 				}
 			}
 			else
 				Debug.LogError("Attempted to save a null pattern asset [" + name + "]\n");
-#endif
 		}
 		public static void SaveExperience(string name, HapticExperience experience)
 		{
-#if UNITY_EDITOR
 			if (experience != null)
 			{
-			#region Save Required Elements
+				#region Save Required Elements
 				for (int i = 0; i < experience.Patterns.Count; i++)
 				{
 					string key = experience.Patterns[i].Pattern.name;
 					SavePattern(key, experience.Patterns[i].Pattern);
 				}
-			#endregion
+				#endregion
 
-			#region Save Self
+				#region Save Self
 				string assetPath = GetDefaultSavePath();
 				name = CleanName(name);
 
@@ -371,11 +366,10 @@ namespace Hardlight.SDK.FileUtilities
 				}
 				AssetDatabase.SetLabels(experience, new string[] { "Haptics", "Experience" });
 				Selection.activeObject = experience;
-			#endregion
+				#endregion
 			}
 			else
 				Debug.LogError("Attempted to save a null experience asset [" + name + "]\n");
-#endif
 		}
 
 		public static string CleanName(string name)
