@@ -144,7 +144,7 @@ namespace Hardlight.SDK
 			public static extern unsafe int HLVR_System_Create(HLVR_System** agent);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe void HLVR_System_Destroy(HLVR_System** agent);
+			public static extern unsafe void HLVR_System_Destroy(HLVR_System* agent);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static unsafe extern int HLVR_System_SuspendEffects(HLVR_System* agent);
@@ -181,7 +181,7 @@ namespace Hardlight.SDK
 			public static extern unsafe int HLVR_Event_Create(HLVR_Event** eventData, HLVR_EventType type);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe void HLVR_Event_Destroy(HLVR_Event** eventData);
+			public static extern unsafe void HLVR_Event_Destroy(HLVR_Event* eventData);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int HLVR_Event_SetFloat(HLVR_Event* eventData, HLVR_EventKey key, float value);
@@ -200,7 +200,7 @@ namespace Hardlight.SDK
 			public static extern unsafe int HLVR_Timeline_Create(HLVR_Timeline** timeline);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe void HLVR_Timeline_Destroy(HLVR_Timeline** timeline);
+			public static extern unsafe void HLVR_Timeline_Destroy(HLVR_Timeline* timeline);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int HLVR_Timeline_AddEvent(HLVR_Timeline* timeline, double timeOffsetSeconds, HLVR_Event* data);
@@ -213,7 +213,7 @@ namespace Hardlight.SDK
 			public static extern unsafe int HLVR_Effect_Create(HLVR_Effect** effect);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe void HLVR_Effect_Destroy(HLVR_Effect** effect);
+			public static extern unsafe void HLVR_Effect_Destroy(HLVR_Effect* effect);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int HLVR_Effect_Play(HLVR_Effect* effect);

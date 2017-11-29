@@ -71,7 +71,7 @@ namespace Hardlight.SDK
 	/// </summary>
 	public static class HLVR
 	{
-		internal static unsafe HLVR_System* _ptr;
+		internal static unsafe HLVR_System* _ptr = null;
 		internal static bool _created = false;
 
 
@@ -284,37 +284,30 @@ namespace Hardlight.SDK
 			//}
 
 			#region IDisposable Support
-			private bool disposedValue = false; // To detect redundant calls
 
 			void Dispose(bool disposing)
 			{
 				//UnityEngine.Debug.Log("x64 Inside the disposer for HLVR_Plugin");
 				//UnityEngine.Debug.Log(string.Format("Callstack: {0}", Environment.StackTrace));
-				if (!disposedValue)
+				if (!_disposed)
 				{
-					//UnityEngine.Debug.Log("x64 !disposedValue");
+				//	UnityEngine.Debug.Log("x64 !disposedValue");
 
 					if (disposing)
 					{
 						// TODO: dispose managed state (managed objects).
 					}
 
-					// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-					// TODO: set large fields to null.
-
 					//UnityEngine.Debug.Log("x64 Releasing bodyview");
 
 					Interop.HLVR_BodyView_Release(ref _bodyView);
 
-					fixed (HLVR_System** ptr = &_ptr)
-					{
-						//UnityEngine.Debug.Log("x64 destroying system");
+					Debug.Assert(_ptr != null);
+					Interop.HLVR_System_Destroy(_ptr);
+					
+					_ptr = null;
 
-						Interop.HLVR_System_Destroy(ptr);
-					}
 					_created = false;
-
-					disposedValue = true;
 					_disposed = true;
 				}
 			}
@@ -322,6 +315,7 @@ namespace Hardlight.SDK
 			// TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
 			~HLVR_Plugin()
 			{
+				//Debug.Log("Someone called the finalizer");
 				//   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 				Dispose(false);
 			}
@@ -331,6 +325,7 @@ namespace Hardlight.SDK
 			/// </summary>
 			public void Dispose()
 			{
+			//	Debug.Log("Someone called dispose");
 				// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 				Dispose(true);
 				// TODO: uncomment the following line if the finalizer is overridden above.
@@ -497,7 +492,7 @@ namespace Hardlight.SDK
 		/// <returns></returns>
 		public unsafe float GetElapsedTime()
 		{
-
+		
 			Interop.HLVR_EffectInfo info = new Interop.HLVR_EffectInfo();
 			if (Interop.OK(Interop.HLVR_Effect_GetInfo(_handle, ref info)))
 			{
@@ -527,10 +522,7 @@ namespace Hardlight.SDK
 				{
 					unsafe
 					{
-						fixed (HLVR_Effect** ptr = &_handle)
-						{
-							Interop.HLVR_Effect_Destroy(ptr);
-						}
+						Interop.HLVR_Effect_Destroy(_handle);
 					}
 
 				}
