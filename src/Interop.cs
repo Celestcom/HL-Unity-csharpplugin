@@ -37,6 +37,13 @@ namespace Hardlight.SDK
 				public float y;
 				public float z;
 			}
+			[StructLayout(LayoutKind.Sequential)]
+			public struct HLVR_Vector3f
+			{
+				public float x;
+				public float y;
+				public float z;
+			}
 
 			[StructLayout(LayoutKind.Sequential)]
 			public struct HLVR_TrackingUpdate
@@ -46,6 +53,17 @@ namespace Hardlight.SDK
 				public HLVR_Quaternion left_forearm;
 				public HLVR_Quaternion right_upper_arm;
 				public HLVR_Quaternion right_forearm;
+
+				public HLVR_Vector3f chest_gravity;
+				public HLVR_Vector3f chest_compass;
+				public HLVR_Vector3f left_upper_arm_gravity;
+				public HLVR_Vector3f left_upper_arm_compass;
+				public HLVR_Vector3f left_forearm_gravity;
+				public HLVR_Vector3f left_forearm_compass;
+				public HLVR_Vector3f right_upper_arm_gravity;
+				public HLVR_Vector3f right_upper_arm_compass;
+				public HLVR_Vector3f right_forearm_gravity;
+				public HLVR_Vector3f right_forearm_compass;
 			}
 
 	
