@@ -152,15 +152,15 @@ namespace Hardlight.SDK
 			return HapticResources.CreateExperience(jsonPath);
 		}
 
-		/// <summary>
-		/// Only available in UnityEditor
-		/// </summary>
-		/// <param name="fileNameWithoutExtension"></param>
-		/// <param name="experience"></param>
-		public static void SaveAsset(string fileNameWithoutExtension, HapticExperience experience)
-		{
-			HapticResources.SaveExperience(fileNameWithoutExtension, experience);
-		}
+		///// <summary>
+		///// Only available in UnityEditor
+		///// </summary>
+		///// <param name="fileNameWithoutExtension"></param>
+		///// <param name="experience"></param>
+		//public static void SaveAsset(string fileNameWithoutExtension, HapticExperience experience)
+		//{
+		//	HapticResources.SaveExperience(fileNameWithoutExtension, experience);
+		//}
 
 		/// <summary>
 		/// Attempts to load an existing HapticSequence asset file

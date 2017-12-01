@@ -261,8 +261,27 @@ namespace Hardlight.SDK
 				update.RightUpperArm = new UnityEngine.Quaternion(t.right_upper_arm.x, t.right_upper_arm.y, t.right_upper_arm.z, t.right_upper_arm.w);
 				update.LeftForearm = new UnityEngine.Quaternion(t.left_forearm.x, t.left_forearm.y, t.left_forearm.z, t.left_forearm.w);
 				update.RightForearm = new UnityEngine.Quaternion(t.right_forearm.x, t.right_forearm.y, t.right_forearm.z, t.right_forearm.w);
+
+				//update.Chest = ReverseChirality(new UnityEngine.Quaternion(t.chest.x, t.chest.y, t.chest.z, t.chest.w));
+				//update.LeftUpperArm = ReverseChirality(new UnityEngine.Quaternion(t.left_upper_arm.x, t.left_upper_arm.y, t.left_upper_arm.z, t.left_upper_arm.w));
+				//update.RightUpperArm = ReverseChirality(new UnityEngine.Quaternion(t.right_upper_arm.x, t.right_upper_arm.y, t.right_upper_arm.z, t.right_upper_arm.w));
+				//update.LeftForearm = ReverseChirality(new UnityEngine.Quaternion(t.left_forearm.x, t.left_forearm.y, t.left_forearm.z, t.left_forearm.w));
+				//update.RightForearm = ReverseChirality(new UnityEngine.Quaternion(t.right_forearm.x, t.right_forearm.y, t.right_forearm.z, t.right_forearm.w));
 				return update;
 			}
+
+			//private UnityEngine.Quaternion ReverseChirality(UnityEngine.Quaternion quat, bool reverseX, bool reverseY, bool reverseZ, bool reverseW)
+			//{
+			//	if (reverseX)
+			//		quat.x = -quat.x;
+			//	if (reverseY)
+			//		quat.y = -quat.y;
+			//	if (reverseZ)
+			//		quat.z = -quat.z;
+			//	if (reverseW)
+			//		quat.w = -quat.w;
+			//	return quat;
+			//}
 
 			#region IDisposable Support
 

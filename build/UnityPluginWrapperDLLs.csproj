@@ -49,6 +49,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Release\Win32\HardlightUnity.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release Win64|x64' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -62,6 +63,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Release\Win64\HardlightUnity.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -115,9 +117,6 @@
     <Compile Include="..\src\Interop.cs">
       <Link>src\Interop.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonAsset.cs">
-      <Link>src\JsonAsset.cs</Link>
-    </Compile>
     <Compile Include="..\src\LoadingUtils.cs">
       <Link>src\LoadingUtils.cs</Link>
     </Compile>
@@ -151,9 +150,6 @@
     <Compile Include="..\src\SerializableDictionary.cs">
       <Link>src\SerializableDictionary.cs</Link>
     </Compile>
-    <Compile Include="..\src\SerializableHaptic.cs">
-      <Link>src\SerializableHaptic.cs</Link>
-    </Compile>
     <Compile Include="..\src\SuitEventType.cs">
       <Link>src\SuitEventType.cs</Link>
     </Compile>
@@ -166,6 +162,13 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>call "$(SolutionDir)scripts\CopyDLLs.bat"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -177,15 +177,15 @@ namespace Hardlight.SDK
 			return HapticResources.CreatePattern(jsonPath);
 		}
 
-		/// <summary>
-		/// Only available in UnityEditor
-		/// </summary>
-		/// <param name="fileNameWithoutExtension"></param>
-		/// <param name="pattern"></param>
-		public static void SaveAsset(string fileNameWithoutExtension, HapticPattern pattern)
-		{
-			HapticResources.SavePattern(fileNameWithoutExtension, pattern);
-		}
+		///// <summary>
+		///// Only available in UnityEditor
+		///// </summary>
+		///// <param name="fileNameWithoutExtension"></param>
+		///// <param name="pattern"></param>
+		//public static void SaveAsset(string fileNameWithoutExtension, HapticPattern pattern)
+		//{
+		//	HapticResources.SavePattern(fileNameWithoutExtension, pattern);
+		//}
 
 		/// <summary>
 		/// Attempts to load an existing HapticPattern asset file

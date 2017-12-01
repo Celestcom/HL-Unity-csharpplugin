@@ -23,7 +23,7 @@ namespace Hardlight.SDK.FileUtilities
 		/// <summary>
 		/// A class which exists as the Value in LoadedSequences dictionary to prevent duplicate HapticSequence creation from ones that already exist.
 		/// </summary>
-		internal class SequenceImportData
+		public class SequenceImportData
 		{
 			public string SequenceKey;
 			public HapticSequence Sequence;
@@ -39,7 +39,7 @@ namespace Hardlight.SDK.FileUtilities
 		/// <summary>
 		/// A class which exists as the Value in LoadedPatterns dictionary to prevent duplicate HapticPattern creation from ones that already exist.
 		/// </summary>
-		internal class PatternImportData
+		public class PatternImportData
 		{
 			public string PatternKey;
 			public HapticPattern Pattern;
@@ -85,7 +85,7 @@ namespace Hardlight.SDK.FileUtilities
 			}
 		}
 
-		internal static void EnsureSequenceIsRemembered(string key, HapticSequence sequence)
+		public static void EnsureSequenceIsRemembered(string key, HapticSequence sequence)
 		{
 			key = HapticResources.CleanName(key);
 			if (!LoadedSequences.ContainsKey(key) && sequence != null)
@@ -93,7 +93,7 @@ namespace Hardlight.SDK.FileUtilities
 				LoadedSequences.Add(key, new SequenceImportData(sequence, key));
 			}
 		}
-		internal static void EnsurePatternIsRemembered(string key, HapticPattern pattern)
+		public static void EnsurePatternIsRemembered(string key, HapticPattern pattern)
 		{
 			key = HapticResources.CleanName(key);
 			if (!LoadedPatterns.ContainsKey(key) && pattern != null)
@@ -102,16 +102,16 @@ namespace Hardlight.SDK.FileUtilities
 			}
 		}
 
-		internal static SequenceImportData GetRememberedSequence(string key)
+		public static SequenceImportData GetRememberedSequence(string key)
 		{
 			return LoadedSequences[key];
 		}
-		internal static PatternImportData GetRememberedPattern(string key)
+		public static PatternImportData GetRememberedPattern(string key)
 		{
 			return LoadedPatterns[key];
 		}
 
-		internal static bool SequenceExists(string key)
+		public static bool SequenceExists(string key)
 		{
 			if (LoadedSequences.ContainsKey(key) && LoadedSequences[key].Sequence != null)
 			{
@@ -120,7 +120,7 @@ namespace Hardlight.SDK.FileUtilities
 			LoadedSequences.Remove(key);
 			return false;
 		}
-		internal static bool PatternExists(string key)
+		public static bool PatternExists(string key)
 		{
 			if (LoadedPatterns.ContainsKey(key) && LoadedPatterns[key].Pattern != null)
 			{

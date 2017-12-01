@@ -216,14 +216,14 @@ namespace Hardlight.SDK
 			return HapticResources.CreateSequence(jsonPath);
 		}
 
-		/// <summary>
-		/// Only available in UnityEditor
-		/// </summary>
-		/// <param name="fileNameWithoutExtension"></param>
-		/// <param name="sequence"></param>
-		public static void SaveAsset(string fileNameWithoutExtension, HapticSequence sequence)
-		{
-			HapticResources.SaveSequence(fileNameWithoutExtension, sequence);
-		}
+		///// <summary>
+		///// Only available in UnityEditor
+		///// </summary>
+		///// <param name="fileNameWithoutExtension"></param>
+		///// <param name="sequence"></param>
+		//public static void SaveAsset(string fileNameWithoutExtension, HapticSequence sequence)
+		//{
+		//	HapticResources.SaveSequence(fileNameWithoutExtension, sequence);
+		//}
 	}
 }
