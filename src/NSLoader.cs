@@ -378,6 +378,14 @@ namespace Hardlight.SDK
 		public UnityEngine.Quaternion Chest;
 		public UnityEngine.Quaternion LeftUpperArm;
 		public UnityEngine.Quaternion RightUpperArm;
+
+		//public UnityEngine.Vector3 ChestUp;
+		//public UnityEngine.Vector3 LeftUpperArmUp;
+		//public UnityEngine.Vector3 RightUpperArmUp;
+
+		//public UnityEngine.Vector3 ChestNorth;
+		//public UnityEngine.Vector3 LeftUpperArmNorth;
+		//public UnityEngine.Vector3 RightUpperArmNorth;
 	}
 
 	/// <summary>
