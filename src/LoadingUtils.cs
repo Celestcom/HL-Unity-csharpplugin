@@ -254,124 +254,129 @@ namespace Hardlight.SDK.FileUtilities
 			return hdf;
 		}
 
-		public static void SaveSequence(string name, HapticSequence sequence)
-		{
-			if (sequence != null)
-			{
-				name = CleanName(name);
-				CodeHapticFactory.EnsureSequenceIsRemembered(name, sequence);
-				if (CodeHapticFactory.SequenceExists(name))
-				{
-					var seqData = CodeHapticFactory.GetRememberedSequence(name);
-					if (!seqData.saved)
-					{
-						string assetPath = GetDefaultSavePath();
-						string finalizedPath = TryToFindAvailableFileName(assetPath + name, GetAssetExtension());
+		//public static void SaveSequence(string name, HapticSequence sequence)
+		//{
+		//	if (sequence != null)
+		//	{
+		//		name = CleanName(name);
+		//		CodeHapticFactory.EnsureSequenceIsRemembered(name, sequence);
+		//		if (CodeHapticFactory.SequenceExists(name))
+		//		{
+		//			var seqData = CodeHapticFactory.GetRememberedSequence(name);
+		//			if (!seqData.saved)
+		//			{
+		//				string assetPath = GetDefaultSavePath();
+		//				string finalizedPath = TryToFindAvailableFileName(assetPath + name, GetAssetExtension());
 
-						//Debug.Log("Seq  " + name + " - Finalized Path: " + finalizedPath + "\n");
+		//				//Debug.Log("Seq  " + name + " - Finalized Path: " + finalizedPath + "\n");
 
-						if (!AssetDatabase.Contains(sequence))
-						{
-							seqData.saved = true;
-							//Debug.Log("We are saving sequence: " + sequence.name + "\nAttempting: [" + finalizedPath + "]  " + Exists("", finalizedPath) + "\n");
-							AssetDatabase.CreateAsset(sequence, finalizedPath);
-							//Debug.Log("Asset was created - " + File.Exists(finalizedPath) + " does the lower case return true: " + File.Exists(finalizedPath.ToLower()) + "\n");
-						}
-						else
-						{
-							//Debug.LogError("Not saving: " + name + " sequence because it already exists?");
-						}
-						AssetDatabase.SetLabels(sequence, new string[] { "Haptics", "Sequence" });
-						Selection.activeObject = sequence;
-					}
-					//else
-					//	Debug.Log("Not saving: " + name + " sequence because we think it has been saved already");
-				}
-				//else
-				//	Debug.LogError("Not saving: " + name + " sequence because it isn't in our sequence memory dictionary");
-			}
-			else
-				Debug.LogError("Attempted to save a null sequence asset [" + name + "]\n");
-		}
-		public static void SavePattern(string name, HapticPattern pattern)
-		{
-			if (pattern != null)
-			{
-				//Debug.Log(name + "  " + pattern.name);
-				name = CleanName(name);
-				CodeHapticFactory.EnsurePatternIsRemembered(name, pattern);
-				//Debug.Log("Looking for: " + CleanName(pattern.name) + "\n");
-				if (CodeHapticFactory.PatternExists(name))
-				{
-					var patData = CodeHapticFactory.GetRememberedPattern(name);
-					if (!patData.saved)
-					{
-						#region Save Required Elements
-						for (int i = 0; i < pattern.Sequences.Count; i++)
-						{
-							if (pattern.Sequences[i] != null)
-							{
-								string key = pattern.Sequences[i].Sequence.name;
-								SaveSequence(key, pattern.Sequences[i].Sequence);
-							}
-							else
-							{
-								Debug.Log(name + " has null sequences at " + i + "\n");
-							}
-						}
-						#endregion
+		//				if (!AssetDatabase.Contains(sequence))
+		//				{
+		//					seqData.saved = true;
+		//					//Debug.Log("We are saving sequence: " + sequence.name + "\nAttempting: [" + finalizedPath + "]  " + Exists("", finalizedPath) + "\n");
+		//					AssetDatabase.CreateAsset(sequence, finalizedPath);
+		//					//Debug.Log("Asset was created - " + File.Exists(finalizedPath) + " does the lower case return true: " + File.Exists(finalizedPath.ToLower()) + "\n");
+		//				}
+		//				else
+		//				{
+		//					//Debug.LogError("Not saving: " + name + " sequence because it already exists?");
+		//				}
+		//				AssetDatabase.SetLabels(sequence, new string[] { "Haptics", "Sequence" });
+		//				Selection.activeObject = sequence;
+		//			}
+		//			//else
+		//			//	Debug.Log("Not saving: " + name + " sequence because we think it has been saved already");
+		//		}
+		//		//else
+		//		//	Debug.LogError("Not saving: " + name + " sequence because it isn't in our sequence memory dictionary");
+		//	}
+		//	else
+		//		Debug.LogError("Attempted to save a null sequence asset [" + name + "]\n");
+		//}
+		//public static void SavePattern(string name, HapticPattern pattern)
+		//{
+		//	if (pattern != null)
+		//	{
+		//		//Debug.Log(name + "  " + pattern.name);
+		//		name = CleanName(name);
+		//		CodeHapticFactory.EnsurePatternIsRemembered(name, pattern);
+		//		//Debug.Log("Looking for: " + CleanName(pattern.name) + "\n");
+		//		if (CodeHapticFactory.PatternExists(name))
+		//		{
+		//			var patData = CodeHapticFactory.GetRememberedPattern(name);
+		//			if (!patData.saved)
+		//			{
+		//				#region Save Required Elements
+		//				for (int i = 0; i < pattern.Sequences.Count; i++)
+		//				{
+		//					if (pattern.Sequences[i] != null)
+		//					{
+		//						string key = pattern.Sequences[i].Sequence.name;
+		//						SaveSequence(key, pattern.Sequences[i].Sequence);
+		//					}
+		//					else
+		//					{
+		//						Debug.Log(name + " has null sequences at " + i + "\n");
+		//					}
+		//				}
+		//				#endregion
 
-						#region Save Self
-						string assetPath = GetDefaultSavePath();
-						string finalizedPath = TryToFindAvailableFileName(assetPath + name, GetAssetExtension());
+		//				#region Save Self
+		//				string assetPath = GetDefaultSavePath();
+		//				string finalizedPath = TryToFindAvailableFileName(assetPath + name, GetAssetExtension());
 
-						//Debug.Log("Pat  " + name + " - " + finalizedPath + "\n");
+		//				//Debug.Log("Pat  " + name + " - " + finalizedPath + "\n");
 
-						if (!AssetDatabase.Contains(pattern))
-						{
-							patData.saved = true;
-							AssetDatabase.CreateAsset(pattern, finalizedPath);
-							//Debug.Log("Asset was created - " + finalizedPath + "  " + File.Exists(finalizedPath) + " does the lower case return true: " + File.Exists(finalizedPath.ToLower()) + "\n");
-						}
-						AssetDatabase.SetLabels(pattern, new string[] { "Haptics", "Pattern" });
-						Selection.activeObject = pattern;
-						#endregion
-					}
-				}
-			}
-			else
-				Debug.LogError("Attempted to save a null pattern asset [" + name + "]\n");
-		}
-		public static void SaveExperience(string name, HapticExperience experience)
-		{
-			if (experience != null)
-			{
-				#region Save Required Elements
-				for (int i = 0; i < experience.Patterns.Count; i++)
-				{
-					string key = experience.Patterns[i].Pattern.name;
-					SavePattern(key, experience.Patterns[i].Pattern);
-				}
-				#endregion
+		//				if (!AssetDatabase.Contains(pattern))
+		//				{
+		//					patData.saved = true;
+		//					AssetDatabase.CreateAsset(pattern, finalizedPath);
+		//					//Debug.Log("Asset was created - " + finalizedPath + "  " + File.Exists(finalizedPath) + " does the lower case return true: " + File.Exists(finalizedPath.ToLower()) + "\n");
+		//				}
+		//				AssetDatabase.SetLabels(pattern, new string[] { "Haptics", "Pattern" });
+		//				Selection.activeObject = pattern;
+		//				#endregion
+		//			}
+		//		}
+		//	}
+		//	else
+		//		Debug.LogError("Attempted to save a null pattern asset [" + name + "]\n");
+		//}
+		//public static void SaveExperience(string name, HapticExperience experience)
+		//{
+		//	if (experience != null)
+		//	{
+		//		#region Save Required Elements
+		//		for (int i = 0; i < experience.Patterns.Count; i++)
+		//		{
+		//			string key = experience.Patterns[i].Pattern.name;
+		//			SavePattern(key, experience.Patterns[i].Pattern);
+		//		}
+		//		#endregion
 
-				#region Save Self
-				string assetPath = GetDefaultSavePath();
-				name = CleanName(name);
+		//		#region Save Self
+		//		string assetPath = GetDefaultSavePath();
+		//		name = CleanName(name);
 
-				string finalizedPath = TryToFindAvailableFileName(assetPath + name, GetAssetExtension());
+		//		string finalizedPath = TryToFindAvailableFileName(assetPath + name, GetAssetExtension());
 
-				if (!AssetDatabase.Contains(experience))
-				{
-					AssetDatabase.CreateAsset(experience, finalizedPath);
-				}
-				AssetDatabase.SetLabels(experience, new string[] { "Haptics", "Experience" });
-				Selection.activeObject = experience;
-				#endregion
-			}
-			else
-				Debug.LogError("Attempted to save a null experience asset [" + name + "]\n");
-		}
+		//		if (!AssetDatabase.Contains(experience))
+		//		{
+		//			AssetDatabase.CreateAsset(experience, finalizedPath);
+		//		}
+		//		AssetDatabase.SetLabels(experience, new string[] { "Haptics", "Experience" });
+		//		Selection.activeObject = experience;
+		//		#endregion
+		//	}
+		//	else
+		//		Debug.LogError("Attempted to save a null experience asset [" + name + "]\n");
+		//}
 
+		/// <summary>
+		/// Strips the namespace & file extension (generally from a json hdf)
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
 		public static string CleanName(string name)
 		{
 			return StripNamespace(RemoveExtension(name));
