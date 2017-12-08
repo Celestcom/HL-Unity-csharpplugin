@@ -274,13 +274,20 @@ namespace Hardlight.SDK
 
 			/* Tracking */
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int HLVR_System_PollTracking(HLVR_System* agent, ref HLVR_TrackingUpdate updatePtr);
+			public static extern unsafe int HLVR_System_Tracking_GetOrientation(HLVR_System* system, uint region, ref HLVR_Quaternion outOrientation);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int HLVR_System_EnableTracking(HLVR_System* ptr);
+			public static extern unsafe int HLVR_System_Tracking_GetCompass(HLVR_System* system, uint region, ref HLVR_Vector3f outCompass);
 
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern unsafe int HLVR_System_DisableTracking(HLVR_System* ptr);
+			public static extern unsafe int HLVR_System_Tracking_GetGravity(HLVR_System* system, uint region, ref HLVR_Vector3f outGravity);
+
+
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
+			public static extern unsafe int HLVR_System_Tracking_Enable(HLVR_System* ptr, uint device_id);
+
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
+			public static extern unsafe int HLVR_System_Tracking_Disable(HLVR_System* ptr, uint device_id);
 		}
 
 

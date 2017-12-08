@@ -245,28 +245,61 @@ namespace Hardlight.SDK
 				}
 			}
 
+			private UnityEngine.Quaternion toUnity(ref Interop.HLVR_Quaternion quat)
+			{
+				return new UnityEngine.Quaternion(quat.x, quat.y, quat.z, quat.w);
+			}
 
+			private UnityEngine.Vector3 toUnity(ref Interop.HLVR_Vector3f vec)
+			{
+				return new Vector3(vec.x, vec.y, vec.z);
+			}
+
+			private struct TrackingData
+			{
+				public Interop.HLVR_Quaternion orientation;
+				public Interop.HLVR_Vector3f compass;
+				public Interop.HLVR_Vector3f gravity;
+			}
+
+			private TrackingData GetTrackingData(Region region)
+			{
+				TrackingData data = new TrackingData();
+				data.orientation = new Interop.HLVR_Quaternion();
+				data.compass = new Interop.HLVR_Vector3f();
+				data.gravity = new Interop.HLVR_Vector3f();
+
+				if (Interop.FAIL(Interop.HLVR_System_Tracking_GetOrientation(Ptr, (uint)region, ref data.orientation))) {
+					Debug.LogWarning("[HLVR] Unable to fetch tracking orientation for region " + region.ToString());
+				}
+				if (Interop.FAIL(Interop.HLVR_System_Tracking_GetCompass(Ptr, (uint)region, ref data.compass))) {
+					Debug.LogWarning("[HLVR] Unable to fetch tracking compass vector for region " + region.ToString());
+				}
+				if (Interop.FAIL(Interop.HLVR_System_Tracking_GetGravity(Ptr, (uint)region, ref data.gravity))) {
+					Debug.LogWarning("[HLVR] Unable to fetch tracking gravity vector for region " + region.ToString());
+				}
+				return data;
+
+			}
 			/// <summary>
 			/// Poll the suit for the latest tracking data
 			/// </summary>
 			/// <returns>A data structure containing all valid quaternion data</returns>
+		
 			public TrackingUpdate PollTracking()
 			{
-				Interop.HLVR_TrackingUpdate t = new Interop.HLVR_TrackingUpdate();
-				Interop.HLVR_System_PollTracking(Ptr, ref t);
 
 				TrackingUpdate update = new TrackingUpdate();
-				update.Chest = new UnityEngine.Quaternion(t.chest.x, t.chest.y, t.chest.z, t.chest.w);
-				update.LeftUpperArm = new UnityEngine.Quaternion(t.left_upper_arm.x, t.left_upper_arm.y, t.left_upper_arm.z, t.left_upper_arm.w);
-				update.RightUpperArm = new UnityEngine.Quaternion(t.right_upper_arm.x, t.right_upper_arm.y, t.right_upper_arm.z, t.right_upper_arm.w);
-				update.LeftForearm = new UnityEngine.Quaternion(t.left_forearm.x, t.left_forearm.y, t.left_forearm.z, t.left_forearm.w);
-				update.RightForearm = new UnityEngine.Quaternion(t.right_forearm.x, t.right_forearm.y, t.right_forearm.z, t.right_forearm.w);
 
-				//update.Chest = ReverseChirality(new UnityEngine.Quaternion(t.chest.x, t.chest.y, t.chest.z, t.chest.w));
-				//update.LeftUpperArm = ReverseChirality(new UnityEngine.Quaternion(t.left_upper_arm.x, t.left_upper_arm.y, t.left_upper_arm.z, t.left_upper_arm.w));
-				//update.RightUpperArm = ReverseChirality(new UnityEngine.Quaternion(t.right_upper_arm.x, t.right_upper_arm.y, t.right_upper_arm.z, t.right_upper_arm.w));
-				//update.LeftForearm = ReverseChirality(new UnityEngine.Quaternion(t.left_forearm.x, t.left_forearm.y, t.left_forearm.z, t.left_forearm.w));
-				//update.RightForearm = ReverseChirality(new UnityEngine.Quaternion(t.right_forearm.x, t.right_forearm.y, t.right_forearm.z, t.right_forearm.w));
+				TrackingData chestData = GetTrackingData(Region.middle_sternum);
+				update.Chest = toUnity(ref chestData.orientation);
+
+				TrackingData luaData = GetTrackingData(Region.upper_arm_left);
+				update.LeftUpperArm = toUnity(ref luaData.orientation);
+
+				TrackingData ruaData = GetTrackingData(Region.upper_arm_right);
+				update.RightUpperArm = toUnity(ref ruaData.orientation);
+
 				return update;
 			}
 
@@ -344,9 +377,7 @@ namespace Hardlight.SDK
 	{
 		public UnityEngine.Quaternion Chest;
 		public UnityEngine.Quaternion LeftUpperArm;
-		public UnityEngine.Quaternion LeftForearm;
 		public UnityEngine.Quaternion RightUpperArm;
-		public UnityEngine.Quaternion RightForearm;
 	}
 
 	/// <summary>
