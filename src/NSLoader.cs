@@ -33,9 +33,9 @@ namespace Hardlight.SDK
 	public struct EffectSampleInfo
 	{
 		public UInt16 Strength;
-		public UInt32 Family;
+		public int Family;
 		public Region Area;
-		public EffectSampleInfo(UInt16 strength, UInt32 family, Region area)
+		public EffectSampleInfo(UInt16 strength, int family, Region area)
 		{
 			Strength = strength;
 			Family = family;
@@ -164,7 +164,10 @@ namespace Hardlight.SDK
 
 					float intensity = 0;
 					Interop.HLVR_BodyView_GetIntensity(_bodyView, i, ref intensity);
-					result[(Region)region] = new EffectSampleInfo((ushort)(intensity * 255), 0, outRegion);
+
+					int waveform = 0;
+					Interop.HLVR_BodyView_GetWaveform(_bodyView, i, ref waveform);
+					result[(Region)region] = new EffectSampleInfo((ushort)(intensity * 255), waveform, outRegion);
 				}
 
 				return result;

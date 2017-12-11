@@ -272,6 +272,9 @@ namespace Hardlight.SDK
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern int HLVR_BodyView_GetIntensity(IntPtr body, UInt32 nodeIndex, ref float outIntensity);
 
+			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
+			public static extern int HLVR_BodyView_GetWaveform(IntPtr body, UInt32 nodeIndex, ref Int32 outWaveform);
+
 			/* Tracking */
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern unsafe int HLVR_System_Tracking_GetOrientation(HLVR_System* system, uint region, ref HLVR_Quaternion outOrientation);
