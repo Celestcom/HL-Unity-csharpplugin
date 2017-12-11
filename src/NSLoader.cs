@@ -41,6 +41,11 @@ namespace Hardlight.SDK
 			Family = family;
 			Area = area;
 		}
+
+		public override string ToString()
+		{
+			return "Area: " + Area + "   Str: " + Strength + "   Family: " + Family;
+		}
 	}
 
 	public class HapticsLoadingException : System.Exception
@@ -157,14 +162,9 @@ namespace Hardlight.SDK
 
 					Interop.HLVR_BodyView_GetNodeRegion(_bodyView, i, ref region);
 
-
 					float intensity = 0;
 					Interop.HLVR_BodyView_GetIntensity(_bodyView, i, ref intensity);
 					result[(Region)region] = new EffectSampleInfo((ushort)(intensity * 255), 0, outRegion);
-
-
-
-
 				}
 
 				return result;
