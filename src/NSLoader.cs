@@ -212,8 +212,8 @@ namespace Hardlight.SDK
 			{
 				uint version = Interop.HLVR_Version_Get();
 				VersionInfo v = new VersionInfo();
-				v.Minor = version >> 16;
-				v.Major = version >> 24;
+				v.Minor = (version & 0x00FF0000) >> 16;
+				v.Major = (version & 0xFF000000) >> 24;
 				return v;
 			}
 

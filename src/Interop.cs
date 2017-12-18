@@ -70,8 +70,9 @@ namespace Hardlight.SDK
 			[StructLayout(LayoutKind.Sequential)]
 			public struct HLVR_RuntimeInfo
 			{
-				public uint MajorVersion;
-				public uint MinorVersion;
+				public int MajorVersion;
+				public int MinorVersion;
+				public int PatchVersion;
 			};
 
 			public enum HLVR_EventKey
@@ -180,9 +181,6 @@ namespace Hardlight.SDK
 			/* Versioning */
 			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
 			public static extern uint HLVR_Version_Get();
-
-			[DllImport("Hardlight", CallingConvention = CallingConvention.Cdecl)]
-			public static extern int HLVR_Version_IsCompatibleDLL();
 
 			
 			/* Device enumeration */
